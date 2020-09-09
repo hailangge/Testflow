@@ -20,9 +20,19 @@ namespace Testflow.Data.Sequence
         int Index { get; set; }
 
         /// <summary>
+        /// 序列的准备Action集合
+        /// </summary>
+        IStepActionCollection PrepareActions { get; set; }
+
+        /// <summary>
         /// 当前步骤的Function，如果该步骤包含子步骤，该参数为null
         /// </summary>
         IFunctionData Function { get; set; }
+
+        /// <summary>
+        /// 序列的后续处理Action集合
+        /// </summary>
+        IStepActionCollection PostActions { get; set; }
 
         /// <summary>
         /// 步骤的类型

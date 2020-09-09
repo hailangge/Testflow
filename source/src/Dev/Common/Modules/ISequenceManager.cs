@@ -68,6 +68,12 @@ namespace Testflow.Modules
         IFunctionData CreateFunctionData(IFuncInterfaceDescription funcInterface);
 
         /// <summary>
+        /// 创建空白的StepAction
+        /// </summary>
+        /// <returns></returns>
+        IStepAction CreateActionData(IFuncInterfaceDescription funcInterface);
+
+        /// <summary>
         /// 创建空白的LoopCounter
         /// </summary>
         /// <returns></returns>

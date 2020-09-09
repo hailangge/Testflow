@@ -45,6 +45,11 @@
     <Compile Include="Common\ICloneableClass.cs" />
     <Compile Include="Common\IEntityComponent.cs" />
     <Compile Include="Common\IPropertyExtendable.cs" />
+    <Compile Include="Data\Actions\ActionExecutorAttribute.cs" />
+    <Compile Include="Data\Actions\ActionMethodAttribute.cs" />
+    <Compile Include="Data\Actions\IActionExecutor.cs" />
+    <Compile Include="Data\Actions\ParameterSourceAttribute.cs" />
+    <Compile Include="Data\Attributes\IStepAttribute.cs" />
     <Compile Include="Data\CallBackType.cs" />
     <Compile Include="Data\Expression\ExpressionTypeData.cs" />
     <Compile Include="Data\Expression\ExpressionCalculatorInfo.cs" />
@@ -83,6 +88,8 @@
     <Compile Include="Data\Sequence\ISequenceParameterInfo.cs" />
     <Compile Include="Data\Sequence\ISequenceStepCollection.cs" />
     <Compile Include="Data\Sequence\ISequenceStepParameter.cs" />
+    <Compile Include="Data\Sequence\IStepAction.cs" />
+    <Compile Include="Data\Sequence\IStepActionCollection.cs" />
     <Compile Include="Data\Sequence\ITestProject.cs" />
     <Compile Include="Data\Sequence\ITypeDataCollection.cs" />
     <Compile Include="Data\Sequence\IVariableInitValue.cs" />
@@ -132,6 +139,7 @@
     <Compile Include="Runtime\ISequenceDebuggerCollection.cs" />
     <Compile Include="Runtime\Data\ISessionGenerationInfo.cs" />
     <Compile Include="Runtime\Data\ITestGenerationInfo.cs" />
+    <Compile Include="Runtime\ISlaveRunnerContext.cs" />
     <Compile Include="Runtime\OperationPanel\IOIConfigPanel.cs" />
     <Compile Include="Runtime\OperationPanel\IOperationPanel.cs" />
     <Compile Include="Runtime\OperationPanel\OiSequenceType.cs" />

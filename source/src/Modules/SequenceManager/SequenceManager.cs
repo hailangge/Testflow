@@ -139,6 +139,12 @@ namespace Testflow.SequenceManager
             return functionData;
         }
 
+        public IStepAction CreateActionData(IFuncInterfaceDescription funcInterface)
+        {
+            // TODO
+            throw new NotImplementedException();
+        }
+
         public ILoopCounter CreateLoopCounter()
         {
             return new LoopCounter();

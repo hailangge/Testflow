@@ -47,8 +47,14 @@ namespace Testflow.SequenceManager.SequenceElements
         [SerializationIgnore]
         public int Index { get; set; }
 
+        // TODO
+        public IStepActionCollection PrepareActions { get; set; }
+
         [RuntimeType(typeof(FunctionData))]
         public IFunctionData Function { get; set; }
+
+        // TODO
+        public IStepActionCollection PostActions { get; set; }
 
         public SequenceStepType StepType { get; set; }
 
