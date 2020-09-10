@@ -34,13 +34,15 @@ namespace Testflow.SequenceManager.SequenceElements
             this.SetUp = new Sequence()
             {
                 Name = "SetUp",
-                Index = CommonConst.SetupIndex
+                Index = CommonConst.SetupIndex,
+                Parent = this
             };
             this.Sequences = new SequenceCollection();
             this.TearDown = new Sequence()
             {
                 Name = "TearDown",
-                Index = CommonConst.TeardownIndex
+                Index = CommonConst.TeardownIndex,
+                Parent = this
             };
         }
 
