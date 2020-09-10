@@ -15,6 +15,7 @@ namespace Testflow.SlaveCore.Runner
         private readonly Dictionary<string, ValueConvertorBase> _convertors;
         // 非值类型转换器，仅用于静态入参类型的转换
         private readonly NonValueTypeConvertor _nonValueConvertor;
+        private readonly EnumConvertor _enumConvertor;
         private readonly ValueConvertorBase _strConvertor;
 
         public TypeConvertor(SlaveContext context)
@@ -40,6 +41,7 @@ namespace Testflow.SlaveCore.Runner
             };
             _strConvertor = _convertors[typeof (string).Name];
             _nonValueConvertor = new NonValueTypeConvertor(_context);
+            _enumConvertor = new EnumConvertor(_context);
         }
 
         /// <summary>
@@ -52,19 +54,8 @@ namespace Testflow.SlaveCore.Runner
                 _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                 return null;
             }
-            Type sourceType = sourceValue.GetType();
-            if (IsNeedNoConvert(sourceType, targetType))
-            {
-                return sourceValue;
-            }
-            if (!IsValidValueCast(sourceType, targetType))
-            {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId, 
-                    $"Unsupported type cast from type <{sourceType.Name}> to type <{targetType.Name}>.");
-                throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast, 
-                    _context.I18N.GetFStr("InvalidValueTypeCast", sourceType.Name, targetType.Name));
-            }
-            return _convertors[sourceType.Name].CastValue(targetType, sourceValue);
+            Type targetRealType = _context.TypeInvoker.GetType(targetType);
+            return CastValue(targetRealType, sourceValue);
         }
 
         private bool IsNeedNoConvert(Type sourceType, ITypeData targetType)
@@ -92,14 +83,30 @@ namespace Testflow.SlaveCore.Runner
             {
                 return sourceValue;
             }
-            if (!IsValidValueCast(sourceType, targetType))
+            if (IsValidValueCast(sourceType, targetType))
+            {
+                return _convertors[sourceType.Name].CastValue(targetType, sourceValue);
+            }
+            else if (sourceType.IsEnum)
+            {
+                // 如果目标也是枚举类型，则将源转换为int类型后再进行转换
+                if (targetType.IsEnum)
+                {
+                    sourceValue = (int) sourceValue;
+                }
+                return _enumConvertor.CastFromEnumToValue(targetType, sourceValue);
+            }
+            else if (targetType.IsEnum)
+            {
+                return _enumConvertor.CastFromValueToEnum(targetType, sourceValue);
+            }
+            else
             {
                 _context.LogSession.Print(LogLevel.Error, _context.SessionId,
                     $"Unsupported type cast from type <{sourceType.Name}> to type <{targetType.Name}>.");
                 throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
                     _context.I18N.GetFStr("InvalidValueTypeCast", sourceType.Name, targetType.Name));
             }
-            return _convertors[sourceType.Name].CastValue(targetType, sourceValue);
         }
 
         /// <summary>
@@ -113,7 +120,7 @@ namespace Testflow.SlaveCore.Runner
             }
             else if (targetType.IsEnum)
             {
-                return Enum.Parse(targetType, sourceValue);
+                return _enumConvertor.CastConstantValue(targetType, sourceValue, originalValue);
             }
             else if (_strConvertor.IsValidCastTarget(targetType))
             {
@@ -156,17 +163,21 @@ namespace Testflow.SlaveCore.Runner
         {
             return _convertors.ContainsKey(type.Name) ? _convertors[type.Name].GetDefaultValue() : null;
         }
-        
-        private bool IsValidValueCast(Type sourceType, ITypeData targetType)
-        {
-            return _convertors.ContainsKey(sourceType.Name) &&
-                   _convertors[sourceType.Name].IsValidCastTarget(targetType);
-        }
 
         public bool IsValidValueCast(Type sourceType, Type targetType)
         {
-            return _convertors.ContainsKey(sourceType.Name) &&
+            if (!sourceType.IsEnum && !targetType.IsEnum)
+            {
+                return _convertors.ContainsKey(sourceType.Name) &&
                     _convertors[sourceType.Name].IsValidCastTarget(targetType);
+            }
+            if (sourceType.IsEnum && targetType.IsEnum)
+            {
+                return true;
+            }
+            return sourceType.IsEnum
+                ? _enumConvertor.IsValidCastTarget(targetType)
+                : _enumConvertor.IsValidCastSource(sourceType);
         }
     }
 }

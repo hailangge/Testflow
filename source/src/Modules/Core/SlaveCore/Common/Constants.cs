@@ -38,6 +38,8 @@
 
         public const int MaxRmtMessageCount = 20;
 
+        public const string EnumTypeName = "EnumerationType";
+
         #region 表达式相关
 
         public const string ArgNameFormat = "ARG{0}";
