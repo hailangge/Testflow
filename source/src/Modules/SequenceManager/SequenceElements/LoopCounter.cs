@@ -28,7 +28,7 @@ namespace Testflow.SequenceManager.SequenceElements
                 Name = this.Name + Constants.CopyPostfix,
                 MaxValue = this.MaxValue,
                 CounterEnabled = this.CounterEnabled,
-                CounterVariable = string.Empty
+                CounterVariable = this.CounterVariable
             };
             return loopCounter;
         }
