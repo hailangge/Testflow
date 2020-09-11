@@ -20,7 +20,7 @@ namespace Testflow.External.ExpressionCalculators
 
         public object Calculate(object sourceValue, params object[] arguments)
         {
-            return (double) sourceValue * (double) arguments[0];
+            return (double) sourceValue/(double) arguments[0];
         }
     }
 }
