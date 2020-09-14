@@ -63,9 +63,9 @@ namespace Testflow.SequenceManager.SequenceElements
                 LogRecordLevel = this.LogRecordLevel,
                 ReportRecordLevel = this.ReportRecordLevel,
                 OIRecordLevel = this.OIRecordLevel,
-                Parent = null,
+                Parent = this.Parent,
                 Type = this.Type,
-                TypeIndex = Constants.UnverifiedTypeIndex,
+                TypeIndex = this.TypeIndex,
                 VariableType = this.VariableType,
                 AutoType = this.AutoType,
                 Value = this.Value

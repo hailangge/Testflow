@@ -66,7 +66,7 @@ namespace Testflow.SequenceManager.SequenceElements
             {
                 Name = this.Name + Constants.CopyPostfix,
                 Description = this.Description,
-                Parent = null,
+                Parent = this.Parent,
                 Index = Constants.UnverifiedIndex,
                 Variables = variables,
                 Steps = stepCollection,

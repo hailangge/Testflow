@@ -145,7 +145,7 @@ namespace Testflow.SequenceManager.SequenceElements
             {
                 Name = this.Name + Constants.CopyPostfix,
                 Description = this.Description,
-                Parent = null,
+                Parent = this.Parent,
                 SubSteps = subStepCollection,
                 Index = Constants.UnverifiedIndex,
                 Function = this.Function?.Clone(),
