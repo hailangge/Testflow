@@ -50,6 +50,7 @@
     <Compile Include="Data\Actions\IActionExecutor.cs" />
     <Compile Include="Data\Actions\ParameterSourceAttribute.cs" />
     <Compile Include="Data\Attributes\IStepAttribute.cs" />
+    <Compile Include="Data\Attributes\IStepAttributeCollection.cs" />
     <Compile Include="Data\CallBackType.cs" />
     <Compile Include="Data\Expression\ExpressionTypeData.cs" />
     <Compile Include="Data\Expression\ExpressionCalculatorInfo.cs" />
