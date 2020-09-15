@@ -66,15 +66,17 @@ namespace Testflow.MasterCore.Message
             _callBackMessageListener.Start(_callBackMessageQueue);
             GlobalInfo.LogService.Print(LogLevel.Debug, CommonConst.PlatformLogSession,
                 "Message transceiver started.");
+            Thread.VolatileWrite(ref _stopFlag, 0);
         }
 
-        private int _stopFlag = 0;
+        private int _stopFlag = 1;
         protected override void Stop()
         {
             if (_stopFlag == 1)
             {
                 return;
             }
+            Thread.VolatileWrite(ref _stopFlag, 1);
             _cancellation.Cancel();
             Thread.MemoryBarrier();
             ModuleUtils.StopThreadWork(_receiveThread);
@@ -94,7 +96,6 @@ namespace Testflow.MasterCore.Message
             ModuleUtils.StopThreadWork(_receiveThread);
             ZombieCleaner.Stop();
             UpLinkMessenger.Clear();
-            Thread.VolatileWrite(ref _stopFlag, 1);
             GlobalInfo.LogService.Print(LogLevel.Debug, CommonConst.PlatformLogSession,
                 "Message transceiver stopped.");
         }
