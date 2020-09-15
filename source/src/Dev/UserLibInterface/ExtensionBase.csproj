@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\..\..\export\Release\ExtensionBase.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -41,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\ActionResult.cs" />
     <Compile Include="Common\AssertionAttribute.cs" />
     <Compile Include="Common\CallBackAttribute.cs" />
     <Compile Include="Common\DescriptionAttribute.cs" />
