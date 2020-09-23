@@ -66,6 +66,7 @@ namespace Testflow
         /// <param name="options"></param>
         protected TestflowRunner(TestflowRunnerOptions options)
         {
+            this.PlatformState = PlatformState.NotAvailable;
             this.Option = options;
             this.Context = new TestflowContext();
             I18NOption i18NOption = new I18NOption(typeof (TestflowRunner).Assembly,
@@ -75,6 +76,22 @@ namespace Testflow
             };
             I18N.GetInstance(i18NOption);
         }
+
+        #region 平台状态
+
+        private int _platformState;
+
+        public PlatformState PlatformState
+        {
+            get { return (PlatformState) _platformState; }
+            protected set
+            {
+                Thread.VolatileWrite(ref _platformState, (int) value);
+            }
+        }
+
+        #endregion
+
 
         #region 服务接口
 
@@ -154,6 +171,8 @@ namespace Testflow
         /// </summary>
         public virtual void DesigntimeInitialize()
         {
+            PlatformState = PlatformState.Designtime;
+            Thread.MemoryBarrier();
             RuntimeService.Deactivate();
             ConfigurationManager.DesigntimeInitialize();
             LogService.DesigntimeInitialize();
@@ -172,6 +191,8 @@ namespace Testflow
         /// </summary>
         public virtual void RuntimeInitialize()
         {
+            PlatformState = PlatformState.Runtime;
+            Thread.MemoryBarrier();
             DesignTimeService?.Deactivate();
             ConfigurationManager.RuntimeInitialize();
             LogService.RuntimeInitialize();
@@ -193,6 +214,7 @@ namespace Testflow
             {
                 return;
             }
+            PlatformState = PlatformState.NotAvailable;
             Thread.VolatileWrite(ref _disposedFlag, 1);
             Thread.MemoryBarrier();
             _runnerInst = null;
