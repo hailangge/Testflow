@@ -333,14 +333,12 @@ namespace Testflow.SequenceManager
 
         public string RuntimeSerialize(ITestProject testProject)
         {
-            _typeMaintainer.VerifyVariableTypes(testProject);
             _typeMaintainer.RefreshUsedAssemblyAndType(testProject);
             return SequenceSerializer.ToJson(testProject as TestProject);
         }
 
         public string RuntimeSerialize(ISequenceGroup sequenceGroup)
         {
-            _typeMaintainer.VerifyVariableTypes(sequenceGroup);
             _typeMaintainer.RefreshUsedAssemblyAndType(sequenceGroup);
             return SequenceSerializer.ToJson(sequenceGroup as SequenceGroup);
         }
@@ -358,16 +356,24 @@ namespace Testflow.SequenceManager
         public void ValidateSequenceData(ITestProject testProject)
         {
             ModuleUtils.ValidateParent(testProject);
-            _typeMaintainer.VerifyVariableTypes(testProject);
-            _typeMaintainer.RefreshUsedAssemblyAndType(testProject);
+            // 只有在设计时才需要更新变量类型和使用到的程序集/类型信息
+            if (TestflowRunner.GetInstance().PlatformState == PlatformState.Designtime)
+            {
+                _typeMaintainer.VerifyVariableTypes(testProject);
+                _typeMaintainer.RefreshUsedAssemblyAndType(testProject);
+            }
         }
 
         public void ValidateSequenceData(ISequenceGroup sequenceGroup, ITestProject parent = null)
         {
             ModuleUtils.ValidateParent(sequenceGroup, parent);
-            _typeMaintainer.VerifyVariableTypes(sequenceGroup);
-            _typeMaintainer.RefreshUsedAssemblyAndType(sequenceGroup);
-            ((SequenceGroup) sequenceGroup).RefreshSignature();
+            // 只有在设计时才需要更新变量类型和使用到的程序集/类型信息
+            if (TestflowRunner.GetInstance().PlatformState == PlatformState.Designtime)
+            {
+                _typeMaintainer.VerifyVariableTypes(sequenceGroup);
+                _typeMaintainer.RefreshUsedAssemblyAndType(sequenceGroup);
+                ((SequenceGroup)sequenceGroup).RefreshSignature();
+            }
         }
 
         public void CheckSequenceData(ISequenceFlowContainer sequenceData)
