@@ -81,6 +81,9 @@ namespace Testflow
 
         private int _platformState;
 
+        /// <summary>
+        /// 当前平台的状态
+        /// </summary>
         public PlatformState PlatformState
         {
             get { return (PlatformState) _platformState; }
