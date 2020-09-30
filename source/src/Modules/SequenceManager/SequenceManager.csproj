@@ -87,6 +87,7 @@
     <Compile Include="SequenceElements\AssemblyInfo.cs" />
     <Compile Include="SequenceElements\AssemblyInfoCollection.cs" />
     <Compile Include="Expression\ExpressionData.cs" />
+    <Compile Include="SequenceElements\EmptyEnumerator.cs" />
     <Compile Include="SequenceElements\FunctionData.cs" />
     <Compile Include="SequenceElements\LoopCounter.cs" />
     <Compile Include="SequenceElements\OperationPanelInfo.cs" />
@@ -109,6 +110,8 @@
     <Compile Include="SequenceElements\SequenceStepCollection.cs" />
     <Compile Include="SequenceElements\SequenceStepParameter.cs" />
     <Compile Include="SequenceElements\SequenceStepParameterCollection.cs" />
+    <Compile Include="SequenceElements\StepAttribute.cs" />
+    <Compile Include="SequenceElements\StepAttributeCollection.cs" />
     <Compile Include="SequenceElements\TestProject.cs" />
     <Compile Include="SequenceElements\TypeData.cs" />
     <Compile Include="SequenceElements\TypeDataCollection.cs" />

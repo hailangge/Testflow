@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Testflow.Data;
+using Testflow.Data.Attributes;
 using Testflow.Usr;
 using Testflow.Data.Sequence;
 using Testflow.SequenceManager.Common;
@@ -28,6 +29,8 @@ namespace Testflow.SequenceManager.SequenceElements
             this.Tag = string.Empty;
             this.AssertFailedAction = FailedAction.Terminate;
             this.InvokeErrorAction = FailedAction.Terminate;
+            this.PrecedingAttributes = new StepAttributeCollection();
+            this.PostAttributes = new StepAttributeCollection();
         }
 
         [RuntimeSerializeIgnore]
@@ -47,6 +50,9 @@ namespace Testflow.SequenceManager.SequenceElements
         [SerializationIgnore]
         public int Index { get; set; }
 
+        [RuntimeType(typeof(StepAttributeCollection))]
+        public IStepAttributeCollection PrecedingAttributes { get; set; }
+
         // TODO
         public IStepActionCollection PrepareActions { get; set; }
 
@@ -55,6 +61,9 @@ namespace Testflow.SequenceManager.SequenceElements
 
         // TODO
         public IStepActionCollection PostActions { get; set; }
+
+        [RuntimeType(typeof(StepAttributeCollection))]
+        public IStepAttributeCollection PostAttributes { get; set; }
 
         public SequenceStepType StepType { get; set; }
 
@@ -134,6 +143,17 @@ namespace Testflow.SequenceManager.SequenceElements
 
         ISequenceFlowContainer ICloneableClass<ISequenceFlowContainer>.Clone()
         {
+            StepAttributeCollection precedingAttributes = new StepAttributeCollection();
+            if (this.PrecedingAttributes?.Count > 0)
+            {
+                ModuleUtils.CloneCollection(this.PrecedingAttributes, precedingAttributes);
+            }
+            StepAttributeCollection postAttributes = new StepAttributeCollection();
+            if (this.PostAttributes?.Count > 0)
+            {
+                ModuleUtils.CloneCollection(this.PostAttributes, postAttributes);
+            }
+
             SequenceStepCollection subStepCollection = null;
             if (null != this.SubSteps)
             {
@@ -148,7 +168,9 @@ namespace Testflow.SequenceManager.SequenceElements
                 Parent = this.Parent,
                 SubSteps = subStepCollection,
                 Index = Constants.UnverifiedIndex,
+                PrecedingAttributes = precedingAttributes,
                 Function = this.Function?.Clone(),
+                PostAttributes = postAttributes,
                 Behavior = this.Behavior,
                 RecordStatus = this.RecordStatus,
                 StepType = this.StepType,
