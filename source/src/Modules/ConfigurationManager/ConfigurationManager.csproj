@@ -45,6 +45,12 @@
     <Compile Include="Data\ConfigData.cs" />
     <Compile Include="Data\ConfigItem.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Data\Declaration\AttributeArgument.cs" />
+    <Compile Include="Data\Declaration\AttributeData.cs" />
+    <Compile Include="Data\Declaration\AttributeDeclaration.cs" />
+    <Compile Include="Data\Declaration\AttributeDeclarationCollection.cs" />
+    <Compile Include="Data\Declaration\AttributesDeclarations.cs" />
+    <Compile Include="Data\Declaration\AttributeTarget.cs" />
     <Compile Include="Data\ExpressionOperatorConfiguration.cs" />
     <Compile Include="GlobalConfigData.cs" />
     <Compile Include="ModuleConfigData.cs" />
@@ -82,6 +88,7 @@
       <LastGenOutput>i18n_config_zh.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

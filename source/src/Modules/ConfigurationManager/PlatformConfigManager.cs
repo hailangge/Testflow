@@ -81,6 +81,7 @@ namespace Testflow.ConfigurationManager
             {
                 globalConfigData = dataLoader.Load(ConfigData.GetProperty<string>(Constants.ConfigFile));
                 InitializeExpressionInfos(globalConfigData, dataLoader);
+                InitializeAttributeInfos(globalConfigData, dataLoader);
             }
             return globalConfigData;
         }
@@ -151,6 +152,11 @@ namespace Testflow.ConfigurationManager
                 throw new TestflowRuntimeException(ModuleErrorCode.ConfigDataError,
                     ex.Message, ex);
             }
+        }
+
+        private void InitializeAttributeInfos(GlobalConfigData globalConfigData, ConfigDataLoader dataLoader)
+        {
+            throw new NotImplementedException();
         }
 
         private static Type GetTargetType(string assemblyDir, string className, Type baseType)
