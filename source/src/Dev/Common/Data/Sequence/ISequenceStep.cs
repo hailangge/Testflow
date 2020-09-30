@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Testflow.Data.Attributes;
 
 namespace Testflow.Data.Sequence
 {
@@ -20,6 +21,11 @@ namespace Testflow.Data.Sequence
         int Index { get; set; }
 
         /// <summary>
+        /// 前置属性
+        /// </summary>
+        IStepAttributeCollection PrecedingAttributes { get; set; }
+
+        /// <summary>
         /// 序列的准备Action集合
         /// </summary>
         IStepActionCollection PrepareActions { get; set; }
@@ -33,6 +39,11 @@ namespace Testflow.Data.Sequence
         /// 序列的后续处理Action集合
         /// </summary>
         IStepActionCollection PostActions { get; set; }
+
+        /// <summary>
+        /// 后置属性
+        /// </summary>
+        IStepAttributeCollection PostAttributes { get; set; }
 
         /// <summary>
         /// 步骤的类型

@@ -45,6 +45,10 @@
     <Compile Include="Common\ICloneableClass.cs" />
     <Compile Include="Common\IEntityComponent.cs" />
     <Compile Include="Common\IPropertyExtendable.cs" />
+    <Compile Include="Data\Attributes\AttributeArgumentType.cs" />
+    <Compile Include="Data\Attributes\IAttributeArgument.cs" />
+    <Compile Include="Data\Attributes\IAttributeDeclaration.cs" />
+    <Compile Include="Data\Attributes\IAttributeDeclarationCollection.cs" />
     <Compile Include="PlatformState.cs" />
     <Compile Include="Data\Actions\ActionExecutorAttribute.cs" />
     <Compile Include="Data\Actions\ActionMethodAttribute.cs" />

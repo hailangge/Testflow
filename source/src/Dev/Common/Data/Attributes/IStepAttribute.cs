@@ -1,16 +1,23 @@
-﻿using Testflow.Data.Sequence;
+﻿using System.Collections.Generic;
+using Testflow.Data.Sequence;
+using Testflow.Usr;
 
 namespace Testflow.Data.Attributes
 {
     /// <summary>
     /// Step属性
     /// </summary>
-    public interface IStepAttribute : ISequenceElement
+    public interface IStepAttribute : ICloneableClass<IStepAttribute>, ISequenceElement
     {
         /// <summary>
         /// 属性名称
         /// </summary>
         string Name { get; set; }
+
+        /// <summary>
+        /// 属性的索引号
+        /// </summary>
+        int Index { get; set; }
 
         /// <summary>
         /// 属性的目标名称
@@ -25,16 +32,11 @@ namespace Testflow.Data.Attributes
         /// <summary>
         /// 完整类型
         /// </summary>
-        string FullType { get; set; }
+        string FullType { get; }
 
         /// <summary>
-        /// 属性的触发条件
+        /// 属性参数
         /// </summary>
-        string Condition { get; set; }
-
-        /// <summary>
-        /// 属性的值，可以包含变量、表达式等
-        /// </summary>
-        string Value { get; set; }
+        IList<string> ParameterValues { get; set; }
     }
 }
