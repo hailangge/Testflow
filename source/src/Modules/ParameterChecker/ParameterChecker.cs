@@ -82,13 +82,15 @@ namespace Testflow.ParameterChecker
         }
 
         #region 参数检查
+
         /// <summary>
         /// 检查function instance
         /// 1. 检查是否为null：静态方法可以为null，不然报错
         /// 2. 在arr里面寻找对应的variable，调用CheckPropertyType
         /// </summary>
-        /// <param name="function"> function信息 </param>
-        /// <param name="arr"> 要检查的Sequence/SequenceGroup集合 </param>
+        /// <param name="step">待检查的序列步骤</param>
+        /// <param name="arr">要检查的Sequence/SequenceGroup集合 </param>
+        /// <param name="overwriteType"></param>
         /// <returns> warnList (注：虽只会有一条错误信息，但为了上级代码整洁与一致性，返回List)</returns>
         /// 
         public IWarningInfo CheckInstance(ISequenceStep step, ISequenceFlowContainer[] arr, bool overwriteType)
@@ -117,8 +119,9 @@ namespace Testflow.ParameterChecker
         /// 1. 检查是否为null：静态方法可以为null，不然报错
         /// 2. 在arr里面寻找对应的variable，调用CheckPropertyType
         /// </summary>
-        /// <param name="function"> function信息 </param>
+        /// <param name="step">待检查的序列步骤</param>
         /// <param name="arr"> 要检查的Sequence/SequenceGroup集合 </param>
+        /// <param name="overwriteType">是否需要更新涉及变量的类型</param>
         /// <returns> warnList (注：虽只会有一条错误信息，但为了上级代码整洁与一致性，返回List)</returns>
         public IWarningInfo CheckReturn(ISequenceStep step, ISequenceFlowContainer[] arr, bool overwriteType)
         {
@@ -320,6 +323,7 @@ namespace Testflow.ParameterChecker
         /// 校验TestProject内模块的参数配置正确性
         /// </summary>
         /// <param name="testProject">待校验的序列工程</param>
+        /// <param name="overwriteType">是否需要更新涉及变量的类型</param>
         /// <returns>检查过程中出现的告警信息</returns>
         public IList<IWarningInfo> CheckParameters(ITestProject testProject, bool overwriteType)
         {
@@ -349,6 +353,7 @@ namespace Testflow.ParameterChecker
         /// 校验SequenceGroup内模块的参数配置正确性
         /// </summary>
         /// <param name="sequenceGroup">待校验的序列组</param>
+        /// <param name="overwriteType">是否需要更新涉及变量的类型</param>
         /// <returns>检查过程中出现的告警信息</returns>
         public IList<IWarningInfo> CheckParameters(ISequenceGroup sequenceGroup, bool overwriteType)
         {
@@ -396,6 +401,7 @@ namespace Testflow.ParameterChecker
         /// </summary>
         /// <param name="sequenceGroup">待校验的序列组</param>
         /// <param name="sequence">待校验的序列</param>
+        /// <param name="overwriteType">是否需要更新涉及变量的类型</param>
         /// <returns>检查过程中出现的告警信息</returns>
         public IList<IWarningInfo> CheckParameters(ISequenceGroup sequenceGroup, ISequence sequence, bool overwriteType)
         {
@@ -414,6 +420,7 @@ namespace Testflow.ParameterChecker
         /// <param name="parent">该次所在的SequenceGroup或TestProject或Sequence</param>
         /// <param name="variableString">变量的字符串，样式类似于varname.property1.property2</param>
         /// <param name="checkType">待检查是否匹配的类型</param>
+        /// <param name="overwriteType">是否需要更新涉及变量的类型</param>
         /// <returns>如果错误返回错误信息，如果正确返回true</returns>
         public IWarningInfo CheckPropertyType(ISequenceFlowContainer parent, string variableString, ITypeData checkType, bool overwriteType)
         {

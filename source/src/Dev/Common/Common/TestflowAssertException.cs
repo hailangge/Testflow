@@ -14,7 +14,6 @@ namespace Testflow.Usr
         /// <summary>
         /// 创建TestflowAssertException的实例
         /// </summary>
-        /// <param name="errorCode">错误码</param>
         /// <param name="message">异常信息</param>
         public TestflowAssertException(string message) : base(CommonErrorCode.AssertionFailed, message)
         {

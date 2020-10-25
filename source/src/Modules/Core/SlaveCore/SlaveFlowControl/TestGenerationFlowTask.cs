@@ -17,12 +17,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
         public TestGenerationFlowTask(SlaveContext context) : base(context)
         {
         }
-        /// <summary>
-        /// <localize>
-        ///<zh-CHS>中文</zh-CHS>
-        ///<en>English</en>
-        ///</localize>
-        /// </summary>
+
         protected override void FlowTaskAction()
         {
             Context.State = RuntimeState.TestGen;

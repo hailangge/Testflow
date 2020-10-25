@@ -20,6 +20,7 @@ namespace Testflow.CoreCommon.Messages
         /// <param name="name">回调功能的名称</param>
         /// <param name="id">消息的ID, Message服务所需</param>
         /// <param name="callBackId">回调消息的Id, 用于内部CallBackManager</param>
+        /// <param name="callBackArgs">回调消息参数</param>
         public CallBackMessage(string name, int id, int callBackId, params string[] callBackArgs) : base(name, id, MessageType.CallBack)
         {
             this.CallBackId = callBackId;

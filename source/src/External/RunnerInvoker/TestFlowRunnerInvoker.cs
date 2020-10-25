@@ -5,8 +5,16 @@ using Testflow.Usr;
 
 namespace Testflow.External.RunnerInvoker
 {
+    /// <summary>
+    /// TestFlow平台外部调用类
+    /// </summary>
     public static class TestFlowRunnerInvoker
     {
+        /// <summary>
+        /// 创建TestFlow平台实例
+        /// </summary>
+        /// <param name="options">TestFlow平台创建参数</param>
+        /// <returns>TestFlow平台入口类</returns>
         public static TestflowRunner CreateInstance(TestflowRunnerOptions options)
         {
             string testflowHome = Environment.GetEnvironmentVariable("TESTFLOW_HOME");
