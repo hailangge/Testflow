@@ -49,21 +49,45 @@ namespace Testflow.Runtime
         /// <summary>
         /// 测试开始生成时触发
         /// </summary>
+        event RuntimeDelegate.TestGenerationAction TestGenerationStart;
+
+        /// <summary>
+        /// 测试开始生成时触发
+        /// </summary>
+        [Obsolete]
         event RuntimeDelegate.TestGenerationAction TestGenStart;
 
         /// <summary>
         /// 测试生成结束后触发
         /// </summary>
+        event RuntimeDelegate.TestGenerationAction TestGenerationOver;
+
+        /// <summary>
+        /// 测试生成结束后触发
+        /// </summary>
+        [Obsolete]
         event RuntimeDelegate.TestGenerationAction TestGenOver;
 
         /// <summary>
         /// 所有测试开始执行时触发
         /// </summary>
+        event RuntimeDelegate.TestInstanceStatusAction TestInstanceStart;
+
+        /// <summary>
+        /// 所有测试开始执行时触发
+        /// </summary>
+        [Obsolete]
         event RuntimeDelegate.TestInstanceStatusAction TestStart;
 
         /// <summary>
         /// 所有测试执行结束后触发
         /// </summary>
+        event RuntimeDelegate.TestInstanceStatusAction TestInstanceOver;
+
+        /// <summary>
+        /// 所有测试执行结束后触发
+        /// </summary>
+        [Obsolete]
         event RuntimeDelegate.TestInstanceStatusAction TestOver;
         #endregion
 

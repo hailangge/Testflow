@@ -45,6 +45,7 @@ namespace Testflow.RuntimeService
         #endregion
 
         #region Load TestProject
+
         public void Load(ITestProject testProject)
         {
             //todo 目前拿不到Configuration.Type, 因为_engineController._runtimeEngine为private.并且_engineController里没有接口
@@ -99,18 +100,30 @@ namespace Testflow.RuntimeService
         #endregion
 
         #region 事件相关
+        public event RuntimeDelegate.TestGenerationAction TestGenerationStart;
+        [Obsolete]
         public event RuntimeDelegate.TestGenerationAction TestGenStart;
+        public event RuntimeDelegate.TestGenerationAction TestGenerationOver;
+        [Obsolete]
         public event RuntimeDelegate.TestGenerationAction TestGenOver;
+        public event RuntimeDelegate.TestInstanceStatusAction TestInstanceStart;
+        [Obsolete]
         public event RuntimeDelegate.TestInstanceStatusAction TestStart;
+        public event RuntimeDelegate.TestInstanceStatusAction TestInstanceOver;
+        [Obsolete]
         public event RuntimeDelegate.TestInstanceStatusAction TestOver;
 
         //向engineController.runtimeEngine注册用户添加好的事件
         private void RegisterEvents()
         {
             //注册事件,空事件在runtimeEngine方法里面判断
+            _engineController.RegisterRuntimeEvent(TestGenerationStart, Constants.TestGenerationStart, CoreCommon.Common.CoreConstants.TestProjectSessionId);
             _engineController.RegisterRuntimeEvent(TestGenStart, Constants.TestGenerationStart, CoreCommon.Common.CoreConstants.TestProjectSessionId);
+            _engineController.RegisterRuntimeEvent(TestGenerationOver, Constants.TestGenerationEnd, CoreCommon.Common.CoreConstants.TestProjectSessionId);
             _engineController.RegisterRuntimeEvent(TestGenOver, Constants.TestGenerationEnd, CoreCommon.Common.CoreConstants.TestProjectSessionId);
+            _engineController.RegisterRuntimeEvent(TestInstanceStart, Constants.TestInstanceStart, CoreCommon.Common.CoreConstants.TestProjectSessionId);
             _engineController.RegisterRuntimeEvent(TestStart, Constants.TestInstanceStart, CoreCommon.Common.CoreConstants.TestProjectSessionId);
+            _engineController.RegisterRuntimeEvent(TestInstanceOver, Constants.TestInstanceOver, CoreCommon.Common.CoreConstants.TestProjectSessionId);
             _engineController.RegisterRuntimeEvent(TestOver, Constants.TestInstanceOver, CoreCommon.Common.CoreConstants.TestProjectSessionId);
         }
         #endregion
