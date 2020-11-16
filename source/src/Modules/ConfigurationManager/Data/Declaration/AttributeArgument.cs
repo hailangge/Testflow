@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Testflow.Data.Attributes;
 
@@ -14,6 +15,6 @@ namespace Testflow.ConfigurationManager.Data.Declaration
         [XmlAttribute]
         public AttributeArgumentType Type { get; set; }
         [XmlAttribute]
-        public string ExtraInfo { get; set; }
+        public IDictionary<string, string> ExtraInfo { get; set; }
     }
 }

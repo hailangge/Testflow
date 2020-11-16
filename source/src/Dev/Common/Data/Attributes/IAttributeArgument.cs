@@ -1,4 +1,6 @@
-﻿namespace Testflow.Data.Attributes
+﻿using System.Collections.Generic;
+
+namespace Testflow.Data.Attributes
 {
     public interface IAttributeArgument
     {
@@ -20,6 +22,6 @@
         /// <summary>
         /// 参数的额外信息
         /// </summary>
-        string ExtraInfo { get; set; }
+        IDictionary<string, string> ExtraInfo { get; set; }
     }
 }
