@@ -1,6 +1,7 @@
 ﻿using System;
 using Testflow.Usr;
 using Testflow.Data;
+using Testflow.Data.Attributes;
 using Testflow.Data.Description;
 using Testflow.Data.Expression;
 using Testflow.Data.Sequence;
@@ -72,6 +73,12 @@ namespace Testflow.Modules
         /// </summary>
         /// <returns></returns>
         IStepAction CreateActionData(IFuncInterfaceDescription funcInterface);
+
+        /// <summary>
+        /// 创建步骤属性，如果入参为null则创建空白的对象，否则给根据模板创建对应的Attribute
+        /// </summary>
+        /// <param name="attributeDeclaration">创建Step属性的定义模板</param>
+        IStepAttribute CreateStepAttribute(IAttributeDeclaration attributeDeclaration = null);
 
         /// <summary>
         /// 创建空白的LoopCounter

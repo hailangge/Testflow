@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Testflow.Usr;
 using Testflow.Data;
+using Testflow.Data.Attributes;
 using Testflow.Data.Description;
 using Testflow.Data.Expression;
 using Testflow.Data.Sequence;
@@ -143,6 +144,24 @@ namespace Testflow.SequenceManager
         {
             // TODO
             throw new NotImplementedException();
+        }
+
+        public IStepAttribute CreateStepAttribute(IAttributeDeclaration attributeDeclaration = null)
+        {
+            StepAttribute stepAttribute = new StepAttribute();
+            if (null != attributeDeclaration)
+            {
+                stepAttribute.Target = attributeDeclaration.Target;
+                stepAttribute.Type = attributeDeclaration.Type;
+                foreach (IAttributeArgument argument in attributeDeclaration.Arguments)
+                {
+                    string value = argument.ExtraInfo.ContainsKey("DefaultValue")
+                        ? argument.ExtraInfo["DefaultValue"]
+                        : string.Empty;
+                    stepAttribute.ParameterValues.Add(value);
+                }
+            }
+            return stepAttribute;
         }
 
         public ILoopCounter CreateLoopCounter()

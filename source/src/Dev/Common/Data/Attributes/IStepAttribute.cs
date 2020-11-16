@@ -10,11 +10,6 @@ namespace Testflow.Data.Attributes
     public interface IStepAttribute : ICloneableClass<IStepAttribute>, ISequenceElement
     {
         /// <summary>
-        /// 属性名称
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
         /// 属性的索引号
         /// </summary>
         int Index { get; set; }

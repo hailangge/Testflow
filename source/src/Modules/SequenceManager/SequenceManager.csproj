@@ -56,6 +56,8 @@
     <Compile Include="Checker\SequenceCallChecker.cs" />
     <Compile Include="Checker\TimerBlockChecker.cs" />
     <Compile Include="Checker\TryFinallyBlockChecker.cs" />
+    <Compile Include="Common\FlexibleList.cs" />
+    <Compile Include="Common\IndexedFlexibleList.cs" />
     <Compile Include="Common\RuntimeElementTypeAttribute.cs" />
     <Compile Include="Common\RuntimeSerializeIgnoreAttribute.cs" />
     <Compile Include="Common\RuntimeTypeAttribute.cs" />

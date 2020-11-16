@@ -8,71 +8,7 @@ namespace Testflow.SequenceManager.SequenceElements
 {
     [Serializable]
     [GenericCollection(typeof(ParameterData))]
-    public class ParameterDataCollection : IParameterDataCollection
+    public class ParameterDataCollection : IndexedFlexibleList<IParameterData>, IParameterDataCollection
     {
-        private readonly List<IParameterData> _innerCollection;
-
-        public ParameterDataCollection()
-        {
-            this._innerCollection = new List<IParameterData>(Constants.DefaultArgumentSize);
-        }
-
-        public IEnumerator<IParameterData> GetEnumerator()
-        {
-            return this._innerCollection.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public void Add(IParameterData item)
-        {
-            ModuleUtils.AddAndRefreshIndex(this._innerCollection, item);
-        }
-
-        public void Clear()
-        {
-            this._innerCollection.Clear();
-        }
-
-        public bool Contains(IParameterData item)
-        {
-            return _innerCollection.Contains(item);
-        }
-
-        public void CopyTo(IParameterData[] array, int arrayIndex)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool Remove(IParameterData item)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public int Count => _innerCollection.Count;
-        public bool IsReadOnly => false;
-        public int IndexOf(IParameterData item)
-        {
-            return _innerCollection.IndexOf(item);
-        }
-
-        public void Insert(int index, IParameterData item)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IParameterData this[int index]
-        {
-            get { return _innerCollection[index]; }
-            set { throw new System.NotImplementedException(); }
-        }
     }
 }

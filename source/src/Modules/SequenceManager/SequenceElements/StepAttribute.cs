@@ -11,10 +11,10 @@ namespace Testflow.SequenceManager.SequenceElements
     {
         public StepAttribute()
         {
-            this.Name = string.Empty;
             this.Index = -1;
             this.Target = string.Empty;
             this.Type = string.Empty;
+            this.ParameterValues = new FlexibleList<string>();
         }
 
         public StepAttribute(SerializationInfo info, StreamingContext context)
@@ -24,14 +24,12 @@ namespace Testflow.SequenceManager.SequenceElements
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Name", this.Name);
             info.AddValue("Index", this.Index);
             info.AddValue("Target", this.Target);
             info.AddValue("Type", this.Type);
             info.AddValue("ParameterValues", this.ParameterValues);
         }
 
-        public string Name { get; set; }
         public int Index { get; set; }
         public string Target { get; set; }
         public string Type { get; set; }
@@ -41,11 +39,10 @@ namespace Testflow.SequenceManager.SequenceElements
         {
             StepAttribute stepAttribute = new StepAttribute()
             {
-                Name = this.Name,
                 Index = -1,
                 Target = this.Target,
                 Type = this.Type,
-                ParameterValues = new List<string>(ParameterValues),
+                ParameterValues = new FlexibleList<string>(this.ParameterValues),
             };
             return stepAttribute;
         }
