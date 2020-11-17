@@ -30,6 +30,11 @@ namespace Testflow.Data.Attributes
         string FullType { get; }
 
         /// <summary>
+        /// 属性的生效条件
+        /// </summary>
+        string Condition { get; set; }
+
+        /// <summary>
         /// 属性参数
         /// </summary>
         IList<string> ParameterValues { get; set; }

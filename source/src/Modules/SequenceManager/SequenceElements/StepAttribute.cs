@@ -27,6 +27,7 @@ namespace Testflow.SequenceManager.SequenceElements
             info.AddValue("Index", this.Index);
             info.AddValue("Target", this.Target);
             info.AddValue("Type", this.Type);
+            info.AddValue("Condition", this.Condition);
             info.AddValue("ParameterValues", this.ParameterValues);
         }
 
@@ -34,6 +35,7 @@ namespace Testflow.SequenceManager.SequenceElements
         public string Target { get; set; }
         public string Type { get; set; }
         public string FullType => $"{Target}.{Type}";
+        public string Condition { get; set; }
         public IList<string> ParameterValues { get; set; }
         public IStepAttribute Clone()
         {
@@ -42,6 +44,7 @@ namespace Testflow.SequenceManager.SequenceElements
                 Index = -1,
                 Target = this.Target,
                 Type = this.Type,
+                Condition = this.Condition,
                 ParameterValues = new FlexibleList<string>(this.ParameterValues),
             };
             return stepAttribute;
