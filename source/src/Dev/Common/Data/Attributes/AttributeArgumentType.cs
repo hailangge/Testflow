@@ -28,7 +28,7 @@
         /// <summary>
         /// 条件类型
         /// </summary>
-        Condition = 4,
+        Boolean = 4,
 
         /// <summary>
         /// 枚举类型
