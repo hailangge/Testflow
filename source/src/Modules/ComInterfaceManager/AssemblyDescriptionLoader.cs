@@ -439,12 +439,12 @@ namespace Testflow.ComInterfaceManager
             List<IArgumentDescription> properties = new List<IArgumentDescription>(propertyInfos.Length);
             foreach (PropertyInfo propertyInfo in propertyInfos)
             {
-                // 如果属性没有set方法，则返回
-                if (null == propertyInfo.GetSetMethod())
+                Type propertyType = propertyInfo.PropertyType;
+                // 如果属性没有set方法，并且该类型为简单类型，则该属性不添加到SetProperties方法参数中
+                if (null == propertyInfo.GetSetMethod() && IsSimpleType(propertyType))
                 {
                     continue;
                 }
-                Type propertyType = propertyInfo.PropertyType;
                 AddToAssemblyMapping(propertyType);
 
                 DescriptionAttribute descriptionAttribute = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
@@ -1087,6 +1087,12 @@ namespace Testflow.ComInterfaceManager
                 argumentType = VariableType.Struct;
             }
             return argumentType;
+        }
+
+        private bool IsSimpleType(Type type)
+        {
+            // 如果对象未枚举或者简单值类型，则判定为简单类型
+            return type.IsEnum || _simpleValueType.Contains(GetTypeName(type));
         }
 
         private static string GetNamespace(Type type)
