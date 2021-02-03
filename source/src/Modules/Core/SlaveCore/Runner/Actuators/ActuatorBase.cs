@@ -129,6 +129,11 @@ namespace Testflow.SlaveCore.Runner.Actuators
         /// </summary>
         public void StartTiming()
         {
+            // 如果当前时间不为最小值则判定已经开始计时，保持原计时时间
+            if (DateTime.MinValue != this.ExecutionTime)
+            {
+                return;
+            }
             this.ExecutionTicks = -1;
             this.ExecutionTime = DateTime.Now;
             Context.TimingManager.StartTiming(CoroutineId);
@@ -152,13 +157,22 @@ namespace Testflow.SlaveCore.Runner.Actuators
         public void ResetTiming()
         {
             this.ExecutionTicks = -1;
-            this.ExecutionTime = DateTime.Now;
+            this.ExecutionTime = DateTime.MinValue;
         }
 
         /// <summary>
         /// 调用序列的执行代码
         /// </summary>
         public abstract StepResult InvokeStep(bool forceInvoke);
+
+        /// <summary>
+        /// 恢复当前步骤的执行
+        /// </summary>
+        public virtual StepResult ResumeInvoke(bool forceInvoke, StepResult resultBeforeResume)
+        {
+            // 仅执行一个操作的Actuator中ResumeInvoke不执行任何行为。执行多个操作的Actuator需要手动实现
+            return resultBeforeResume;
+        }
 
         #endregion
 

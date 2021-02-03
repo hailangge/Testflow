@@ -411,5 +411,12 @@ namespace Testflow.SlaveCore.Common
             return valueType == targetType || valueType.IsSubclassOf(targetType) ||
                    valueType.IsAssignableFrom(targetType);
         }
+
+        public static StepResult GetMergedStepResult(StepResult lastResult, StepResult newResult)
+        {
+            return newResult <= StepResult.Pass || newResult == StepResult.Over || newResult < lastResult
+                ? lastResult
+                : newResult;
+        }
     }
 }
