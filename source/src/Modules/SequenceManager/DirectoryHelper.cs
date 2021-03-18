@@ -85,6 +85,10 @@ namespace Testflow.SequenceManager
             _availableDirs.Insert(_seqDirIndex, seqDir);
             try
             {
+                if (sequenceGroup.Info.OperationPanelInfo?.Assembly != null)
+                {
+                    SetAssemblyToRelativePath(sequenceGroup.Info.OperationPanelInfo.Assembly);
+                }
                 SetAssembliesToRelativePath(sequenceGroup.Assemblies);
             }
             finally
@@ -213,20 +217,25 @@ namespace Testflow.SequenceManager
         {
             foreach (IAssemblyInfo assemblyInfo in assemblies)
             {
-                if (IsRelativePath(assemblyInfo.Path))
+                SetAssemblyToRelativePath(assemblyInfo);
+            }
+        }
+
+        private void SetAssemblyToRelativePath(IAssemblyInfo assemblyInfo)
+        {
+            if (IsRelativePath(assemblyInfo.Path))
+            {
+                return;
+            }
+            // 如果包含在可用路径内则替换为相对路径
+            foreach (string availableDir in this._availableDirs)
+            {
+                if (assemblyInfo.Path.StartsWith(availableDir, StringComparison.OrdinalIgnoreCase))
                 {
-                    continue;
-                }
-                // 如果包含在可用路径内则替换为相对路径
-                foreach (string availableDir in _availableDirs)
-                {
-                    if (assemblyInfo.Path.StartsWith(availableDir, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // 将绝对路径截取为相对路径
-                        assemblyInfo.Path = assemblyInfo.Path.Substring(availableDir.Length,
-                            assemblyInfo.Path.Length - availableDir.Length);
-                        break;
-                    }
+                    // 将绝对路径截取为相对路径
+                    assemblyInfo.Path = assemblyInfo.Path.Substring(availableDir.Length,
+                        assemblyInfo.Path.Length - availableDir.Length);
+                    break;
                 }
             }
         }
@@ -264,6 +273,10 @@ namespace Testflow.SequenceManager
             _availableDirs.Insert(_seqDirIndex, seqDir);
             try
             {
+                if (null != sequenceGroup.Info.OperationPanelInfo?.Assembly)
+                {
+                    SetAssemblyToAbsolutePath(true, sequenceGroup.Info.OperationPanelInfo.Assembly);
+                }
                 SetAssembliesToAbsolutePath(sequenceGroup.Assemblies, forceLoad);
             }
             finally
@@ -276,32 +289,37 @@ namespace Testflow.SequenceManager
         {
             foreach (IAssemblyInfo assemblyInfo in assemblies)
             {
-                // 如果是绝对路径则继续执行
-                string path = assemblyInfo.Path;
-                if (!IsRelativePath(path))
+                SetAssemblyToAbsolutePath(forceLoad, assemblyInfo);
+            }
+        }
+
+        private void SetAssemblyToAbsolutePath(bool forceLoad, IAssemblyInfo assemblyInfo)
+        {
+            // 如果是绝对路径则继续执行
+            string path = assemblyInfo.Path;
+            if (!IsRelativePath(path))
+            {
+                return;
+            }
+
+            string absolutePath = InternalGetAbosolutePath(path);
+
+            if (null != absolutePath)
+            {
+                assemblyInfo.Path = absolutePath;
+            }
+            else
+            {
+                ILogService logService = TestflowRunner.GetInstance().LogService;
+                logService.Print(LogLevel.Error, CommonConst.PlatformLogSession,
+                    $"Assembly '{assemblyInfo.AssemblyName}' cannot be found in '{assemblyInfo.Path}'.");
+                //　如果没找到库，且不是强制加载，则抛出异常
+                if (!forceLoad)
                 {
-                    continue;
+                    I18N i18N = I18N.GetInstance(Constants.I18nName);
+                    throw new TestflowDataException(ModuleErrorCode.DeSerializeFailed,
+                        i18N.GetFStr("AssemblyCannotFound", assemblyInfo.AssemblyName));
                 }
-                string abosolutePath = InternalGetAbosolutePath(path);
-                
-                if (null != abosolutePath)
-                {
-                    assemblyInfo.Path = abosolutePath;
-                }
-                else
-                {
-                    ILogService logService = TestflowRunner.GetInstance().LogService;
-                    logService.Print(LogLevel.Error, CommonConst.PlatformLogSession,
-                        $"Assembly '{assemblyInfo.AssemblyName}' cannot be found in '{assemblyInfo.Path}'.");
-                    //　如果没找到库，且不是强制加载，则抛出异常
-                    if (!forceLoad)
-                    {
-                        I18N i18N = I18N.GetInstance(Constants.I18nName);
-                        throw new TestflowDataException(ModuleErrorCode.DeSerializeFailed,
-                            i18N.GetFStr("AssemblyCannotFound", assemblyInfo.AssemblyName));
-                    }
-                }
-                
             }
         }
 
