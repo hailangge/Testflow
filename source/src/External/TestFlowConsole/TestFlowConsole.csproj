@@ -50,11 +50,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Dev\Common\Common.csproj">
+    <ProjectReference Include="..\..\Dev\Common\Common.csproj">
       <Project>{1681cdd7-0cc2-49d2-9e82-7b03b52db283}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\External\RunnerInvoker\RunnerInvoker.csproj">
+    <ProjectReference Include="..\RunnerInvoker\RunnerInvoker.csproj">
       <Project>{5543262d-ffeb-44eb-bfc8-6f5e8ba81746}</Project>
       <Name>RunnerInvoker</Name>
     </ProjectReference>
