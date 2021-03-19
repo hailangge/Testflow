@@ -49,6 +49,7 @@ namespace Testflow.MasterCore
             _callBackProcessor = new CallBackProcessor(_globalInfo);
             _debugManager = EnableDebug ? new DebugManager(_globalInfo) : null;
             _runtimeInfoSelector = new RuntimeInfoSelector(_globalInfo, this);
+            _oiManager = new OperationPanelManager(_globalInfo);
 
             _globalInfo.RuntimeInitialize(messageTransceiver, _debugManager);
 
@@ -98,6 +99,7 @@ namespace Testflow.MasterCore
                 _statusManager.Initialize(sequenceContainer);
                 _callBackProcessor.Initialize(sequenceContainer);
                 _debugManager?.Initialize(sequenceContainer);
+                _oiManager.Initialize(sequenceContainer);
                 // 注册状态更新事件
                 _globalInfo.StateMachine.StateAbort += Stop;
                 _globalInfo.StateMachine.StateError += Stop;
@@ -153,7 +155,10 @@ namespace Testflow.MasterCore
                 // TODO 暂时不填充TestProject的路径
                 foreach (ISequenceGroup sequenceGroup in sequenceData.SequenceGroups)
                 {
-                    sequencePaths.Add(ModuleUtils.GetParentDirectory(sequenceGroup.Info.SequenceGroupFile));
+                    if (!string.IsNullOrWhiteSpace(sequenceGroup.Info.SequenceGroupFile))
+                    {
+                        sequencePaths.Add(ModuleUtils.GetParentDirectory(sequenceGroup.Info.SequenceGroupFile));
+                    }
                 }
                 this._globalInfo.ConfigData.SetProperty("SequencePath", sequencePaths.ToArray());
             }
@@ -161,7 +166,10 @@ namespace Testflow.MasterCore
             {
                 ISequenceGroup sequenceData = (ISequenceGroup)sequenceContainer;
                 string sequencePath = ModuleUtils.GetParentDirectory(sequenceData.Info.SequenceGroupFile);
-                this._globalInfo.ConfigData.SetProperty("SequencePath", new string[] { sequencePath });
+                string[] sequencePaths = !string.IsNullOrWhiteSpace(sequencePath)
+                    ? new string[] { sequencePath }
+                    : new string[0];
+                this._globalInfo.ConfigData.SetProperty("SequencePath", sequencePaths);
             }
         }
 
@@ -169,6 +177,8 @@ namespace Testflow.MasterCore
         {
             try
             {
+                // 等待AO开始并确认
+                this._oiManager.Start();
                 _globalInfo.MessageTransceiver.Activate();
                 _statusManager.Start();
                 _syncManager.Start();
@@ -194,8 +204,6 @@ namespace Testflow.MasterCore
                     "Start engine internal error.");
                 _globalInfo.StateMachine.State = RuntimeState.Error;
                 _globalInfo.ExceptionManager.Append(ex);
-                // for test
-                throw;
             }
             catch (ApplicationException ex)
             {
@@ -203,8 +211,6 @@ namespace Testflow.MasterCore
                     "Start engine runtime error.");
                 _globalInfo.StateMachine.State = RuntimeState.Error;
                 _globalInfo.ExceptionManager.Append(ex);
-                // for test
-                throw;
             }
             catch (Exception ex)
             {
@@ -212,8 +218,6 @@ namespace Testflow.MasterCore
                     "Start engine fatal error.");
                 _globalInfo.StateMachine.State = RuntimeState.Collapsed;
                 _globalInfo.ExceptionManager.Append(ex);
-                // for test
-                throw;
             }
             finally
             {
@@ -271,19 +275,19 @@ namespace Testflow.MasterCore
             _controller.TestMaintainer.FreeHosts();
         }
 
-        private int _diposedFlag = 0;
+        private int _disposedFlag = 0;
         public void Dispose()
         {
-            if (_diposedFlag != 0)
+            if (this._disposedFlag != 0)
             {
                 return;
             }
-            Thread.VolatileWrite(ref _diposedFlag, 1);
+            Thread.VolatileWrite(ref this._disposedFlag, 1);
             Thread.MemoryBarrier();
-            _controller.Dispose();
-            _syncManager.Dispose();
-            _statusManager.Dispose();
-            _globalInfo.Dispose();
+            _controller?.Dispose();
+            _syncManager?.Dispose();
+            _statusManager?.Dispose();
+            _globalInfo?.Dispose();
         }
 
         #region 处理外部接口

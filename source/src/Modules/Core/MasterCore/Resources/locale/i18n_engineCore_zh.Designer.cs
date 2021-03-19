@@ -115,6 +115,15 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 非法的操作员面板类型。.
+        /// </summary>
+        internal static string InvalidOIType {
+            get {
+                return ResourceManager.GetString("InvalidOIType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 非法的运行时信息名称：{0}。.
         /// </summary>
         internal static string InvalidRuntimeInfoName {
@@ -156,6 +165,24 @@ namespace Testflow.MasterCore.Resources.locale {
         internal static string OIClassNotFound {
             get {
                 return ResourceManager.GetString("OIClassNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 操作员面板参数错误：{0}.
+        /// </summary>
+        internal static string OIParamError {
+            get {
+                return ResourceManager.GetString("OIParamError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 操作员面板超时。.
+        /// </summary>
+        internal static string OITimeout {
+            get {
+                return ResourceManager.GetString("OITimeout", resourceCulture);
             }
         }
         

@@ -135,6 +135,9 @@
   <data name="InvalidOIConstructor" xml:space="preserve">
     <value>操作员面板类&lt;{0}&gt;应该包含一个字符串入参的构造方法。</value>
   </data>
+  <data name="InvalidOIType" xml:space="preserve">
+    <value>非法的操作员面板类型。</value>
+  </data>
   <data name="InvalidRuntimeInfoName" xml:space="preserve">
     <value>非法的运行时信息名称：{0}。</value>
   </data>
@@ -149,6 +152,12 @@
   </data>
   <data name="OIClassNotFound" xml:space="preserve">
     <value>操作员面板类&lt;{0}&gt;不存在。</value>
+  </data>
+  <data name="OIParamError" xml:space="preserve">
+    <value>操作员面板参数错误：{0}</value>
+  </data>
+  <data name="OITimeout" xml:space="preserve">
+    <value>操作员面板超时。</value>
   </data>
   <data name="OperationPanelError" xml:space="preserve">
     <value>操作员面板执行错误：{0}</value>

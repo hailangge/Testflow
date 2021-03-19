@@ -309,15 +309,16 @@ namespace Testflow.MasterCore.StatusManage
             {
                 return;
             }
-            _globalInfo.TestGenBlocker.Set();
-            _cancellation.Cancel();
-            _globalInfo.EventQueue.FreeBlocks();
+            Thread.VolatileWrite(ref _stopFlag, 1);
+            Thread.MemoryBarrier();
+            _globalInfo.TestGenBlocker?.Set();
+            _cancellation?.Cancel();
+            _globalInfo.EventQueue?.FreeBlocks();
 
-            _globalInfo.EventDispatcher.Stop();
+            _globalInfo.EventDispatcher?.Stop();
 
 //            Thread.Sleep(_globalInfo.ConfigData.GetProperty<int>("StopTimeout"));
             ModuleUtils.StopThreadWork(_internalMessageThd);
-            Thread.VolatileWrite(ref _stopFlag, 1);
         }
 
         public void Dispose()

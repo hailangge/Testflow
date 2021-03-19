@@ -115,6 +115,15 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid operation panel type..
+        /// </summary>
+        internal static string InvalidOIType {
+            get {
+                return ResourceManager.GetString("InvalidOIType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid runtime information name: {0}..
         /// </summary>
         internal static string InvalidRuntimeInfoName {
@@ -156,6 +165,24 @@ namespace Testflow.MasterCore.Resources.locale {
         internal static string OIClassNotFound {
             get {
                 return ResourceManager.GetString("OIClassNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation panel parameter error: {0}.
+        /// </summary>
+        internal static string OIParamError {
+            get {
+                return ResourceManager.GetString("OIParamError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation panel timeout..
+        /// </summary>
+        internal static string OITimeout {
+            get {
+                return ResourceManager.GetString("OITimeout", resourceCulture);
             }
         }
         

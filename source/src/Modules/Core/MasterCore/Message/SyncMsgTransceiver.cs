@@ -77,13 +77,13 @@ namespace Testflow.MasterCore.Message
                 return;
             }
             Thread.VolatileWrite(ref _stopFlag, 1);
-            _cancellation.Cancel();
+            _cancellation?.Cancel();
             Thread.MemoryBarrier();
             ModuleUtils.StopThreadWork(_receiveThread);
             //如果两个队列在被锁的状态则释放锁
-            _engineMessageQueue.FreeBlocks();
-            _statusMessageQueue.FreeBlocks();
-            _callBackMessageQueue.FreeBlocks();
+            _engineMessageQueue?.FreeBlocks();
+            _statusMessageQueue?.FreeBlocks();
+            _callBackMessageQueue?.FreeBlocks();
             // 发送停止消息，该消息只是为了释放被Receive阻塞的线程，并不会真的被处理
             ControlMessage stopMessage = new ControlMessage(MessageNames.CtrlAbort, CommonConst.BroadcastSession);
             UpLinkMessenger.Send(stopMessage);

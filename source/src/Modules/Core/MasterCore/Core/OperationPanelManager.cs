@@ -9,6 +9,10 @@ using Testflow.CoreCommon;
 using Testflow.CoreCommon.Common;
 using Testflow.Data.Sequence;
 using Testflow.MasterCore.Common;
+using Testflow.Modules;
+using Testflow.Runtime;
+using Testflow.Runtime.Data;
+using Testflow.Runtime.OperationPanel;
 using Testflow.Usr;
 using Testflow.Utility.Utils;
 
@@ -26,66 +30,22 @@ namespace Testflow.MasterCore.Core
 
         private volatile Exception _internalException;
 
-        // 显示OI面板的委托
-        private Action _showPanel;
-        private Action<bool, string> _showError;
-
         private AutoResetEvent _blockHandle;
-
-        private IDisposable _oiInstance;
 
         public OperationPanelManager(ModuleGlobalInfo globalInfo)
         {
             this._globalInfo = globalInfo;
-            this._showError = null;
-            this._showPanel = null;
             this._sequenceParameters = null;
             this._isStartConfirmed = false;
             this.IsRunning = false;
             this._internalException = null;
+            this._eventActions = new List<Delegate>(10);
         }
 
         /// <summary>
         /// 返回当前OI是否已经开始运行
         /// </summary>
         public bool IsRunning { get; private set; }
-
-        public void Initialize(ISequenceFlowContainer sequenceData)
-        {
-            this._sequenceData = sequenceData;
-            if (this._sequenceData is ISequenceGroup)
-            {
-                IOperationPanelInfo panelInfo = ((ISequenceGroup)this._sequenceData).Info.OperationPanelInfo;
-                if (panelInfo?.Assembly == null || null == panelInfo.OperationPanelClass)
-                {
-                    return;
-                }
-                this._blockHandle = new AutoResetEvent(false);
-                this._isStartConfirmed = false;
-                ThreadPool.QueueUserWorkItem(StartRunOperationPanel);
-                // 设定OI配置超时时间为1小时
-                this._blockHandle.WaitOne(new TimeSpan(0, 1, 0, 0));
-                if (null != this._internalException)
-                {
-                    throw this._internalException;
-                }
-
-                try
-                {
-                    if (!this._isStartConfirmed)
-                    {
-                        throw new TestflowRuntimeException(ModuleErrorCode.UserCancelled,
-                            this._globalInfo.I18N.GetStr("UserCancel"));
-                    }
-                    FillSequenceParameters();
-                }
-                catch (Exception ex)
-                {
-                    this._showError(false, ex.Message);
-                    throw;
-                }
-            }
-        }
 
         private void FillSequenceParameters()
         {
@@ -107,6 +67,124 @@ namespace Testflow.MasterCore.Core
             }
         }
 
+        public void Start()
+        {
+            RegisterEvent();
+            this._blockHandle = new AutoResetEvent(false);
+            this._isStartConfirmed = false;
+            this._operationPanel.OiReady += OiStartSequenceConfirmed;
+            ThreadPool.QueueUserWorkItem(ShowOperationPanel);
+            // 设定OI配置超时时间为1小时
+            bool isNotTimeout = this._blockHandle.WaitOne(new TimeSpan(0, 1, 0, 0));
+            if (!isNotTimeout)
+            {
+                throw new TestflowRuntimeException(ModuleErrorCode.OperationTimeout,
+                    this._globalInfo.I18N.GetStr("OITimeout"));
+            }
+            if (null != this._internalException)
+            {
+                throw this._internalException;
+            }
+            try
+            {
+                if (!this._isStartConfirmed)
+                {
+                    throw new TestflowRuntimeException(ModuleErrorCode.UserCancelled,
+                        this._globalInfo.I18N.GetStr("UserCancel"));
+                }
+                FillSequenceParameters();
+            }
+            catch (TestflowException ex)
+            {
+                this._operationPanel.ShowErrorMessage(false, ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this._operationPanel.ShowErrorMessage(false, ex.Message);
+                throw new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
+                    this._globalInfo.I18N.GetFStr("OIParamError", ex.Message));
+            }
+        }
+
+        private void ShowOperationPanel(object state)
+        {
+            try
+            {
+                object[] oiExtraParams = GetShowParameter();
+                this._operationPanel.ShowPanel(this._sequenceData, oiExtraParams);
+            }
+            catch (TestflowException ex)
+            {
+                this._internalException = ex;
+            }
+            catch (Exception ex)
+            {
+                Exception innerException = ex.InnerException ?? ex;
+                this._internalException = new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
+                    this._globalInfo.I18N.GetFStr("OperationPanelError", innerException.Message), innerException);
+            }
+            finally
+            {
+                this._blockHandle?.Set();
+            }
+        }
+
+        private object[] GetShowParameter()
+        {
+            List<object> oiExtraParams = new List<object>(10);
+            // TestFlow平台运行时关联路径
+            List<string> platformDirs = new List<string>(10);
+            platformDirs.AddRange(this._globalInfo.ConfigData.GetProperty<string[]>("SequencePath"));
+            platformDirs.AddRange(this._globalInfo.ConfigData.GetProperty<string[]>("WorkspaceDir"));
+            platformDirs.Add(this._globalInfo.ConfigData.GetProperty<string>("PlatformLibDir"));
+            platformDirs.Add(this._globalInfo.ConfigData.GetProperty<string>("TestflowHome"));
+            oiExtraParams.Add(platformDirs.ToArray());
+
+            return oiExtraParams.ToArray();
+        }
+
+        private IOperationPanel _operationPanel;
+        private IOperationPanelInfo _operationPanelInfo;
+        private readonly List<Delegate> _eventActions;
+
+        public void Initialize(ISequenceFlowContainer sequenceData)
+        {
+            try
+            {
+                this._sequenceData = sequenceData;
+                if (_sequenceData is ITestProject)
+                {
+                    // TODO TestProject暂未实现
+                    throw new TestflowRuntimeException(ModuleErrorCode.IncorrectParamType, "Test Project is not supported.");
+                }
+                else if (this._sequenceData is ISequenceGroup)
+                {
+                    this._operationPanelInfo = ((ISequenceGroup)sequenceData).Info.OperationPanelInfo;
+                    InitOperationPanel();
+                }
+            }
+            catch (TestflowException)
+            {
+                throw;
+            }
+            catch (TargetException ex)
+            {
+                Exception innerException = ex.InnerException ?? ex;
+                this._globalInfo.LogService.Print(LogLevel.Error, CommonConst.PlatformLogSession, ex,
+                    "Target Exception occur when loading operation panel.");
+                throw new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
+                    this._globalInfo.I18N.GetFStr("OperationPanelError", innerException.Message), innerException);
+            }
+            catch (Exception ex)
+            {
+                this._globalInfo.LogService.Print(LogLevel.Error, CommonConst.PlatformLogSession, ex,
+                    "Runtime Exception occur when loading operation panel.");
+                throw new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
+                    this._globalInfo.I18N.GetFStr("OperationPanelError", ex.Message), ex);
+            }
+        }
+
         // 异步事件
         private void OiStartSequenceConfirmed(bool isStartConfirmed, Dictionary<string, object> parameters)
         {
@@ -115,57 +193,133 @@ namespace Testflow.MasterCore.Core
             this._blockHandle.Set();
         }
 
-        private EventInfo GetOIEventInfo(Type oiClassType, string eventName)
+        private void InitOperationPanel()
         {
-            EventInfo startSequenceEvent = oiClassType.GetEvent(eventName,
-                BindingFlags.Public | BindingFlags.Instance);
-            if (null == startSequenceEvent)
+            if (null == this._operationPanelInfo?.Assembly?.Path || string.IsNullOrWhiteSpace(_operationPanelInfo.Assembly.Path))
+            {
+                return;
+            }
+            _operationPanel = null;
+            Assembly assembly = Assembly.LoadFrom(_operationPanelInfo.Assembly.Path);
+            Type operationPanelType = assembly.GetType(
+                $"{_operationPanelInfo.OperationPanelClass.Namespace}.{_operationPanelInfo.OperationPanelClass.Name}");
+            if (null == operationPanelType)
             {
                 throw new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
-                    this._globalInfo.I18N.GetFStr("OIClassEventNotExist", oiClassType.Name,
-                        eventName));
+                    this._globalInfo.I18N.GetFStr("OIClassNotFound",
+                        this._operationPanelInfo.OperationPanelClass.Name));
             }
-            return startSequenceEvent;
-        }
-
-        private MethodInfo GetOIMethodInfo(Type oiClassType, string methodName, params Type[] paramTypes)
-        {
-            MethodInfo showPanelMethod = oiClassType.GetMethod(methodName,
-                BindingFlags.Instance | BindingFlags.Public, null, paramTypes, null);
-            if (null == showPanelMethod)
+            _operationPanel = Activator.CreateInstance(operationPanelType) as IOperationPanel;
+            if (null == _operationPanel)
             {
+                this._globalInfo.LogService.Print(LogLevel.Error, CommonConst.PlatformLogSession,
+                    $"The operation panel type {operationPanelType.Name} is not derived from {nameof(IOperationPanel)}");
                 throw new TestflowRuntimeException(ModuleErrorCode.OperationPanelError,
-                    this._globalInfo.I18N.GetFStr("OIClassMethodNotExist", oiClassType.Name,
-                        methodName));
+                    this._globalInfo.I18N.GetStr("InvalidOIType"));
             }
-
-            return showPanelMethod;
         }
 
-        private void Start()
-        {
 
+        private void RegisterEvent()
+        {
+            _eventActions.Clear();
+            _eventActions.Add(new RuntimeDelegate.TestGenerationAction(TestGenStart));
+            _eventActions.Add(new RuntimeDelegate.TestGenerationAction(TestGenOver));
+            _eventActions.Add(new RuntimeDelegate.TestInstanceStatusAction(TestInstanceStart));
+            _eventActions.Add(new RuntimeDelegate.SessionStatusAction(SessionStart));
+            _eventActions.Add(new RuntimeDelegate.SequenceStatusAction(SequenceStarted));
+            _eventActions.Add(new RuntimeDelegate.StatusReceivedAction(StatusReceived));
+            _eventActions.Add(new RuntimeDelegate.SequenceStatusAction(SequenceOver));
+            _eventActions.Add(new RuntimeDelegate.SessionStatusAction(SessionOver));
+            _eventActions.Add(new RuntimeDelegate.TestInstanceStatusAction(TestInstanceOver));
+            IEngineController engineController = _globalInfo.TestflowRunner.EngineController;
+            engineController.RegisterRuntimeEvent(_eventActions[0], "TestGenerationStart", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[1], "TestGenerationEnd", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[2], "TestInstanceStart", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[3], "SessionStart", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[4], "SequenceStarted", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[5], "StatusReceived", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[6], "SequenceOver", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[7], "SessionOver", 0);
+            engineController.RegisterRuntimeEvent(_eventActions[8], "TestInstanceOver", 0);
+        }
+
+        private void SessionOver(ITestResultCollection statistics)
+        {
+            _operationPanel.SessionOver(statistics);
+        }
+
+        private void SessionStart(ITestResultCollection statistics)
+        {
+            _operationPanel.SessionStart(statistics);
+        }
+
+        private void TestInstanceStart(IList<ITestResultCollection> statistics)
+        {
+            _operationPanel.TestStart(statistics);
+        }
+
+        private void TestGenStart(ITestGenerationInfo generationInfo)
+        {
+            _operationPanel.TestGenerationStart(generationInfo);
+        }
+
+        private void TestGenOver(ITestGenerationInfo generationInfo)
+        {
+            _operationPanel.TestGenerationOver(generationInfo);
+        }
+
+        private void SequenceStarted(ISequenceTestResult statistics)
+        {
+            _operationPanel.SequenceStart(statistics);
+        }
+
+        private void StatusReceived(IRuntimeStatusInfo statusinfo)
+        {
+            _operationPanel.StatusReceived(statusinfo);
+        }
+
+        private void TestInstanceOver(IList<ITestResultCollection> statistics)
+        {
+            _operationPanel.TestOver(statistics);
+        }
+
+        private void SequenceOver(ISequenceTestResult statistics)
+        {
+            _operationPanel.SequenceOver(statistics);
         }
 
         private int _disposedFlag = 0;
         public void Dispose()
         {
-            if (this._disposedFlag != 0)
+            if (_disposedFlag != 0)
             {
                 return;
             }
-            Thread.VolatileWrite(ref this._disposedFlag, 1);
+            Thread.VolatileWrite(ref _disposedFlag, 1);
             Thread.MemoryBarrier();
+            IEngineController engineController = _globalInfo.TestflowRunner.EngineController;
+            engineController.UnregisterRuntimeEvent(_eventActions[0], "TestGenerationStart", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[1], "TestGenerationEnd", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[2], "TestInstanceStart", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[3], "SessionStart", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[4], "SequenceStarted", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[5], "StatusReceived", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[6], "SequenceOver", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[7], "SessionOver", 0);
+            engineController.UnregisterRuntimeEvent(_eventActions[8], "TestInstanceOver", 0);
+            _eventActions.Clear();
+
             // 如果OI已经开始成功运行则不执行OI的释放操作
             if (!IsRunning)
             {
-                this._oiInstance.Dispose();
+                _operationPanel?.Dispose();
             }
-
             if (null != this._blockHandle)
             {
                 this._blockHandle.Set();
                 this._blockHandle.Dispose();
+                this._blockHandle = null;
             }
         }
     }

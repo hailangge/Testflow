@@ -351,7 +351,7 @@ namespace Testflow.MasterCore.Core
             Thread.VolatileWrite(ref _diposedFlag, 1);
             Thread.MemoryBarrier();
             _abortBlocker?.Dispose();
-            _blockHandle.Dispose();
+            _blockHandle?.Dispose();
         }
     }
 }

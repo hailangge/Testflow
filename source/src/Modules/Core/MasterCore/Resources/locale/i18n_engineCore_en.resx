@@ -135,6 +135,9 @@
   <data name="InvalidOIConstructor" xml:space="preserve">
     <value>Operation panle class &lt;{0}&gt; should have a constructor with string type parameter.</value>
   </data>
+  <data name="InvalidOIType" xml:space="preserve">
+    <value>Invalid operation panel type.</value>
+  </data>
   <data name="InvalidRuntimeInfoName" xml:space="preserve">
     <value>Invalid runtime information name: {0}.</value>
   </data>
@@ -149,6 +152,12 @@
   </data>
   <data name="OIClassNotFound" xml:space="preserve">
     <value>Operation class &lt;{0}&gt; cannot be found.</value>
+  </data>
+  <data name="OIParamError" xml:space="preserve">
+    <value>Operation panel parameter error: {0}</value>
+  </data>
+  <data name="OITimeout" xml:space="preserve">
+    <value>Operation panel timeout.</value>
   </data>
   <data name="OperationPanelError" xml:space="preserve">
     <value>Operation panel error:{0}</value>

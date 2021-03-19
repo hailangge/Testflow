@@ -53,6 +53,9 @@
     <Compile Include="CallBack\CallBackProcessor.cs" />
     <Compile Include="Core\OperationPanelManager.cs" />
     <Compile Include="EventData\CoroutineStatusInfo.cs" />
+    <Compile Include="LifetimeManage\LiftTimeType.cs" />
+    <Compile Include="LifetimeManage\ResourceCleaner.cs" />
+    <Compile Include="LifetimeManage\ResourceLifetimeData.cs" />
     <Compile Include="ObjectManage\IRuntimeObjectCustomer.cs" />
     <Compile Include="ObjectManage\Objects\BreakPointObject.cs" />
     <Compile Include="ObjectManage\Objects\EvaluationObject.cs" />
