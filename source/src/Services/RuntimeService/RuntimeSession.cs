@@ -46,17 +46,6 @@ namespace Testflow.RuntimeService
         public void Start()
         {
             RegisterEvents();
-
-            if (Context.SequenceGroup == null)
-            {
-                if(Context.TestGroup == null)
-                {
-                    throw new TestflowException(ModuleErrorCode.TestProjectDNE, "Neither Test Project nor Sequence Group exists");
-                }
-                throw new TestflowException(ModuleErrorCode.SequenceGroupDNE, "Sequence Group does not exist; please load using RuntimeService");
-            }
-
-            ModuleUtils.EngineStartThread(Context.SequenceGroup);
         }
 
        
@@ -116,7 +105,6 @@ namespace Testflow.RuntimeService
         #region 断点设置
         public bool HasBreakPoint(ISequence sequence, ISequenceStep sequenceStep)
         {
-
             throw new NotImplementedException();
         }
 
@@ -134,7 +122,6 @@ namespace Testflow.RuntimeService
             throw new NotImplementedException();
         }
         #endregion
-
 
         public void ForceRefreshStatus()
         {

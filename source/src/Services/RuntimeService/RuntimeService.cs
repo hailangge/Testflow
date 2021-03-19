@@ -171,21 +171,8 @@ namespace Testflow.RuntimeService
                 throw new TestflowException(ModuleErrorCode.ServiceNotLoaded, "RuntimeService not loaded. Load TestProject or SequenceGroup into RuntimeService first");
             }
 
-            //todo ModuleUtils.EngineStartThread会返回错误信息，看怎么处理
-            //好像也不需要返回Exception，因为应该外部来catch？？？？
-            //加载进TestProject
-            if (TestProject != null)
-            {
-                foreach(IRuntimeSession session in Sessions)
-                {
-                    session.Start();
-                }
-            }
-            //加载进SequenceGroup
-            else
-            {
-                Sessions[0].Start();
-            }
+            // TODO EngineController的Start不应阻塞，且需要对外提供WaitUntilDone的接口。暂时先修改为目前的状态
+            ThreadPool.QueueUserWorkItem((state) => { this._engineController.Start(); });
         }
 
         public void Stop()

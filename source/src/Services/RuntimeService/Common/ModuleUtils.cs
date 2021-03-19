@@ -49,24 +49,6 @@ namespace Testflow.RuntimeService
         //    }
         //    return testProject.SequenceGroups.ElementAt(sessionID);
         //}
-
         
-        internal static void EngineStartThread(ISequenceFlowContainer sequence)
-        {
-            Thread engineThread = new Thread(() => ModuleUtils.EngineStart(sequence))
-            {
-                IsBackground = true
-            };
-            engineThread.Start();
-        }
-
-        //在这里为什么不做个变量去保存引擎的运行情况？
-        //因为事件触发:如果引擎失败，用户会根据相应的情况去添加事件
-        //在此就无需自己在这里返回exception
-        //而且还有一点。。无法返回exception给主线程。。除非加个锁？
-        internal static void EngineStart(ISequenceFlowContainer sequence)
-        {
-                TestflowRunner.GetInstance().EngineController.Start();
-        }
     }
 }
