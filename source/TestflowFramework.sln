@@ -95,6 +95,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlaveRunnerX64", "src\Modul
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerInvoker", "src\External\RunnerInvoker\RunnerInvoker.csproj", "{5543262D-FFEB-44EB-BFC8-6F5E8BA81746}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFlowConsole", "src\External\TestFlowConsole\TestFlowConsole.csproj", "{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -245,6 +247,10 @@ Global
 		{5543262D-FFEB-44EB-BFC8-6F5E8BA81746}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5543262D-FFEB-44EB-BFC8-6F5E8BA81746}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5543262D-FFEB-44EB-BFC8-6F5E8BA81746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -294,5 +300,6 @@ Global
 		{D76DB625-859D-412D-962F-A910895DA79F} = {EEE2376E-0091-4A52-A018-A84F0620DA76}
 		{058B4A99-3F6D-4D46-8EF8-F14895700447} = {EEE2376E-0091-4A52-A018-A84F0620DA76}
 		{5543262D-FFEB-44EB-BFC8-6F5E8BA81746} = {28715545-018F-458C-B8E2-63408FD2C1AD}
+		{EAAE0A1D-0CC5-4FFF-B2EB-D369627A5B0A} = {28715545-018F-458C-B8E2-63408FD2C1AD}
 	EndGlobalSection
 EndGlobal
