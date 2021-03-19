@@ -56,6 +56,17 @@ namespace Testflow.MasterCore.Common
             return File.Exists(fullPath) ? fullPath : null;
         }
 
+        public static string GetParentDirectory(string filePath)
+        {
+            char seperator = Path.DirectorySeparatorChar;
+            if (filePath.EndsWith(seperator.ToString()) || !filePath.Contains(seperator))
+            {
+                return filePath;
+            }
+            int splitIndex = filePath.LastIndexOf(seperator) + 1;
+            return filePath.Substring(0, splitIndex);
+        }
+
         public static string GetTypeFullName(ITypeData typeData)
         {
             return $"{typeData.Namespace}.{typeData.Name}";

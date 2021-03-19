@@ -27,7 +27,8 @@ namespace Testflow.CoreCommon
         public const int UserForceFailed = 18 | CommonErrorCode.EngineCoreErrorMask;
         public const int UnsupportedPlatform = 19 | CommonErrorCode.EngineCoreErrorMask;
         public const int ExpressionError = 20 | CommonErrorCode.EngineCoreErrorMask;
-
+        public const int OperationPanelError = 50 | CommonErrorCode.EngineCoreErrorMask;
+        public const int UserCancelled = 60 | CommonErrorCode.EngineCoreErrorMask;
         public const int RuntimeError = 100 | CommonErrorCode.EngineCoreErrorMask;
 
 

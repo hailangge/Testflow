@@ -24,5 +24,9 @@
         public const string ErrorVarValue = "InvalidValue";
 
         public const int EmptyStepIndex = 0;
+
+        public const string OIShowMethod = "ShowPanel";
+        public const string OIShowErrorMethod = "ShowErrorInfo";
+        public const string StartSequenceEvent = "StartSequence";
     }
 }

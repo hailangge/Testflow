@@ -132,14 +132,32 @@
   <data name="IncorrectParamType" xml:space="preserve">
     <value>事件参数类型应为”{0}“。</value>
   </data>
+  <data name="InvalidOIConstructor" xml:space="preserve">
+    <value>操作员面板类&lt;{0}&gt;应该包含一个字符串入参的构造方法。</value>
+  </data>
   <data name="InvalidRuntimeInfoName" xml:space="preserve">
     <value>非法的运行时信息名称：{0}。</value>
   </data>
   <data name="InvalidRuntimeObjType" xml:space="preserve">
     <value>非法的运行时对象类型：{0}。</value>
   </data>
+  <data name="OIClassEventNotExist" xml:space="preserve">
+    <value>操作员面板类&lt;{0}&gt;不包含命名为&lt;{1}&gt;的事件。</value>
+  </data>
+  <data name="OIClassMethodNotExist" xml:space="preserve">
+    <value>操作员面板类&lt;{0}&gt;不包含命名为&lt;{1}&gt;的方法。</value>
+  </data>
+  <data name="OIClassNotFound" xml:space="preserve">
+    <value>操作员面板类&lt;{0}&gt;不存在。</value>
+  </data>
+  <data name="OperationPanelError" xml:space="preserve">
+    <value>操作员面板执行错误：{0}</value>
+  </data>
   <data name="OperatoinTimeout" xml:space="preserve">
     <value>操作超时。</value>
+  </data>
+  <data name="ParamVariableNotExist" xml:space="preserve">
+    <value>序列中不存在名称为“{0}”的全局变量。</value>
   </data>
   <data name="TestGenTimeout" xml:space="preserve">
     <value>测试生成超时。</value>
@@ -167,5 +185,8 @@
   </data>
   <data name="UserAbortError" xml:space="preserve">
     <value>用户终止测试序列错误：{0}。</value>
+  </data>
+  <data name="UserCancel" xml:space="preserve">
+    <value>用户取消了序列执行。</value>
   </data>
 </root>

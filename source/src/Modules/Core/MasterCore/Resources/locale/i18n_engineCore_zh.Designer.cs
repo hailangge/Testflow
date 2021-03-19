@@ -106,6 +106,15 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 操作员面板类&lt;{0}&gt;应该包含一个字符串入参的构造方法。.
+        /// </summary>
+        internal static string InvalidOIConstructor {
+            get {
+                return ResourceManager.GetString("InvalidOIConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 非法的运行时信息名称：{0}。.
         /// </summary>
         internal static string InvalidRuntimeInfoName {
@@ -124,11 +133,56 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 操作员面板类&lt;{0}&gt;不包含命名为&lt;{1}&gt;的事件。.
+        /// </summary>
+        internal static string OIClassEventNotExist {
+            get {
+                return ResourceManager.GetString("OIClassEventNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 操作员面板类&lt;{0}&gt;不包含命名为&lt;{1}&gt;的方法。.
+        /// </summary>
+        internal static string OIClassMethodNotExist {
+            get {
+                return ResourceManager.GetString("OIClassMethodNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 操作员面板类&lt;{0}&gt;不存在。.
+        /// </summary>
+        internal static string OIClassNotFound {
+            get {
+                return ResourceManager.GetString("OIClassNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 操作员面板执行错误：{0}.
+        /// </summary>
+        internal static string OperationPanelError {
+            get {
+                return ResourceManager.GetString("OperationPanelError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 操作超时。.
         /// </summary>
         internal static string OperatoinTimeout {
             get {
                 return ResourceManager.GetString("OperatoinTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 序列中不存在名称为“{0}”的全局变量。.
+        /// </summary>
+        internal static string ParamVariableNotExist {
+            get {
+                return ResourceManager.GetString("ParamVariableNotExist", resourceCulture);
             }
         }
         
@@ -210,6 +264,15 @@ namespace Testflow.MasterCore.Resources.locale {
         internal static string UserAbortError {
             get {
                 return ResourceManager.GetString("UserAbortError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 用户取消了序列执行。.
+        /// </summary>
+        internal static string UserCancel {
+            get {
+                return ResourceManager.GetString("UserCancel", resourceCulture);
             }
         }
     }

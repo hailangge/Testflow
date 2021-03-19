@@ -106,6 +106,15 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation panle class &lt;{0}&gt; should have a constructor with string type parameter..
+        /// </summary>
+        internal static string InvalidOIConstructor {
+            get {
+                return ResourceManager.GetString("InvalidOIConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid runtime information name: {0}..
         /// </summary>
         internal static string InvalidRuntimeInfoName {
@@ -124,11 +133,56 @@ namespace Testflow.MasterCore.Resources.locale {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The OI class &lt;{0}&gt; does not contain a event named as &lt;{1}&gt;..
+        /// </summary>
+        internal static string OIClassEventNotExist {
+            get {
+                return ResourceManager.GetString("OIClassEventNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The OI class &lt;{0}&gt; does not contain a method named as &lt;{1}&gt;..
+        /// </summary>
+        internal static string OIClassMethodNotExist {
+            get {
+                return ResourceManager.GetString("OIClassMethodNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation class &lt;{0}&gt; cannot be found..
+        /// </summary>
+        internal static string OIClassNotFound {
+            get {
+                return ResourceManager.GetString("OIClassNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation panel error:{0}.
+        /// </summary>
+        internal static string OperationPanelError {
+            get {
+                return ResourceManager.GetString("OperationPanelError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation timeout..
         /// </summary>
         internal static string OperatoinTimeout {
             get {
                 return ResourceManager.GetString("OperatoinTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The global variable named as &lt;{0}&gt; does not exist..
+        /// </summary>
+        internal static string ParamVariableNotExist {
+            get {
+                return ResourceManager.GetString("ParamVariableNotExist", resourceCulture);
             }
         }
         
@@ -210,6 +264,15 @@ namespace Testflow.MasterCore.Resources.locale {
         internal static string UserAbortError {
             get {
                 return ResourceManager.GetString("UserAbortError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User cancelled the execution of sequence..
+        /// </summary>
+        internal static string UserCancel {
+            get {
+                return ResourceManager.GetString("UserCancel", resourceCulture);
             }
         }
     }

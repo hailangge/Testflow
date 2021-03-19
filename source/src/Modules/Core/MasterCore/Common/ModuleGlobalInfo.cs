@@ -5,6 +5,7 @@ using Testflow.CoreCommon.Data.EventInfos;
 using Testflow.MasterCore.Core;
 using Testflow.MasterCore.EventData;
 using Testflow.MasterCore.Message;
+using Testflow.MasterCore.Serialization;
 using Testflow.MasterCore.StatusManage;
 using Testflow.Modules;
 using Testflow.Utility.I18nUtil;
@@ -18,6 +19,8 @@ namespace Testflow.MasterCore.Common
         public I18N I18N { get; }
 
         public ILogService LogService { get; }
+
+        public ObjectSerializer Serializer { get; }
 
         public TestflowRunner TestflowRunner { get; }
 
@@ -49,6 +52,7 @@ namespace Testflow.MasterCore.Common
             this.I18N = I18N.GetInstance(Constants.I18nName);
             this.LogService = TestflowRunner.LogService;
             this.ConfigData = configData;
+            this.Serializer = new ObjectSerializer(I18N);
             this.ExceptionManager = new ExceptionManager(LogService);
             this.RuntimeHash = ModuleUtils.GetRuntimeHash(configData.GetProperty<Encoding>("PlatformEncoding"));
             this.TestGenBlocker = new ManualResetEventSlim(false);
@@ -61,14 +65,14 @@ namespace Testflow.MasterCore.Common
             this.DebugHandle = new DebuggerHandle(debugManager);
         }
 
-        private int _diposedFlag = 0;
+        private int _disposedFlag = 0;
         public void Dispose()
         {
-            if (_diposedFlag != 0)
+            if (this._disposedFlag != 0)
             {
                 return;
             }
-            Thread.VolatileWrite(ref _diposedFlag, 1);
+            Thread.VolatileWrite(ref this._disposedFlag, 1);
             Thread.MemoryBarrier();
             MessageTransceiver?.Dispose();
             TestGenBlocker?.Dispose();

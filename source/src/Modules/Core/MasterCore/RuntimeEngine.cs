@@ -30,6 +30,7 @@ namespace Testflow.MasterCore
         private readonly RuntimeStatusManager _statusManager;
         private readonly SynchronousManager _syncManager;
         private readonly EngineFlowController _controller;
+        private readonly OperationPanelManager _oiManager;
         private readonly RuntimeObjectManager _runtimeObjectManager;
         private readonly CallBackProcessor _callBackProcessor;
         private readonly RuntimeInfoSelector _runtimeInfoSelector;
@@ -113,6 +114,8 @@ namespace Testflow.MasterCore
                 _runtimeObjectManager.RegisterCustomer<BreakPointObject>(_debugManager);
                 _runtimeObjectManager.RegisterCustomer<WatchDataObject>(_debugManager);
                 _runtimeObjectManager.RegisterCustomer<EvaluationObject>(_debugManager);
+                // 初始化运行时配置信息
+                InitializeRuntimeConfigData(sequenceContainer);
             }
             catch (TestflowException ex)
             {
@@ -137,6 +140,28 @@ namespace Testflow.MasterCore
                 _globalInfo.ExceptionManager.Append(ex);
                 // for test
                 throw;
+            }
+        }
+
+        private void InitializeRuntimeConfigData(ISequenceFlowContainer sequenceContainer)
+        {
+            // TODO 待添加其他的运行时配置信息
+            if (sequenceContainer is ITestProject)
+            {
+                ITestProject sequenceData = (ITestProject)sequenceContainer;
+                List<string> sequencePaths = new List<string>(sequenceData.SequenceGroups.Count + 1);
+                // TODO 暂时不填充TestProject的路径
+                foreach (ISequenceGroup sequenceGroup in sequenceData.SequenceGroups)
+                {
+                    sequencePaths.Add(ModuleUtils.GetParentDirectory(sequenceGroup.Info.SequenceGroupFile));
+                }
+                this._globalInfo.ConfigData.SetProperty("SequencePath", sequencePaths.ToArray());
+            }
+            else
+            {
+                ISequenceGroup sequenceData = (ISequenceGroup)sequenceContainer;
+                string sequencePath = ModuleUtils.GetParentDirectory(sequenceData.Info.SequenceGroupFile);
+                this._globalInfo.ConfigData.SetProperty("SequencePath", new string[] { sequencePath });
             }
         }
 

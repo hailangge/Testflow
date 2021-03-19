@@ -132,14 +132,32 @@
   <data name="IncorrectParamType" xml:space="preserve">
     <value>The type of event parameter should be "{0}".</value>
   </data>
+  <data name="InvalidOIConstructor" xml:space="preserve">
+    <value>Operation panle class &lt;{0}&gt; should have a constructor with string type parameter.</value>
+  </data>
   <data name="InvalidRuntimeInfoName" xml:space="preserve">
     <value>Invalid runtime information name: {0}.</value>
   </data>
   <data name="InvalidRuntimeObjType" xml:space="preserve">
     <value>Invalid runtime object type: {0}.</value>
   </data>
+  <data name="OIClassEventNotExist" xml:space="preserve">
+    <value>The OI class &lt;{0}&gt; does not contain a event named as &lt;{1}&gt;.</value>
+  </data>
+  <data name="OIClassMethodNotExist" xml:space="preserve">
+    <value>The OI class &lt;{0}&gt; does not contain a method named as &lt;{1}&gt;.</value>
+  </data>
+  <data name="OIClassNotFound" xml:space="preserve">
+    <value>Operation class &lt;{0}&gt; cannot be found.</value>
+  </data>
+  <data name="OperationPanelError" xml:space="preserve">
+    <value>Operation panel error:{0}</value>
+  </data>
   <data name="OperatoinTimeout" xml:space="preserve">
     <value>Operation timeout.</value>
+  </data>
+  <data name="ParamVariableNotExist" xml:space="preserve">
+    <value>The global variable named as &lt;{0}&gt; does not exist.</value>
   </data>
   <data name="TestGenTimeout" xml:space="preserve">
     <value>Test generation timeout.</value>
@@ -167,5 +185,8 @@
   </data>
   <data name="UserAbortError" xml:space="preserve">
     <value>Abort Error: {0}.</value>
+  </data>
+  <data name="UserCancel" xml:space="preserve">
+    <value>User cancelled the execution of sequence.</value>
   </data>
 </root>
