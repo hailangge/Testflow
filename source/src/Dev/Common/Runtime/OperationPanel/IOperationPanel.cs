@@ -18,7 +18,7 @@ namespace Testflow.Runtime.OperationPanel
         /// <summary>
         /// OI面板确认可以开始运行的事件
         /// </summary>
-        event Action<bool, string> OiReady;
+        event Action<bool, Dictionary<string, object>> OiReady;
 
         /// <summary>
         /// OI运行的序列对象
@@ -87,5 +87,18 @@ namespace Testflow.Runtime.OperationPanel
         /// </summary>
         /// <param name="testResults">所有会话执行的结果列表</param>
         void TestOver(IList<ITestResultCollection> testResults);
+
+        /// <summary>
+        /// 在输出窗体打印信息
+        /// </summary>
+        /// <param name="message">输出的信息</param>
+        void PrintMessage(string message);
+
+        /// <summary>
+        /// 打印错误信息
+        /// </summary>
+        /// <param name="isContinue">序列是否继续执行</param>
+        /// <param name="message">打印的错误消息</param>
+        void ShowErrorMessage(bool isContinue, string message);
     }
 }
