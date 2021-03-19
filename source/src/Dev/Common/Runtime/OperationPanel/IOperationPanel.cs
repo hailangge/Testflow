@@ -11,6 +11,11 @@ namespace Testflow.Runtime.OperationPanel
     public interface IOperationPanel : IDisposable
     {
         /// <summary>
+        /// OI配置界面的类
+        /// </summary>
+        Type ConfigPanelType { get; }
+
+        /// <summary>
         /// OI面板确认可以开始运行的事件
         /// </summary>
         event Action<bool, string> OiReady;
