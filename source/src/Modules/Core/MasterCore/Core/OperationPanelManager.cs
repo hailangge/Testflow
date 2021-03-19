@@ -39,6 +39,7 @@ namespace Testflow.MasterCore.Core
             this._isStartConfirmed = false;
             this.IsRunning = false;
             this._internalException = null;
+            this._operationPanelInfo = null;
             this._eventActions = new List<Delegate>(10);
         }
 
@@ -69,6 +70,10 @@ namespace Testflow.MasterCore.Core
 
         public void Start()
         {
+            if (null == this._operationPanelInfo)
+            {
+                return;
+            }
             RegisterEvent();
             this._blockHandle = new AutoResetEvent(false);
             this._isStartConfirmed = false;
@@ -160,7 +165,13 @@ namespace Testflow.MasterCore.Core
                 }
                 else if (this._sequenceData is ISequenceGroup)
                 {
-                    this._operationPanelInfo = ((ISequenceGroup)sequenceData).Info.OperationPanelInfo;
+                    ISequenceGroup sequenceGroup = ((ISequenceGroup)sequenceData);
+                    this._operationPanelInfo = sequenceGroup.Info.OperationPanelInfo;
+                    if (IsEmptyOperationPanel())
+                    {
+                        this._operationPanelInfo = null;
+                        return;
+                    }
                     InitOperationPanel();
                 }
             }
@@ -185,6 +196,14 @@ namespace Testflow.MasterCore.Core
             }
         }
 
+        private bool IsEmptyOperationPanel()
+        {
+            return _operationPanelInfo?.Assembly == null ||
+                   string.IsNullOrWhiteSpace(this._operationPanelInfo.Assembly.Path) ||
+                   null == this._operationPanelInfo.OperationPanelClass ||
+                   string.IsNullOrWhiteSpace(this._operationPanelInfo.OperationPanelClass.Name);
+        }
+
         // 异步事件
         private void OiStartSequenceConfirmed(bool isStartConfirmed, Dictionary<string, object> parameters)
         {
@@ -195,7 +214,7 @@ namespace Testflow.MasterCore.Core
 
         private void InitOperationPanel()
         {
-            if (null == this._operationPanelInfo?.Assembly?.Path || string.IsNullOrWhiteSpace(_operationPanelInfo.Assembly.Path))
+            if (_operationPanelInfo?.Assembly?.Path == null || string.IsNullOrWhiteSpace(this._operationPanelInfo.Assembly.Path))
             {
                 return;
             }
@@ -298,6 +317,10 @@ namespace Testflow.MasterCore.Core
             }
             Thread.VolatileWrite(ref _disposedFlag, 1);
             Thread.MemoryBarrier();
+            if (null == this._operationPanelInfo)
+            {
+                return;
+            }
             IEngineController engineController = _globalInfo.TestflowRunner.EngineController;
             engineController.UnregisterRuntimeEvent(_eventActions[0], "TestGenerationStart", 0);
             engineController.UnregisterRuntimeEvent(_eventActions[1], "TestGenerationEnd", 0);

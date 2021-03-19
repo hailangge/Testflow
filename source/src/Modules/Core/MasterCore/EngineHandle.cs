@@ -51,6 +51,8 @@ namespace Testflow.MasterCore
         public void RuntimeInitialize()
         {
             RegisterFailedInfoConvertion();
+            // 清空事件
+            ExceptionRaised = null;
             _runtimeEngine = new RuntimeEngine(ConfigData);
             _runtimeEngine.GlobalInfo.ExceptionManager.ExceptionRaised += (exception) => { ExceptionRaised?.Invoke(exception); };
         }
