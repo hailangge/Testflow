@@ -156,7 +156,7 @@ namespace Testflow.ConfigurationManager
 
         private void InitializeAttributeInfos(GlobalConfigData globalConfigData, ConfigDataLoader dataLoader)
         {
-            throw new NotImplementedException();
+            // TODO 待实现初始化Attribute描述信息的代码
         }
 
         private static Type GetTargetType(string assemblyDir, string className, Type baseType)

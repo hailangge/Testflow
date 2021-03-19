@@ -20,18 +20,18 @@ namespace Testflow.SlaveCore.Runner.Attributes
 
         public void ProcessPrecedingAttributes(ISequenceStep stepData)
         {
-            foreach (IStepAttribute stepAttribute in stepData.PrecedingAttributes)
-            {
-                
-            }
+            // foreach (IStepAttribute stepAttribute in stepData.PrecedingAttributes)
+            // {
+            //     
+            // }
         }
 
         public void ProcessPostAttributes(ISequenceStep stepData)
         {
-            foreach (IStepAttribute stepAttribute in stepData.PostAttributes)
-            {
-                
-            }
+            // foreach (IStepAttribute stepAttribute in stepData.PostAttributes)
+            // {
+            //     
+            // }
         }
 
         private void ProcessSingleAttribute(ISequenceStep step)

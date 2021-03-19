@@ -29,8 +29,8 @@ namespace Testflow.SequenceManager.SequenceElements
             this.Tag = string.Empty;
             this.AssertFailedAction = FailedAction.Terminate;
             this.InvokeErrorAction = FailedAction.Terminate;
-            this.PrecedingAttributes = new StepAttributeCollection();
-            this.PostAttributes = new StepAttributeCollection();
+            // this.PrecedingAttributes = new StepAttributeCollection();
+            // this.PostAttributes = new StepAttributeCollection();
         }
 
         [RuntimeSerializeIgnore]
@@ -60,10 +60,10 @@ namespace Testflow.SequenceManager.SequenceElements
         public IFunctionData Function { get; set; }
 
         // TODO
-        public IStepActionCollection PostActions { get; set; }
+        // public IStepActionCollection PostActions { get; set; }
 
-        [RuntimeType(typeof(StepAttributeCollection))]
-        public IStepAttributeCollection PostAttributes { get; set; }
+        // [RuntimeType(typeof(StepAttributeCollection))]
+        // public IStepAttributeCollection PostAttributes { get; set; }
 
         public SequenceStepType StepType { get; set; }
 
@@ -149,10 +149,10 @@ namespace Testflow.SequenceManager.SequenceElements
                 ModuleUtils.CloneCollection(this.PrecedingAttributes, precedingAttributes);
             }
             StepAttributeCollection postAttributes = new StepAttributeCollection();
-            if (this.PostAttributes?.Count > 0)
-            {
-                ModuleUtils.CloneCollection(this.PostAttributes, postAttributes);
-            }
+            // if (this.PostAttributes?.Count > 0)
+            // {
+            //     ModuleUtils.CloneCollection(this.PostAttributes, postAttributes);
+            // }
 
             SequenceStepCollection subStepCollection = null;
             if (null != this.SubSteps)
@@ -170,7 +170,7 @@ namespace Testflow.SequenceManager.SequenceElements
                 Index = Constants.UnverifiedIndex,
                 PrecedingAttributes = precedingAttributes,
                 Function = this.Function?.Clone(),
-                PostAttributes = postAttributes,
+                // PostAttributes = postAttributes,
                 Behavior = this.Behavior,
                 RecordStatus = this.RecordStatus,
                 StepType = this.StepType,
