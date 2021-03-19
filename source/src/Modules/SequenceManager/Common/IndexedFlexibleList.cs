@@ -17,22 +17,26 @@ namespace Testflow.SequenceManager.Common
 
         public override void Add(TDataType item)
         {
-            ModuleUtils.AddAndRefreshIndex(this.InnerCollection, item);
+            base.Add(item);
+            ModuleUtils.AddAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item);
         }
 
         public override bool Remove(TDataType item)
         {
-            return ModuleUtils.RemoveAndRefreshIndex(this.InnerCollection, item);
+            base.Remove(item);
+            return ModuleUtils.RemoveAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item);
         }
 
         public override void Insert(int index, TDataType item)
         {
-            ModuleUtils.InsertAndRefreshIndex(InnerCollection, item, index);
+            base.Insert(index, item);
+            ModuleUtils.InsertAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item, index);
         }
 
         public override void RemoveAt(int index)
         {
-            ModuleUtils.RemoveAtAndRefreshIndex(InnerCollection, index);
+            base.RemoveAt(index);
+            ModuleUtils.RemoveAtAndRefreshIndex(this.InnerCollection ?? EmptyCollection, index);
         }
     }
 }

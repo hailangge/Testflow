@@ -8,6 +8,8 @@ namespace Testflow.SequenceManager.Common
     [Serializable]
     public class FlexibleList<TDataType> : IList<TDataType>
     {
+        protected static List<TDataType> EmptyCollection = new List<TDataType>(0);
+
         protected List<TDataType> InnerCollection;
         public FlexibleList(bool isReadOnly = false)
         {
