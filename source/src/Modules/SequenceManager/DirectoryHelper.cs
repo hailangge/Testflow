@@ -33,13 +33,13 @@ namespace Testflow.SequenceManager
             // 本来用上面就可以确定，因为前期版本里对相对路径前加了\，导致相对路径在第一条下会被判定为绝对路径，所以在此做当前处理
             // 暂未考虑Linux的问题，后续版本会去除这里的判断
 //            string relativePathFormat = @"^([a-zA-Z]:)?{0}";
-            const string relativePathFormat = @"^[a-zA-Z]:{0}";
+            const string absolutePathFormat = @"^[a-zA-Z]:{0}";
             char dirDelim = Path.DirectorySeparatorChar;
             // \在正则表达式中需要转义
-            string relativePathRegexStr = dirDelim.Equals('\\')
-                ? string.Format(relativePathFormat, @"\\")
-                : string.Format(relativePathFormat, dirDelim);
-            _absolutePathRegex = new Regex(relativePathRegexStr);
+            string absolutePathRegexStr = dirDelim.Equals('\\')
+                ? string.Format(absolutePathFormat, @"\\")
+                : string.Format(absolutePathFormat, dirDelim);
+            _absolutePathRegex = new Regex(absolutePathRegexStr);
 
             _availableDirs = new List<string>(workspaceDirs.Length + 5);
             _availableDirs.Add(dotNetRootDir);
