@@ -145,6 +145,8 @@
             // 
             // label_errorHead
             // 
+            this.label_errorHead.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label_errorHead.Font = new System.Drawing.Font("Verdana", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_errorHead.Location = new System.Drawing.Point(126, 11);
             this.label_errorHead.Name = "label_errorHead";
@@ -154,6 +156,8 @@
             // 
             // textBox_errorIntro
             // 
+            this.textBox_errorIntro.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_errorIntro.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox_errorIntro.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox_errorIntro.Location = new System.Drawing.Point(130, 55);
@@ -171,6 +175,7 @@
             // 
             // button_save
             // 
+            this.button_save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_save.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.button_save.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_save.Location = new System.Drawing.Point(532, 377);
@@ -201,7 +206,7 @@
             this.MinimumSize = new System.Drawing.Size(663, 441);
             this.Name = "ErrorInfoForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Error";
+            this.Text = "TestFlow Engine Error";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_icon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
