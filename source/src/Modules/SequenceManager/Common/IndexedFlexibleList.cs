@@ -18,7 +18,7 @@ namespace Testflow.SequenceManager.Common
         public override void Add(TDataType item)
         {
             base.Add(item);
-            ModuleUtils.AddAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item);
+            ModuleUtils.RefreshIndex(this.InnerCollection ?? EmptyCollection, item);
         }
 
         public override bool Remove(TDataType item)

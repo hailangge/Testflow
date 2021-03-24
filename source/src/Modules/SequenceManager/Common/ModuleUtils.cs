@@ -134,6 +134,15 @@ namespace Testflow.SequenceManager.Common
 
         private const string IndexPropertName = "Index";
 
+        public static bool RefreshIndex<TDataType>(IList<TDataType> collection, TDataType item)
+        {
+            int index = collection.IndexOf(item);
+            PropertyInfo propertyInfo = item.GetType()
+                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
+            propertyInfo?.SetValue(item, index);
+            return true;
+        }
+
         public static bool AddAndRefreshIndex<TDataType>(IList<TDataType> collection, TDataType item)
         {
             int index = collection.Count;
