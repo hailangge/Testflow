@@ -43,6 +43,11 @@
         /// <summary>
         /// 回调返回消息
         /// </summary>
-        CallBack = 7
+        CallBack = 7, 
+
+        /// <summary>
+        /// 属性结果消息
+        /// </summary>
+        AttributeMessage = 8
     }
 }
