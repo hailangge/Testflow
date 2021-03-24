@@ -40,7 +40,7 @@ namespace Testflow.SequenceManager.SequenceElements
 
         public void Clear()
         {
-            _innerCollection.Clear();
+            _innerCollection?.Clear();
             FreeIfNotUsed();
         }
 
