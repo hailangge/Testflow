@@ -51,16 +51,35 @@
     <Compile Include="Collections\Convertor\EnumConvertor.cs" />
     <Compile Include="Collections\Convertor\ValueConvertor.cs" />
     <Compile Include="Collections\SerializableMap.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Controls\ErrorInfoForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Controls\ErrorInfoForm.Designer.cs">
       <DependentUpon>ErrorInfoForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Expression\AmbiguousPoint.cs" />
+    <Compile Include="Expression\ExpressionData.cs" />
+    <Compile Include="Expression\ExpressionElement.cs" />
+    <Compile Include="Expression\ExpressionParser.cs" />
+    <Compile Include="Expression\OperatorTokenInfoComparer.cs" />
+    <Compile Include="Expression\OperatorTokenInfo.cs" />
+    <Compile Include="Expression\OperatorInstance.cs" />
+    <Compile Include="Expression\ParserStateMachine.cs" />
     <Compile Include="MessageUtil\JsonFormatter.cs" />
     <Compile Include="ModuleErrorCode.cs" />
+    <Compile Include="Resources\i18n_expression_en.Designer.cs">
+      <DependentUpon>i18n_expression_en.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="Resources\i18n_utils_en.Designer.cs">
       <DependentUpon>i18n_utils_en.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Resources\i18n_expression_zh.Designer.cs">
+      <DependentUpon>i18n_expression_zh.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -118,6 +137,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>i18n_i18n_zh.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\i18n_expression_en.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>i18n_expression_en.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\i18n_utils_en.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>i18n_utils_en.Designer.cs</LastGenOutput>
@@ -125,6 +148,10 @@
     <EmbeddedResource Include="Resources\i18n_messenger_en.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>i18n_messenger_en.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\i18n_expression_zh.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>i18n_expression_zh.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\i18n_utils_zh.resx">
       <Generator>ResXFileCodeGenerator</Generator>

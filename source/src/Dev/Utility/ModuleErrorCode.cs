@@ -21,5 +21,10 @@ namespace Testflow.Utility
         /// 消息队列接收错误
         /// </summary>
         public const int SequenceDataError = 200 | CommonErrorCode.UtilityErrorMask;
+
+        /// <summary>
+        /// 表达式解析错误
+        /// </summary>
+        public const int ExpressionError = 300 | CommonErrorCode.UtilityErrorMask;
     }
 }
