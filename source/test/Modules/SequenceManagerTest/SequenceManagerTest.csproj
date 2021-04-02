@@ -70,6 +70,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ExpressionTest.cs" />
     <Compile Include="FakeTestflowRunner.cs" />
     <Compile Include="ModuleConfigData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
