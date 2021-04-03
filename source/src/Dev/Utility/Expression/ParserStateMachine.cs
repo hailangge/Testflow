@@ -195,6 +195,18 @@ namespace Testflow.Utility.Expression
         // 将表达式中用表达式占位符替代的表达式元素的值更新为真实的子表达式
         private void ProcessExpressionArguments(IExpressionData expression)
         {
+            IExpressionElement source = expression.Source;
+            if (source.Type == ParameterType.Expression)
+            {
+                if (!this._expressionCache.ContainsKey(source.Value))
+                {
+                    throw new ApplicationException("Source expression not set.");
+                }
+                source.Expression = this._expressionCache[source.Value];
+                source.Value = string.Empty;
+                this._expressionCache.Remove(source.Value);
+                ProcessExpressionArguments(source.Expression);
+            }
             foreach (IExpressionElement argument in expression.Arguments)
             {
                 if (argument.Type != ParameterType.Expression)
@@ -215,98 +227,131 @@ namespace Testflow.Utility.Expression
         private Func<bool> GetNextStateFunc()
         {
             Func<bool> stateFunc = null;
-            bool noCurrentOperator = null == this._currentOperator;
-            bool noLeftArgument = null == this._leftArgument;
-            bool operatorStackEmpty = this._operatorStack.Count <= 0;
-            bool ambiguousStackEmpty = this._ambiguousStack.Count <= 0;
-            int funcFlag = (noCurrentOperator ? 1 << 2 : 0) | (noLeftArgument ? 1 << 1 : 0) |
-                           (operatorStackEmpty ? 1 << 0 : 0);
-            if (this._elementIndex >= this._splitExpression.Length)
+            bool hasCurrentOperator = null != this._currentOperator;
+            bool hasLeftArgument = null != this._leftArgument;
+            bool operatorStackNotEmpty = this._operatorStack.Count > 0;
+            bool ambiguousStackNotEmpty = this._ambiguousStack.Count > 0;
+            int funcFlag = (hasCurrentOperator ? 1 << 3 : 0) | (hasLeftArgument ? 1 << 2 : 0) |
+                           (operatorStackNotEmpty ? 1 << 1 : 0) | (ambiguousStackNotEmpty ? 1 : 0);
+            bool elementIterationNotOver = this._elementIndex < this._splitExpression.Length;
+            bool elementIsArgument = false;
+            if (elementIterationNotOver)
+            {
+                elementIsArgument = this._splitExpression[this._elementIndex].StartsWith(UtilityConstants.ArgNamePrefix);
+            }
+            // 遍历到参数
+            if (elementIterationNotOver && elementIsArgument)
             {
                 switch (funcFlag)
                 {
                     case 0:
+                    case 1:
                         stateFunc = State_1_a_Action;
                         break;
-                    case 1:
+                    case 2:
+                    case 3:
                         stateFunc = State_1_c_Action;
                         break;
-                    case 2:
+                    case 4:
+                    case 5:
                         stateFunc = State_1_e_Action;
                         break;
-                    case 3:
+                    case 6:
+                    case 7:
                         stateFunc = State_1_g_Action;
                         break;
-                    case 4:
+                    case 8:
+                    case 9:
                         stateFunc = State_1_i_Action;
                         break;
-                    case 5:
+                    case 10:
+                    case 11:
                         stateFunc = State_1_k_Action;
                         break;
-                    case 6:
+                    case 12:
+                    case 13:
                         stateFunc = State_1_m_Action;
                         break;
-                    case 7:
+                    case 14:
+                    case 15:
                         stateFunc = State_1_o_Action;
                         break;
                 }
             }
-            else if (this._splitExpression[this._elementIndex].StartsWith(UtilityConstants.ArgNamePrefix))
+            // 遍历到运算符
+            else if (elementIterationNotOver && !elementIsArgument)
             {
                 switch (funcFlag)
                 {
                     case 0:
+                    case 1:
                         stateFunc = State_2_a_Action;
                         break;
-                    case 1:
+                    case 2:
+                    case 3:
                         stateFunc = State_2_c_Action;
                         break;
-                    case 2:
+                    case 4:
+                    case 5:
                         stateFunc = State_2_e_Action;
                         break;
-                    case 3:
+                    case 6:
+                    case 7:
                         stateFunc = State_2_g_Action;
                         break;
-                    case 4:
+                    case 8:
+                    case 9:
                         stateFunc = State_2_i_Action;
                         break;
-                    case 5:
+                    case 10:
+                    case 11:
                         stateFunc = State_2_k_Action;
                         break;
-                    case 6:
+                    case 12:
+                    case 13:
                         stateFunc = State_2_m_Action;
                         break;
-                    case 7:
+                    case 14:
+                    case 15:
                         stateFunc = State_2_o_Action;
                         break;
                 }
             }
+            // 遍历结束
             else
             {
                 switch (funcFlag)
                 {
                     case 0:
+                    case 1:
                         stateFunc = State_3_a_Action;
                         break;
-                    case 1:
+                    case 2:
+                    case 3:
                         stateFunc = State_3_c_Action;
                         break;
-                    case 2:
+                    case 4:
+                    case 5:
                         stateFunc = State_3_e_Action;
                         break;
-                    case 3:
+                    case 6:
+                    case 7:
                         stateFunc = State_3_g_Action;
                         break;
-                    case 4:
+                    case 8:
+                    case 9:
                         stateFunc = State_3_i_Action;
                         break;
-                    case 5:
+                    case 10:
+                    case 11:
                         stateFunc = State_3_k_Action;
                         break;
-                    case 6:
+                    case 12:
+                    case 13:
                         stateFunc = State_3_m_Action;
                         break;
-                    case 7:
+                    case 14:
+                    case 15:
                         stateFunc = State_3_o_Action;
                         break;
                 }

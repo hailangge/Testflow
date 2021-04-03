@@ -68,10 +68,12 @@ namespace Testflow.Utility.Expression
             this.Priority = operationInfo.Priority;
             this.HasLeftElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.LeftValuePattern);
             this.HasRightElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.RightValuePattern);
-            this.ArgumentCount = operationInfo.ArgumentsCount;
+            // 表达式匹配时认定Source也是Argument
+            int argumentCountIncludeSource = operationInfo.ArgumentsCount + 1;
+            this.ArgumentCount = argumentCountIncludeSource;
 
             int expectArgumentCount = TokenGroup.Length - 1 + (HasLeftElement ? 1 : 0) + (HasRightElement ? 1 : 0);
-            if (expectArgumentCount != operationInfo.ArgumentsCount)
+            if (expectArgumentCount != argumentCountIncludeSource)
             {
                 I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,

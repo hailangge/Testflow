@@ -58,8 +58,6 @@ namespace Testflow.Utility.Expression
         private readonly Regex _strRegex;
         // 布尔类型的匹配模式
         private readonly Regex _boolRegex;
-        // 分割表达式以获取所有参与计算元素的匹配模式
-        private readonly Regex _elementSplitRegex;
         // 表达式参数处理后的匹配模式
         private readonly Regex _singleArgRegex;
         // 表达式解析预处理过程中使用到的参数名称模式
@@ -100,9 +98,6 @@ namespace Testflow.Utility.Expression
             const int presetLevel = 7;
             this._presetSplitArranges = new List<int[][]>(presetLevel);
             InitPresetSplitArrangesToSpecifiedLevel(presetLevel);
-
-            string elementSplitPattern = GetElementSplitPattern();
-            this._elementSplitRegex = new Regex(elementSplitPattern, RegexOptions.RightToLeft | RegexOptions.Compiled);
 
             this._operatorTokens = new HashSet<string>();
             this._operatorTokenChars = new HashSet<char>();
@@ -210,43 +205,6 @@ namespace Testflow.Utility.Expression
             operatorTokenInfos.Sort(new OperatorTokenInfoComparer());
             return operatorTokenInfos;
         }
-
-        private string GetElementSplitPattern()
-        {
-            // 正则表达式中的元符号
-            HashSet<char> metaCharacters = new HashSet<char>
-            {
-                '^', '[', ']','.', '$', '{', '}', '*', '(', '\\', '+', ')','|', '?', '<', '>'
-            };
-            HashSet<string> tokenSets = new HashSet<string>();
-            StringBuilder splitPattern = new StringBuilder(200);
-            splitPattern.Append('[');
-            foreach (OperatorTokenInfo operatorInfo in this._operatorTokenInfos)
-            {
-                foreach (string token in operatorInfo.TokenGroup)
-                {
-                    if (tokenSets.Contains(token))
-                    {
-                        continue;
-                    }
-                    tokenSets.Add(token);
-                    foreach (char tokenChar in token)
-                    {
-                        if (metaCharacters.Contains(tokenChar))
-                        {
-                            splitPattern.Append('\\').Append(tokenChar);
-                        }
-                        else
-                        {
-                            splitPattern.Append(tokenChar);
-                        }
-                    }
-                }
-            }
-            splitPattern.Append(']');
-            return splitPattern.ToString();
-        }
-
         #region 表达式解析
 
         /// <summary>
@@ -356,8 +314,24 @@ namespace Testflow.Utility.Expression
 
         private void CacheExistingElements(StringBuilder expressionCache, ref int argumentIndex, Dictionary<string, string> argumentCache)
         {
-            IEnumerable<string> splitElements = this._elementSplitRegex.Split(expressionCache.ToString())
-                .Where(item => !string.IsNullOrWhiteSpace(item)).Reverse();
+            List<string> splitElements = new List<string>(expressionCache.Length);
+            int nearestTokenCharIndex = expressionCache.Length;
+            for (int i = expressionCache.Length - 1; i >= 0; i--)
+            {
+                char element = expressionCache[i];
+                if (this._operatorTokenChars.Contains(element))
+                {
+                    if (nearestTokenCharIndex - i > 1)
+                    {
+                        splitElements.Add(expressionCache.ToString(i + 1, nearestTokenCharIndex - (i + 1)));
+                    }
+                    nearestTokenCharIndex = i;
+                }
+            }
+            if (nearestTokenCharIndex > 0)
+            {
+                splitElements.Add(expressionCache.ToString(0, nearestTokenCharIndex));
+            }
             int elementStartIndex = expressionCache.Length;
             foreach (string element in splitElements)
             {
@@ -548,35 +522,35 @@ namespace Testflow.Utility.Expression
         private void InitSimpleSplitExpressionAndTokenGroupIndexes(StringBuilder expressionCache)
         {
             int index = 0;
-            int lastIndex = -1;
+            // 上一个操作符符号起始的位置
+            int lastTokenStartIndex = -1;
             while (index < expressionCache.Length)
             {
                 if (expressionCache[index].Equals('A'))
                 {
-                    if (lastIndex >= 0)
+                    if (lastTokenStartIndex >= 0)
                     {
-                        this._simpleSplitExpression.Add(expressionCache.ToString(lastIndex, index - lastIndex));
+                        this._simpleSplitExpression.Add(expressionCache.ToString(lastTokenStartIndex, index - lastTokenStartIndex));
+                        this._tokenGroupIndexes.Add(this._simpleSplitExpression.Count - 1);
                     }
 
-                    lastIndex = index;
+                    lastTokenStartIndex = index;
                     index += UtilityConstants.ArgNamePrefix.Length + 1;
                     while (index < expressionCache.Length && expressionCache[index] >= '0' && expressionCache[index] <= '9')
                     {
                         index++;
                     }
-
-                    this._simpleSplitExpression.Add(expressionCache.ToString(lastIndex, index - lastIndex));
-                    this._tokenGroupIndexes.Add(this._simpleSplitExpression.Count - 1);
-                    lastIndex = index;
+                    this._simpleSplitExpression.Add(expressionCache.ToString(lastTokenStartIndex, index - lastTokenStartIndex));
+                    lastTokenStartIndex = index;
                 }
                 else
                 {
                     index++;
                 }
             }
-            if (lastIndex < expressionCache.Length)
+            if (lastTokenStartIndex < expressionCache.Length)
             {
-                this._simpleSplitExpression.Add(expressionCache.ToString(lastIndex, expressionCache.Length - lastIndex));
+                this._simpleSplitExpression.Add(expressionCache.ToString(lastTokenStartIndex, expressionCache.Length - lastTokenStartIndex));
                 this._tokenGroupIndexes.Add(this._simpleSplitExpression.Count - 1);
             }
         }

@@ -31,6 +31,7 @@ namespace Testflow.Utility.Expression
 
         public OperatorInstance(OperatorTokenInfo token, int startIndex)
         {
+            this.Name = token.OperatorName;
             this.TokenInfo = token;
             this.StartIndex = startIndex;
             this._currentTokenIndex = 0;
@@ -61,17 +62,14 @@ namespace Testflow.Utility.Expression
         public bool IsNeedRightElement()
         {
             int leftOffset = TokenInfo.HasLeftElement ? 1 : 0;
-            int rightOffset = TokenInfo.HasRightElement ? 1 : 0;
+            int rightOffset = (!IsTokenIterationOver() || TokenInfo.HasRightElement) ? 1 : 0;
             int expectArgumentCount = this._currentTokenIndex + leftOffset + rightOffset;
             return expectArgumentCount > Arguments.Count;
         }
 
         public int ElementCountToFill()
         {
-            int leftOffset = TokenInfo.HasLeftElement ? 1 : 0;
-            int rightOffset = TokenInfo.HasRightElement ? 1 : 0;
-            int expectArgumentCount = this._currentTokenIndex + leftOffset + rightOffset;
-            return expectArgumentCount - Arguments.Count;
+            return TokenInfo.ArgumentCount - Arguments.Count;
         }
 
         public void AddArgument(string argument)
@@ -87,7 +85,14 @@ namespace Testflow.Utility.Expression
                 ParameterType argumentType = argument.StartsWith(UtilityConstants.ExpNamePrefix)
                     ? ParameterType.Expression
                     : ParameterType.Value;
-                expressionData.Arguments.Add(new ExpressionElement(argumentType, argument));
+                if (null == expressionData.Source)
+                {
+                    expressionData.Source = new ExpressionElement(argumentType, argument);
+                }
+                else
+                {
+                    expressionData.Arguments.Add(new ExpressionElement(argumentType, argument));
+                }
             }
             return expressionData;
         }
