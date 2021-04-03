@@ -24,8 +24,9 @@ namespace Testflow.Utility.Expression
         private readonly StringBuilder _expressionCache;
         // 参数缓存
         private readonly Dictionary<string, string> _argumentCache;
-        // 临时表达式缓存
-        private readonly Dictionary<string, string> _tempExpCache;
+
+        // 解析表达式的状态机
+        private readonly ParserStateMachine _parserStateMachine;
 
         // 遍历时每个符号组在简单分割缓存中的索引值
         private readonly List<int> _tokenGroupIndexes;
@@ -33,16 +34,12 @@ namespace Testflow.Utility.Expression
         private readonly Stack<int> _lastEnqueueTokenIndexes;
         // 每个TokenGroup上次被使用的分割方式
         private readonly Stack<int> _lastUsedPossibleSplit;
-        // 解析符号值的栈
-        private readonly Stack<int> _operatorStack;
-        // 解析符号时当前已填充的参数索引
-        private readonly Stack<int> _operatorArgIndex;
         // 每个符号组可能的分割方式
         private readonly List<string[][]> _possibleSplitTokens;
         // 用参数分割后的表达式缓存
         private readonly List<string> _simpleSplitExpression;
-
-        private List<int[][]> _presetSplitArranges;
+        // 预设的拆分组合
+        private readonly List<int[][]> _presetSplitArranges;
 
         // 包含运算符中用到的所有符号的集合
         private readonly HashSet<string> _expressionTokens;
@@ -51,8 +48,6 @@ namespace Testflow.Utility.Expression
         private readonly Dictionary<string, OperatorTokenInfo> _operatorTokenMapping;
         private List<OperatorTokenInfo> _operatorTokenInfos;
 
-        // 解析结束的匹配模式
-        private readonly Regex _parseOverRegex;
         // 数值类型参数的匹配模式
         private readonly Regex _digitRegex;
         // 科学技术类型参数的匹配模式
@@ -69,8 +64,6 @@ namespace Testflow.Utility.Expression
         private readonly Regex _argNamePattern;
         // 表达式符号中连续符号的最长个数
         private int _maxTokenLength;
-        
-
 
         /// <summary>
         /// 使用操作符信息初始化解析器
@@ -79,17 +72,13 @@ namespace Testflow.Utility.Expression
         public ExpressionParser(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
         {
             this._expressionCache = new StringBuilder(CacheCapacity);
-            this._tempExpCache = new Dictionary<string, string>(10);
             this._tokenGroupIndexes = new List<int>(100);
             this._lastEnqueueTokenIndexes = new Stack<int>(20);
             this._lastUsedPossibleSplit = new Stack<int>(20);
             this._possibleSplitTokens = new List<string[][]>(50);
             this._simpleSplitExpression = new List<string>(50);
-            this._operatorStack = new Stack<int>(20);
-            this._operatorArgIndex = new Stack<int>(20);
 
             this._argumentCache = new Dictionary<string, string>(10);
-            this._parseOverRegex = new Regex(Constants.SingleExpPattern, RegexOptions.Compiled);
             this._digitRegex = new Regex(Constants.NumericPattern, RegexOptions.Compiled);
             this._sciDigitRegex = new Regex(Constants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
             this._strRegex = new Regex(Constants.StringPattern, RegexOptions.Compiled);
@@ -120,6 +109,8 @@ namespace Testflow.Utility.Expression
                     }
                 }
             }
+
+            this._parserStateMachine = new ParserStateMachine(this._operatorTokenInfos);
         }
 
         private void InitPresetSplitArrangesToSpecifiedLevel(int level)
@@ -466,7 +457,7 @@ namespace Testflow.Utility.Expression
             InitFullySplitExpression(fullySplitExpression);
             while (this._lastEnqueueTokenIndexes.Count > 0)
             {
-                ExpressionData expression = ParseExpressionByCurrentSplit(fullySplitExpression);
+                IExpressionData expression = this._parserStateMachine.ParseExpression(fullySplitExpression.ToArray());
                 if (null != expression)
                 {
                     return expression;
@@ -502,101 +493,6 @@ namespace Testflow.Utility.Expression
                 tokenGroupIndex++;
                 splitIndex++;
             }
-        }
-
-        private ExpressionData ParseExpressionByCurrentSplit(List<string> fullySplitExpression)
-        {
-            this._operatorStack.Clear();
-            this._operatorArgIndex.Clear();
-            ExpressionData currentExpression = new ExpressionData(5);
-            Stack<OperatorInstance> operatorStack = new Stack<OperatorInstance>(10);
-
-            bool hasLeftElement = false;
-            List<string> parseCache = new List<string>(fullySplitExpression);
-            int elementIndex = 0;
-            OperatorInstance operatorInstance = null;
-            Dictionary<string, OperatorInstance> operatorInstanceMapping = new Dictionary<string, OperatorInstance>(20);
-            int instanceId = 0;
-            while (elementIndex < fullySplitExpression.Count)
-            {
-                string element = fullySplitExpression[elementIndex];
-                if (this._singleArgRegex.IsMatch(element))
-                {
-                    parseCache.Add(element);
-                    elementIndex++;
-                    continue;
-                }
-                if (null == operatorInstance)
-                {
-                    if (operatorStack.Count > 0 && operatorStack.Peek().IsCurrentTokenFit(element))
-                    {
-                        OperatorInstance lastOperatorInstance = operatorStack.Peek();
-                        parseCache.Add(lastOperatorInstance.Name);
-                        if (lastOperatorInstance.IsTokenIterationOver())
-                        {
-                            operatorStack.Pop();
-                        }
-                    }
-                    else
-                    {
-                        OperatorTokenInfo nextOperator = GetNextAvailableOperator(0, element);
-                        if (null == nextOperator)
-                        {
-                            return null;
-                        }
-                        operatorInstance = new OperatorInstance(nextOperator, elementIndex);
-                        string operatorName = instanceId.ToString();
-                        operatorInstanceMapping.Add(operatorName, operatorInstance);
-                        operatorInstance.Name = operatorName;
-                        parseCache.Add(operatorName);
-                        if (operatorInstance.IsTokenIterationOver())
-                        {
-                            operatorInstance = null;
-                        }
-                    }
-                }
-                else
-                {
-                    bool isCurrentTokenFit = operatorInstance.IsCurrentTokenFit(element);
-                    if (isCurrentTokenFit)
-                    {
-                        parseCache.Add(operatorInstance.Name);
-                        if (operatorInstance.IsTokenIterationOver())
-                        {
-                            operatorInstance = null;
-                        }
-                    }
-                    else
-                    {
-                        OperatorTokenInfo nextOperator = GetNextAvailableOperator(0, element);
-                        if (null != nextOperator)
-                        {
-                            operatorStack.Push(operatorInstance);
-                            operatorInstance = new OperatorInstance(nextOperator, elementIndex);
-                            if (operatorInstance.IsTokenIterationOver())
-                            {
-                                operatorInstance = null;
-                            }
-                        }
-                        else
-                        {
-                            
-                        }
-                    }
-                }
-            }
-        }
-
-        private OperatorTokenInfo GetNextAvailableOperator(int startIndex, string tokenStr)
-        {
-            for (int i = startIndex; i < this._operatorTokenInfos.Count; i++)
-            {
-                if (this._operatorTokenInfos[i].TokenGroup[0].Equals(tokenStr))
-                {
-                    return this._operatorTokenInfos[i];
-                }
-            }
-            return null;
         }
 
         private void UpdateFullySplitExpression(List<string> fullySplitExpression)
@@ -848,8 +744,8 @@ namespace Testflow.Utility.Expression
                 } while (' ' == rightElement);
                 // 如果左侧元素或右侧元素是计算分隔符或者空字符，则认为此处为变量
                 // TODO 这里可能会出现字符串中有变量名且前后字符都是运算符的问题，该场景少见，后续优化
-                if ((this._expressionTokens.Contains(leftElement) || leftElement == empty) &&
-                    (this._expressionTokens.Contains(rightElement) || rightElement == empty))
+                if ((this._expressionTokens.Contains(leftElement.ToString()) || leftElement == empty) &&
+                    (this._expressionTokens.Contains(rightElement.ToString()) || rightElement == empty))
                 {
                     this._expressionCache.Replace(varOldName, varNewName, index, oldNameLength);
                     varExist = true;
@@ -860,7 +756,7 @@ namespace Testflow.Utility.Expression
 
         public bool IsExpression(string parameterValue)
         {
-            return parameterValue.Any(valueChar => this._expressionTokens.Contains(valueChar));
+            return parameterValue.Any(valueChar => this._expressionTokens.Contains(valueChar.ToString()));
         }
 
         private void ResetExpressionCache()
@@ -871,7 +767,6 @@ namespace Testflow.Utility.Expression
                 this._expressionCache.Capacity = CacheCapacity;
             }
             this._argumentCache.Clear();
-            this._divergenceArranges.Clear();
             this._tokenGroupIndexes.Clear();
         }
     }

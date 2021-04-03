@@ -1,8 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using Testflow.Data.Expression;
-using Testflow.Usr;
-using Testflow.Utility.I18nUtil;
+using Testflow.Data.Sequence;
+
+/*
+ * 该状态机的维度划分有两个方面
+ * 1. 当前元素为：参数、操作符、表达式遍历结束。状态分别用1,2,3标记
+ * 2. 是否存在待处理参数值，当前是否存在待完成操作符，操作符堆栈中是否为空，歧义点堆栈是否为空进行状态划分。状态分别用a-p划分，详细的分配方式如下表所示：
+ *      CO(CurrentOperator), LE(LeftArgument), OS(OperatorStack), AS(AmbiguousStack)。0代表NULL或者元素个数为0；1代表不为NULL或者元素个数大于0
+ *          a:CO=0,LE=0,OS=0,AS=0  
+ *          b:CO=0,LE=0,OS=0,AS=1
+ *          c:CO=0,LE=0,OS=1,AS=0
+ *          d:CO=0,LE=0,OS=1,AS=1
+ *          e:CO=0,LE=1,OS=0,AS=0
+ *          f:CO=0,LE=1,OS=0,AS=1
+ *          g:CO=0,LE=1,OS=1,AS=0
+ *          h:CO=0,LE=1,OS=1,AS=1
+ *          i:CO=1,LE=0,OS=0,AS=0
+ *          j:CO=1,LE=0,OS=0,AS=1
+ *          k:CO=1,LE=0,OS=1,AS=0
+ *          l:CO=1,LE=0,OS=1,AS=1
+ *          m:CO=1,LE=1,OS=0,AS=0
+ *          n:CO=1,LE=1,OS=0,AS=1
+ *          o:CO=1,LE=1,OS=1,AS=0
+ *          p:CO=1,LE=1,OS=1,AS=1
+ *      因为AS=0和AS=1的区别在于解析失败后直接终止还是回退到上一个歧义点继续，所以在当前状态机中只区分了奇数索引的状态，将AS不同状态的处理在PopAmbiguous方法中实现
+ * 状态的描述和状态转移操作参见文档《表达式解析状态迁移》
+ */
 
 namespace Testflow.Utility.Expression
 {
@@ -61,12 +85,7 @@ namespace Testflow.Utility.Expression
         /// <summary>
         /// 获取可用符号的缓存
         /// </summary>
-        private List<OperatorTokenInfo> _fetchTokenInfoCache;
-
-        /// <summary>
-        /// 中间的表达式缓存项
-        /// </summary>
-        public Dictionary<string, IExpressionData> ExpressionCache => this._expressionCache;
+        private readonly List<OperatorTokenInfo> _fetchTokenInfoCache;
 
         public ParserStateMachine(IList<OperatorTokenInfo> operators)
         {
@@ -76,11 +95,15 @@ namespace Testflow.Utility.Expression
             this._expressionCache = new Dictionary<string, IExpressionData>(50);
             this._fetchTokenInfoCache = new List<OperatorTokenInfo>(10);
 
-            ResetCache();
+            Reset();
         }
 
-        private void ResetCache()
+        private void Reset()
         {
+            if (_elementIndex < 0)
+            {
+                return;
+            }
             this._splitExpression = null;
             this._leftArgument = null;
             this._expressionIndex = 0;
@@ -115,7 +138,8 @@ namespace Testflow.Utility.Expression
                 throw new ApplicationException("Pop failed.");
             }
             AmbiguousPoint ambiguousPoint = this._ambiguousStack.Peek();
-            this._elementIndex = ambiguousPoint.ElementIndex;
+            // 将当前元素回退到最近歧义点的上一个元素
+            this._elementIndex = ambiguousPoint.ElementIndex - 1;
             while (this._operatorStack.Count > ambiguousPoint.OperatorStackLength)
             {
                 this._operatorStack.Pop();
@@ -143,10 +167,48 @@ namespace Testflow.Utility.Expression
                     parseOver = stateFunc();
                     this._elementIndex++;
                 } while (!parseOver);
+
+                if (string.IsNullOrWhiteSpace(_leftArgument))
+                {
+                    return null;
+                }
+
+                return GetResultExpression();
             }
             catch (ApplicationException)
             {
                 return null;
+            }
+            finally
+            {
+                Reset();
+            }
+        }
+
+        private IExpressionData GetResultExpression()
+        {
+            IExpressionData rootExpression = this._expressionCache[this._leftArgument];
+            ProcessExpressionArguments(rootExpression);
+            return rootExpression;
+        }
+
+        // 将表达式中用表达式占位符替代的表达式元素的值更新为真实的子表达式
+        private void ProcessExpressionArguments(IExpressionData expression)
+        {
+            foreach (IExpressionElement argument in expression.Arguments)
+            {
+                if (argument.Type != ParameterType.Expression)
+                {
+                    continue;
+                }
+                if (!this._expressionCache.ContainsKey(argument.Value))
+                {
+                    throw new ApplicationException("Argument expression not set.");
+                }
+                argument.Expression = this._expressionCache[argument.Value];
+                argument.Value = string.Empty;
+                this._expressionCache.Remove(argument.Value);
+                ProcessExpressionArguments(argument.Expression);
             }
         }
 
@@ -257,7 +319,7 @@ namespace Testflow.Utility.Expression
         private bool State_1_a_Action()
         {
             this._leftArgument = this._splitExpression[this._elementIndex];
-            return true;
+            return false;
         }
 
         private bool State_1_c_Action()
@@ -270,13 +332,13 @@ namespace Testflow.Utility.Expression
         private bool State_1_e_Action()
         {
             PopAmbiguousPoint();
-            return true;
+            return false;
         }
 
         private bool State_1_g_Action()
         {
             PopAmbiguousPoint();
-            return true;
+            return false;
         }
 
         private bool State_1_i_Action()
@@ -289,7 +351,7 @@ namespace Testflow.Utility.Expression
             {
                 PopAmbiguousPoint();
             }
-            return true;
+            return false;
         }
 
         private bool State_1_k_Action()
@@ -302,19 +364,19 @@ namespace Testflow.Utility.Expression
             {
                 PopAmbiguousPoint();
             }
-            return true;
+            return false;
         }
 
         private bool State_1_m_Action()
         {
             PopAmbiguousPoint();
-            return true;
+            return false;
         }
 
         private bool State_1_o_Action()
         {
             PopAmbiguousPoint();
-            return true;
+            return false;
         }
 
         #endregion
@@ -339,7 +401,7 @@ namespace Testflow.Utility.Expression
             {
                 PopAmbiguousPoint();
             }
-            return true;
+            return false;
         }
 
         private bool State_2_c_Action()
@@ -360,18 +422,20 @@ namespace Testflow.Utility.Expression
             }
             else if (tokenInfos.Count > 1)
             {
-                this._currentOperator = new OperatorInstance(tokenInfos[0], this._elementIndex);
-                this._currentOperator.AddArgument(this._leftArgument);
-                this._leftArgument = null;
+                OperatorTokenInfo firstTokenInfo = tokenInfos[0];
                 tokenInfos.RemoveAt(0);
                 PushAmbiguousPoint(tokenInfos);
+
+                this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
+                this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
             }
             else
             {
                 PopAmbiguousPoint();
             }
             CurrentOperatorOverCheck();
-            return true;
+            return false;
         }
 
         private bool State_2_g_Action()
@@ -392,17 +456,19 @@ namespace Testflow.Utility.Expression
             }
             else if (tokenInfos.Count > 1)
             {
-                this._operatorStack.Push(this._currentOperator);
-                this._currentOperator = new OperatorInstance(tokenInfos[0], this._elementIndex);
-                this._leftArgument = null;
+                OperatorTokenInfo firstTokenInfo = tokenInfos[0];
                 tokenInfos.RemoveAt(0);
                 PushAmbiguousPoint(tokenInfos);
+
+                this._operatorStack.Push(this._currentOperator);
+                this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
+                this._leftArgument = null;
             }
             else
             {
                 PopAmbiguousPoint();
             }
-            return true;
+            return false;
         }
 
         private bool State_2_k_Action()
@@ -416,17 +482,19 @@ namespace Testflow.Utility.Expression
             }
             else if (tokenInfos.Count > 1)
             {
-                this._operatorStack.Push(this._currentOperator);
-                this._currentOperator = new OperatorInstance(tokenInfos[0], this._elementIndex);
-                this._leftArgument = null;
+                OperatorTokenInfo firstTokenInfo = tokenInfos[0];
                 tokenInfos.RemoveAt(0);
                 PushAmbiguousPoint(tokenInfos);
+
+                this._operatorStack.Push(this._currentOperator);
+                this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
+                this._leftArgument = null;
             }
             else
             {
                 PopAmbiguousPoint();
             }
-            return true;
+            return false;
         }
 
         private bool State_2_m_Action()
@@ -436,22 +504,22 @@ namespace Testflow.Utility.Expression
             List<OperatorTokenInfo> rightTokenInfos = GetAvailableToken(true);
             bool isCurrentTokenFit = this._currentOperator.IsCurrentTokenFit(token);
             bool oneElementLeft = this._currentOperator.ElementCountToFill() == 1;
-            bool onlyOneElementNeed = this._currentOperator.IsNeedRightElement() &&
+            bool onlyOneArgumentNeed = this._currentOperator.IsNeedRightElement() &&
                                       this._currentOperator.IsTokenIterationOver();
-            if (onlyOneElementNeed && rightTokenInfos.Count > 0)
+            if (onlyOneArgumentNeed && rightTokenInfos.Count > 0)
             {
-                OperatorTokenInfo availableRightTokenInfo = rightTokenInfos[0];
+                OperatorTokenInfo firstRightTokenInfo = rightTokenInfos[0];
                 if (rightTokenInfos.Count > 1)
                 {
                     rightTokenInfos.RemoveAt(0);
                     PushAmbiguousPoint(rightTokenInfos);
                 }
-                if (this._currentOperator.Priority >= availableRightTokenInfo.Priority)
+                if (this._currentOperator.Priority >= firstRightTokenInfo.Priority)
                 {
                     this._currentOperator.AddArgument(this._leftArgument);
                     IExpressionData expression = this._currentOperator.CreateExpression();
                     UpdateNameAndAddToCache(expression);
-                    this._currentOperator = new OperatorInstance(availableRightTokenInfo, this._elementIndex);
+                    this._currentOperator = new OperatorInstance(firstRightTokenInfo, this._elementIndex);
                     this._currentOperator.AddArgument(expression.Name);
                     this._leftArgument = null;
                     CurrentOperatorOverCheck();
@@ -459,13 +527,13 @@ namespace Testflow.Utility.Expression
                 else
                 {
                     this._operatorStack.Push(this._currentOperator);
-                    this._currentOperator = new OperatorInstance(availableRightTokenInfo, this._elementIndex);
+                    this._currentOperator = new OperatorInstance(firstRightTokenInfo, this._elementIndex);
                     this._currentOperator.AddArgument(this._leftArgument);
                     this._leftArgument = null;
                     CurrentOperatorOverCheck();
                 }
             }
-            else if (onlyOneElementNeed && rightTokenInfos.Count == 0)
+            else if (onlyOneArgumentNeed && rightTokenInfos.Count == 0)
             {
                 PopAmbiguousPoint();
             }
@@ -489,18 +557,102 @@ namespace Testflow.Utility.Expression
             }
             else if (rightTokenInfos.Count > 1)
             {
-                this._operatorStack.Push(this._currentOperator);
-                this._currentOperator = new OperatorInstance(rightTokenInfos[0], this._elementIndex);
-                this._currentOperator.AddArgument(this._leftArgument);
+                OperatorTokenInfo firstTokenInfo = rightTokenInfos[0];
                 rightTokenInfos.RemoveAt(0);
                 PushAmbiguousPoint(rightTokenInfos);
+
+                this._operatorStack.Push(this._currentOperator);
+                this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
+                this._currentOperator.AddArgument(this._leftArgument);
+                
                 CurrentOperatorOverCheck();
             }
+            return false;
         }
 
         private bool State_2_o_Action()
         {
+            string token = this._splitExpression[this._elementIndex];
+            // 向右匹配获取的操作符集合
+            List<OperatorTokenInfo> rightTokenInfos = GetAvailableToken(true);
+            bool isCurrentTokenFit = this._currentOperator.IsCurrentTokenFit(token);
+            bool oneElementLeft = this._currentOperator.ElementCountToFill() == 1;
+            bool onlyOneArgumentNeed = this._currentOperator.IsNeedRightElement() &&
+                                      this._currentOperator.IsTokenIterationOver();
+            if (onlyOneArgumentNeed)
+            {
+                if (rightTokenInfos.Count > 0)
+                {
+                    OperatorTokenInfo firstRightTokenInfo = rightTokenInfos[0];
+                    if (rightTokenInfos.Count > 1)
+                    {
+                        rightTokenInfos.RemoveAt(0);
+                        PushAmbiguousPoint(rightTokenInfos);
+                    }
+                    if (this._currentOperator.Priority >= firstRightTokenInfo.Priority)
+                    {
+                        this._currentOperator.AddArgument(this._leftArgument);
+                        IExpressionData expression = this._currentOperator.CreateExpression();
+                        UpdateNameAndAddToCache(expression);
+                        this._currentOperator = new OperatorInstance(firstRightTokenInfo, this._elementIndex);
+                        this._currentOperator.AddArgument(expression.Name);
+                        this._leftArgument = null;
+                        CurrentOperatorOverCheck();
+                    }
+                    else
+                    {
+                        this._operatorStack.Push(this._currentOperator);
+                        this._currentOperator = new OperatorInstance(firstRightTokenInfo, this._elementIndex);
+                        this._currentOperator.AddArgument(this._leftArgument);
+                        this._leftArgument = null;
+                        CurrentOperatorOverCheck();
+                    }
+                }
+                else if (rightTokenInfos.Count == 0)
+                {
+                    OperatorInstance stackTopOperator = this._operatorStack.Peek();
+                    if (stackTopOperator.IsCurrentTokenFit(token) && stackTopOperator.IsNeedRightElement())
+                    {
+                        this._currentOperator.AddArgument(this._leftArgument);
+                        IExpressionData expressionData = this._currentOperator.CreateExpression();
+                        UpdateNameAndAddToCache(expressionData);
+                        this._leftArgument = expressionData.Name;
+                        this._currentOperator = this._operatorStack.Pop();
+                        Func<bool> nextStateFunc = GetNextStateFunc();
+                        return nextStateFunc();
+                    }
+                }
+            }
+            else if (isCurrentTokenFit)
+            {
+                this._currentOperator.AddArgument(this._leftArgument);
+                this._currentOperator.MoveToNextToken();
+                this._leftArgument = null;
+                CurrentOperatorOverCheck();
+            }
+            else if (rightTokenInfos.Count == 0)
+            {
+                PopAmbiguousPoint();
+            }
+            else if (rightTokenInfos.Count == 1)
+            {
+                this._operatorStack.Push(this._currentOperator);
+                this._currentOperator = new OperatorInstance(rightTokenInfos[0], this._elementIndex);
+                this._currentOperator.AddArgument(this._leftArgument);
+                CurrentOperatorOverCheck();
+            }
+            else if (rightTokenInfos.Count > 1)
+            {
+                OperatorTokenInfo firstTokenInfo = rightTokenInfos[0];
+                rightTokenInfos.RemoveAt(0);
+                PushAmbiguousPoint(rightTokenInfos);
 
+                this._operatorStack.Push(this._currentOperator);
+                this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
+                this._currentOperator.AddArgument(this._leftArgument);
+                CurrentOperatorOverCheck();
+            }
+            return false;
         }
 
         #endregion
@@ -509,42 +661,97 @@ namespace Testflow.Utility.Expression
 
         private bool State_3_a_Action()
         {
-
+            this._leftArgument = null;
+            return true;
         }
 
         private bool State_3_c_Action()
         {
-
+            this._currentOperator = this._operatorStack.Pop();
+            Func<bool> nextStateFunc = GetNextStateFunc();
+            return nextStateFunc();
         }
 
         private bool State_3_e_Action()
         {
-
+            // LeftElement就是最终的结果
+            return true;
         }
 
         private bool State_3_g_Action()
         {
-
+            this._currentOperator = this._operatorStack.Pop();
+            Func<bool> nextStateFunc = GetNextStateFunc();
+            return nextStateFunc();
         }
 
         private bool State_3_i_Action()
         {
-
+            if (!this._currentOperator.IsOver())
+            {
+                PopAmbiguousPoint();
+                return false;
+            }
+            IExpressionData expressionData = this._currentOperator.CreateExpression();
+            UpdateNameAndAddToCache(expressionData);
+            this._leftArgument = expressionData.Name;
+            this._currentOperator = null;
+            return true;
         }
 
         private bool State_3_k_Action()
         {
-
+            if (!this._currentOperator.IsOver())
+            {
+                PopAmbiguousPoint();
+                return false;
+            }
+            IExpressionData expressionData = this._currentOperator.CreateExpression();
+            UpdateNameAndAddToCache(expressionData);
+            this._leftArgument = expressionData.Name;
+            this._currentOperator = this._operatorStack.Pop();
+            Func<bool> nextStateFunc = GetNextStateFunc();
+            return nextStateFunc();
         }
 
         private bool State_3_m_Action()
         {
-
+            if (this._currentOperator.IsNeedRightElement())
+            {
+                this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
+                if (this._currentOperator.IsOver())
+                {
+                    IExpressionData expressionData = this._currentOperator.CreateExpression();
+                    UpdateNameAndAddToCache(expressionData);
+                    this._leftArgument = expressionData.Name;
+                    this._currentOperator = null;
+                    return true;
+                }
+            }
+            PopAmbiguousPoint();
+            return false;
         }
 
         private bool State_3_o_Action()
         {
+            if (this._currentOperator.IsNeedRightElement())
+            {
+                this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
+                if (this._currentOperator.IsOver())
+                {
+                    IExpressionData expressionData = this._currentOperator.CreateExpression();
+                    UpdateNameAndAddToCache(expressionData);
+                    this._leftArgument = expressionData.Name;
+                    this._currentOperator = this._operatorStack.Pop();
 
+                    Func<bool> nextStateFunc = GetNextStateFunc();
+                    return nextStateFunc();
+                }
+            }
+            PopAmbiguousPoint();
+            return false;
         }
 
         private void CurrentOperatorOverCheck()
