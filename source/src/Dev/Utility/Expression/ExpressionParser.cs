@@ -48,7 +48,6 @@ namespace Testflow.Utility.Expression
         private readonly HashSet<char> _operatorTokenChars;
 
         // 操作符名称到操作符符号信息的映射
-        private readonly Dictionary<string, OperatorTokenInfo> _operatorTokenMapping;
         private List<OperatorTokenInfo> _operatorTokenInfos;
 
         // 数值类型参数的匹配模式
@@ -74,6 +73,15 @@ namespace Testflow.Utility.Expression
         /// <param name="operatorInfos">操作符描述信息</param>
         public ExpressionParser(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
         {
+            I18NOption i18NOption = new I18NOption(typeof(ExpressionParser).Assembly, "i18n_expression_zh", "i18n_expression_en")
+            {
+                Name = UtilityConstants.ExpI18nName
+            };
+            I18N.InitInstance(i18NOption);
+
+            // 创建各个Operator的符号匹配器
+            this._operatorTokenInfos = InitOperatorTokenInfoMapping(operatorInfos);
+
             this._expressionCache = new StringBuilder(CacheCapacity);
             this._tokenGroupIndexes = new List<int>(100);
             this._lastEnqueueTokenIndexes = new Stack<int>(20);
@@ -82,12 +90,12 @@ namespace Testflow.Utility.Expression
             this._simpleSplitExpression = new List<string>(50);
 
             this._argumentCache = new Dictionary<string, string>(10);
-            this._digitRegex = new Regex(Constants.NumericPattern, RegexOptions.Compiled);
-            this._sciDigitRegex = new Regex(Constants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
-            this._strRegex = new Regex(Constants.StringPattern, RegexOptions.Compiled);
-            this._boolRegex = new Regex(Constants.BoolPattern, RegexOptions.Compiled);
-            this._argNamePattern = new Regex(Constants.ArgNamePattern, RegexOptions.Compiled);
-            this._singleArgRegex = new Regex(Constants.SingleArgPattern, RegexOptions.Compiled);
+            this._digitRegex = new Regex(UtilityConstants.NumericPattern, RegexOptions.Compiled);
+            this._sciDigitRegex = new Regex(UtilityConstants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
+            this._strRegex = new Regex(UtilityConstants.StringPattern, RegexOptions.Compiled);
+            this._boolRegex = new Regex(UtilityConstants.BoolPattern, RegexOptions.Compiled);
+            this._argNamePattern = new Regex(UtilityConstants.ArgNamePattern, RegexOptions.Compiled);
+            this._singleArgRegex = new Regex(UtilityConstants.SingleArgPattern, RegexOptions.Compiled);
 
             const int presetLevel = 7;
             this._presetSplitArranges = new List<int[][]>(presetLevel);
@@ -96,13 +104,10 @@ namespace Testflow.Utility.Expression
             string elementSplitPattern = GetElementSplitPattern();
             this._elementSplitRegex = new Regex(elementSplitPattern, RegexOptions.RightToLeft | RegexOptions.Compiled);
 
-            // 创建各个Operator的符号匹配器
-            this._operatorTokenMapping = InitOperatorTokenInfoMapping(operatorInfos);
-
             this._operatorTokens = new HashSet<string>();
             this._operatorTokenChars = new HashSet<char>();
             this._maxTokenLength = 0;
-            foreach (OperatorTokenInfo operatorTokenInfo in this._operatorTokenMapping.Values)
+            foreach (OperatorTokenInfo operatorTokenInfo in this._operatorTokenInfos)
             {
                 foreach (string token in operatorTokenInfo.TokenGroup)
                 {
@@ -192,25 +197,18 @@ namespace Testflow.Utility.Expression
             return false;
         }
 
-        private Dictionary<string, OperatorTokenInfo> InitOperatorTokenInfoMapping(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
+        private List<OperatorTokenInfo> InitOperatorTokenInfoMapping(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
         {
-            Dictionary < string, OperatorTokenInfo > operatorTokenMapping=  new Dictionary<string, OperatorTokenInfo>(operatorInfos.Count);
-            this._operatorTokenInfos = new List<OperatorTokenInfo>(operatorInfos.Count);
+            List<OperatorTokenInfo> operatorTokenInfos = new List<OperatorTokenInfo>(operatorInfos.Count);
             foreach (KeyValuePair<string, ExpressionOperatorInfo> operatorInfoPair in operatorInfos)
             {
                 OperatorTokenInfo operatorAdapter = new OperatorTokenInfo(operatorInfoPair.Value);
-                this._operatorTokenInfos.Add(operatorAdapter);
+                operatorTokenInfos.Add(operatorAdapter);
             }
 
             // 按照优先级，从大到小排序
-            this._operatorTokenInfos.Sort(new OperatorTokenInfoComparer());
-            int index = 0;
-            foreach (OperatorTokenInfo operatorTokenInfo in this._operatorTokenInfos)
-            {
-                operatorTokenMapping.Add(operatorTokenInfo.OperatorName, operatorTokenInfo);
-                operatorTokenInfo.Index = index++;
-            }
-            return operatorTokenMapping;
+            operatorTokenInfos.Sort(new OperatorTokenInfoComparer());
+            return operatorTokenInfos;
         }
 
         private string GetElementSplitPattern()
@@ -218,12 +216,12 @@ namespace Testflow.Utility.Expression
             // 正则表达式中的元符号
             HashSet<char> metaCharacters = new HashSet<char>
             {
-                '^', '[', '.', '$', '{', '*', '(', '\\', '+', ')','|', '?', '<', '>'
+                '^', '[', ']','.', '$', '{', '}', '*', '(', '\\', '+', ')','|', '?', '<', '>'
             };
             HashSet<string> tokenSets = new HashSet<string>();
             StringBuilder splitPattern = new StringBuilder(200);
-            splitPattern.Append('(');
-            foreach (OperatorTokenInfo operatorInfo in this._operatorTokenMapping.Values)
+            splitPattern.Append('[');
+            foreach (OperatorTokenInfo operatorInfo in this._operatorTokenInfos)
             {
                 foreach (string token in operatorInfo.TokenGroup)
                 {
@@ -243,14 +241,9 @@ namespace Testflow.Utility.Expression
                             splitPattern.Append(tokenChar);
                         }
                     }
-                    splitPattern.Append('|');
                 }
             }
-            if (splitPattern[splitPattern.Length - 1] == '|')
-            {
-                splitPattern.Remove(splitPattern.Length - 1, 1);
-            }
-            splitPattern.Append(')');
+            splitPattern.Append(']');
             return splitPattern.ToString();
         }
 
@@ -363,11 +356,12 @@ namespace Testflow.Utility.Expression
 
         private void CacheExistingElements(StringBuilder expressionCache, ref int argumentIndex, Dictionary<string, string> argumentCache)
         {
-            string[] splitElements = this._elementSplitRegex.Split(expressionCache.ToString());
+            IEnumerable<string> splitElements = this._elementSplitRegex.Split(expressionCache.ToString())
+                .Where(item => !string.IsNullOrWhiteSpace(item)).Reverse();
             int elementStartIndex = expressionCache.Length;
             foreach (string element in splitElements)
             {
-                elementStartIndex -= element?.Length ?? 0;
+                elementStartIndex -= element.Length;
                 if (string.IsNullOrWhiteSpace(element) || argumentCache.ContainsKey(element))
                 {
                     continue;
@@ -376,7 +370,7 @@ namespace Testflow.Utility.Expression
                 Match containArgMatch = this._argNamePattern.Match(element);
                 if (containArgMatch.Success)
                 {
-                    I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                    I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                     throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                         i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
                 }
@@ -388,7 +382,6 @@ namespace Testflow.Utility.Expression
 
         private static void GetElementStartIndex(StringBuilder expressionCache, string element, ref int elementStartIndex)
         {
-            elementStartIndex -= element.Length;
             while (true)
             {
                 while (element[0] != expressionCache[elementStartIndex])
@@ -416,7 +409,7 @@ namespace Testflow.Utility.Expression
         private void CacheArgumentValue(StringBuilder expressionCache, ref int argIndex, int argStartIndex,
             int argEndIndex, Dictionary<string, string> argumentCache)
         {
-            string argName = string.Format(Constants.ArgNameFormat, argIndex++);
+            string argName = string.Format(UtilityConstants.ArgNameFormat, argIndex++);
             string argumentValue = GetTrimmedArgValue(expressionCache, argStartIndex, argEndIndex);
             // 获取需要移除的长度，包括引号
             argumentCache.Add(argName, argumentValue);
@@ -439,7 +432,7 @@ namespace Testflow.Utility.Expression
             int argValueLength = argEndIndex - argStartIndex + 1;
             if (argValueLength <= 0)
             {
-                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
             }
@@ -474,7 +467,7 @@ namespace Testflow.Utility.Expression
                 UpdateFullySplitExpression(fullySplitExpression);
             }
             // 遍历到最后也未能找到有效的解析，则抛出异常
-            I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+            I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
             throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                 i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
         }
@@ -528,7 +521,7 @@ namespace Testflow.Utility.Expression
             // 未找到可以继续更新的符号位置，抛出错误
             if (!hasUpdate)
             {
-                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -566,7 +559,7 @@ namespace Testflow.Utility.Expression
                     }
 
                     lastIndex = index;
-                    index += Constants.ArgNamePrefix.Length + 1;
+                    index += UtilityConstants.ArgNamePrefix.Length + 1;
                     while (index < expressionCache.Length && expressionCache[index] >= '0' && expressionCache[index] <= '9')
                     {
                         index++;
@@ -604,7 +597,7 @@ namespace Testflow.Utility.Expression
             List<string> singlePossibleSplits = new List<string>(10);
             if (tokenGroup.Length > this._presetSplitArranges.Count)
             {
-                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -619,7 +612,7 @@ namespace Testflow.Utility.Expression
             }
             if (possibleSplits.Count == 0)
             {
-                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -698,7 +691,7 @@ namespace Testflow.Utility.Expression
             {
                 if (null != parent && !SequenceUtils.IsVariableExist(value, parent))
                 {
-                    I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                    I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                     throw new TestflowDataException(ModuleErrorCode.ExpressionError, i18N.GetFStr("ExpVariableNotExist", value));
                 }
                 // 否则则认为表达式为变量值

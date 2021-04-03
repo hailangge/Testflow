@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Testflow.Data.Expression;
 using Testflow.Usr;
 using Testflow.Utility.I18nUtil;
@@ -54,16 +55,25 @@ namespace Testflow.Utility.Expression
         {
             this.OperatorName = operationInfo.Name;
             this.OperatorPattern = operationInfo.FormatString;
-            TokenGroup = Regex.Split(operationInfo.FormatString, Constants.OperatorPlaceHolderRegex);
+            string[] splitTokens = Regex.Split(operationInfo.FormatString, UtilityConstants.OperatorPlaceHolderRegex);
+            List<string> tokenList = new List<string>(splitTokens);
+            for (int i = tokenList.Count - 1; i >= 0; i--)
+            {
+                if (string.IsNullOrWhiteSpace(tokenList[i]))
+                {
+                    tokenList.RemoveAt(i);
+                }
+            }
+            TokenGroup = tokenList.ToArray();
             this.Priority = operationInfo.Priority;
-            this.HasLeftElement = Regex.IsMatch(operationInfo.FormatString, Constants.LeftValuePattern);
-            this.HasRightElement = Regex.IsMatch(operationInfo.FormatString, Constants.RightValuePattern);
+            this.HasLeftElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.LeftValuePattern);
+            this.HasRightElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.RightValuePattern);
             this.ArgumentCount = operationInfo.ArgumentsCount;
 
             int expectArgumentCount = TokenGroup.Length - 1 + (HasLeftElement ? 1 : 0) + (HasRightElement ? 1 : 0);
             if (expectArgumentCount != operationInfo.ArgumentsCount)
             {
-                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalOperatorFormat", operationInfo.Symbol));
             }

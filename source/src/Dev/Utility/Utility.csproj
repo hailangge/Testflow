@@ -51,7 +51,6 @@
     <Compile Include="Collections\Convertor\EnumConvertor.cs" />
     <Compile Include="Collections\Convertor\ValueConvertor.cs" />
     <Compile Include="Collections\SerializableMap.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Controls\ErrorInfoForm.cs">
       <SubType>Form</SubType>
     </Compile>

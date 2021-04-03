@@ -84,7 +84,7 @@ namespace Testflow.Utility.Expression
             ExpressionData expressionData = new ExpressionData(Arguments.Count) {Operation = Name};
             foreach (string argument in Arguments)
             {
-                ParameterType argumentType = argument.StartsWith(Constants.ExpNamePrefix)
+                ParameterType argumentType = argument.StartsWith(UtilityConstants.ExpNamePrefix)
                     ? ParameterType.Expression
                     : ParameterType.Value;
                 expressionData.Arguments.Add(new ExpressionElement(argumentType, argument));
