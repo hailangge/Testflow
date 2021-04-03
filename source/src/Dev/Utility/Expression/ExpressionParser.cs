@@ -42,8 +42,11 @@ namespace Testflow.Utility.Expression
         private readonly List<int[][]> _presetSplitArranges;
 
         // 包含运算符中用到的所有符号的集合
-        private readonly HashSet<string> _expressionTokens;
-        
+        private readonly HashSet<string> _operatorTokens;
+
+        // 包含运算符中用到的所有符号字符的集合
+        private readonly HashSet<char> _operatorTokenChars;
+
         // 操作符名称到操作符符号信息的映射
         private readonly Dictionary<string, OperatorTokenInfo> _operatorTokenMapping;
         private List<OperatorTokenInfo> _operatorTokenInfos;
@@ -96,13 +99,18 @@ namespace Testflow.Utility.Expression
             // 创建各个Operator的符号匹配器
             this._operatorTokenMapping = InitOperatorTokenInfoMapping(operatorInfos);
 
-            this._expressionTokens = new HashSet<string>();
+            this._operatorTokens = new HashSet<string>();
+            this._operatorTokenChars = new HashSet<char>();
             this._maxTokenLength = 0;
             foreach (OperatorTokenInfo operatorTokenInfo in this._operatorTokenMapping.Values)
             {
                 foreach (string token in operatorTokenInfo.TokenGroup)
                 {
-                    this._expressionTokens.Add(token);
+                    this._operatorTokens.Add(token);
+                    foreach (char tokenChar in token)
+                    {
+                        this._operatorTokenChars.Add(tokenChar);
+                    }
                     if (token.Length > this._maxTokenLength)
                     {
                         this._maxTokenLength = token.Length;
@@ -624,7 +632,7 @@ namespace Testflow.Utility.Expression
             foreach (int splitLength in splitArrange)
             {
                 string token = tokens.Substring(startIndex, splitLength);
-                if (!this._expressionTokens.Contains(token))
+                if (!this._operatorTokens.Contains(token))
                 {
                     if (expressionSplitCache.Count > originalCacheLength)
                     {
@@ -744,8 +752,8 @@ namespace Testflow.Utility.Expression
                 } while (' ' == rightElement);
                 // 如果左侧元素或右侧元素是计算分隔符或者空字符，则认为此处为变量
                 // TODO 这里可能会出现字符串中有变量名且前后字符都是运算符的问题，该场景少见，后续优化
-                if ((this._expressionTokens.Contains(leftElement.ToString()) || leftElement == empty) &&
-                    (this._expressionTokens.Contains(rightElement.ToString()) || rightElement == empty))
+                if ((this._operatorTokenChars.Contains(leftElement) || leftElement == empty) &&
+                    (this._operatorTokenChars.Contains(rightElement) || rightElement == empty))
                 {
                     this._expressionCache.Replace(varOldName, varNewName, index, oldNameLength);
                     varExist = true;
@@ -756,7 +764,7 @@ namespace Testflow.Utility.Expression
 
         public bool IsExpression(string parameterValue)
         {
-            return parameterValue.Any(valueChar => this._expressionTokens.Contains(valueChar.ToString()));
+            return parameterValue.Any(valueChar => this._operatorTokenChars.Contains(valueChar));
         }
 
         private void ResetExpressionCache()
