@@ -8,6 +8,7 @@ using Testflow.Data.Expression;
 using Testflow.Data.Sequence;
 using Testflow.SlaveCore.Common;
 using Testflow.Usr;
+using Testflow.Utility.Expression;
 using Testflow.Utility.Utils;
 
 namespace Testflow.SlaveCore.Runner.Expression
@@ -39,7 +40,7 @@ namespace Testflow.SlaveCore.Runner.Expression
             _expElementStack = new Stack<IExpressionData>(Constants.DefaultRuntimeSize);
 
             ExpressionOperatorInfo[] operatorInfos = context.ExpOperatorInfos;
-            _expParser = new ExpressionParser(operatorInfos);
+            _expParser = new ExpressionParser(operatorInfos, operatorInfos.Length);
 
             _calculators = new Dictionary<string, IList<ExpressionCalculator>>(operatorInfos.Length);
             foreach (ExpressionOperatorInfo operatorInfo in operatorInfos)

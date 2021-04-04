@@ -46,10 +46,7 @@ namespace Testflow.Utility.Expression
 
         // 包含运算符中用到的所有符号字符的集合
         private readonly HashSet<char> _operatorTokenChars;
-
-        // 操作符名称到操作符符号信息的映射
-        private List<OperatorTokenInfo> _operatorTokenInfos;
-
+        
         // 数值类型参数的匹配模式
         private readonly Regex _digitRegex;
         // 科学技术类型参数的匹配模式
@@ -68,9 +65,12 @@ namespace Testflow.Utility.Expression
         /// <summary>
         /// 使用操作符信息初始化解析器
         /// </summary>
-        /// <param name="operatorInfos">操作符描述信息</param>
-        public ExpressionParser(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
+        /// <param name="operatorInfoMapping">操作符名到描述信息的映射</param>
+        public ExpressionParser(Dictionary<string, ExpressionOperatorInfo> operatorInfoMapping)
         {
+            IEnumerable<ExpressionOperatorInfo> operatorInfos = operatorInfoMapping.Values;
+            int operatorCount = operatorInfoMapping.Count;
+
             I18NOption i18NOption = new I18NOption(typeof(ExpressionParser).Assembly, "i18n_expression_zh", "i18n_expression_en")
             {
                 Name = UtilityConstants.ExpI18nName
@@ -78,7 +78,8 @@ namespace Testflow.Utility.Expression
             I18N.InitInstance(i18NOption);
 
             // 创建各个Operator的符号匹配器
-            this._operatorTokenInfos = InitOperatorTokenInfoMapping(operatorInfos);
+
+            List<OperatorTokenInfo> operatorTokenInfos = InitOperatorTokenInfoMapping(operatorInfos, operatorCount);
 
             this._expressionCache = new StringBuilder(CacheCapacity);
             this._tokenGroupIndexes = new List<int>(100);
@@ -102,7 +103,7 @@ namespace Testflow.Utility.Expression
             this._operatorTokens = new HashSet<string>();
             this._operatorTokenChars = new HashSet<char>();
             this._maxTokenLength = 0;
-            foreach (OperatorTokenInfo operatorTokenInfo in this._operatorTokenInfos)
+            foreach (OperatorTokenInfo operatorTokenInfo in operatorTokenInfos)
             {
                 foreach (string token in operatorTokenInfo.TokenGroup)
                 {
@@ -117,8 +118,64 @@ namespace Testflow.Utility.Expression
                     }
                 }
             }
+            this._parserStateMachine = new ParserStateMachine(operatorTokenInfos);
+        }
 
-            this._parserStateMachine = new ParserStateMachine(this._operatorTokenInfos);
+        /// <summary>
+        /// 使用操作符信息初始化解析器
+        /// </summary>
+        /// <param name="operatorInfos">操作符描述信息</param>
+        /// <param name="operatorCount">操作符个数</param>
+        public ExpressionParser(IEnumerable<ExpressionOperatorInfo> operatorInfos, int operatorCount)
+        {
+            I18NOption i18NOption = new I18NOption(typeof(ExpressionParser).Assembly, "i18n_expression_zh", "i18n_expression_en")
+            {
+                Name = UtilityConstants.ExpI18nName
+            };
+            I18N.InitInstance(i18NOption);
+
+            // 创建各个Operator的符号匹配器
+
+            List<OperatorTokenInfo> operatorTokenInfos = InitOperatorTokenInfoMapping(operatorInfos, operatorCount);
+
+            this._expressionCache = new StringBuilder(CacheCapacity);
+            this._tokenGroupIndexes = new List<int>(100);
+            this._lastEnqueueTokenIndexes = new Stack<int>(20);
+            this._lastUsedPossibleSplit = new Stack<int>(20);
+            this._possibleSplitTokens = new List<string[][]>(50);
+            this._simpleSplitExpression = new List<string>(50);
+
+            this._argumentCache = new Dictionary<string, string>(10);
+            this._digitRegex = new Regex(UtilityConstants.NumericPattern, RegexOptions.Compiled);
+            this._sciDigitRegex = new Regex(UtilityConstants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
+            this._strRegex = new Regex(UtilityConstants.StringPattern, RegexOptions.Compiled);
+            this._boolRegex = new Regex(UtilityConstants.BoolPattern, RegexOptions.Compiled);
+            this._argNamePattern = new Regex(UtilityConstants.ArgNamePattern, RegexOptions.Compiled);
+            this._singleArgRegex = new Regex(UtilityConstants.SingleArgPattern, RegexOptions.Compiled);
+
+            const int presetLevel = 7;
+            this._presetSplitArranges = new List<int[][]>(presetLevel);
+            InitPresetSplitArrangesToSpecifiedLevel(presetLevel);
+
+            this._operatorTokens = new HashSet<string>();
+            this._operatorTokenChars = new HashSet<char>();
+            this._maxTokenLength = 0;
+            foreach (OperatorTokenInfo operatorTokenInfo in operatorTokenInfos)
+            {
+                foreach (string token in operatorTokenInfo.TokenGroup)
+                {
+                    this._operatorTokens.Add(token);
+                    foreach (char tokenChar in token)
+                    {
+                        this._operatorTokenChars.Add(tokenChar);
+                    }
+                    if (token.Length > this._maxTokenLength)
+                    {
+                        this._maxTokenLength = token.Length;
+                    }
+                }
+            }
+            this._parserStateMachine = new ParserStateMachine(operatorTokenInfos);
         }
 
         private void InitPresetSplitArrangesToSpecifiedLevel(int level)
@@ -192,12 +249,12 @@ namespace Testflow.Utility.Expression
             return false;
         }
 
-        private List<OperatorTokenInfo> InitOperatorTokenInfoMapping(Dictionary<string, ExpressionOperatorInfo> operatorInfos)
+        private List<OperatorTokenInfo> InitOperatorTokenInfoMapping(IEnumerable<ExpressionOperatorInfo> operatorInfos, int count)
         {
-            List<OperatorTokenInfo> operatorTokenInfos = new List<OperatorTokenInfo>(operatorInfos.Count);
-            foreach (KeyValuePair<string, ExpressionOperatorInfo> operatorInfoPair in operatorInfos)
+            List<OperatorTokenInfo> operatorTokenInfos = new List<OperatorTokenInfo>(count);
+            foreach (ExpressionOperatorInfo operatorInfo in operatorInfos)
             {
-                OperatorTokenInfo operatorAdapter = new OperatorTokenInfo(operatorInfoPair.Value);
+                OperatorTokenInfo operatorAdapter = new OperatorTokenInfo(operatorInfo);
                 operatorTokenInfos.Add(operatorAdapter);
             }
 

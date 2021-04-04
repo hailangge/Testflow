@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Testflow.Usr;
@@ -9,10 +10,10 @@ using Testflow.Data.Expression;
 using Testflow.Data.Sequence;
 using Testflow.Modules;
 using Testflow.SequenceManager.Common;
-using Testflow.SequenceManager.Expression;
 using Testflow.SequenceManager.SequenceElements;
 using Testflow.SequenceManager.Serializer;
 using Testflow.SequenceManager.StepCreators;
+using Testflow.Utility.Expression;
 using Testflow.Utility.I18nUtil;
 using Testflow.Utility.Utils;
 
@@ -72,7 +73,8 @@ namespace Testflow.SequenceManager
             }
             if (null == _expressionParser)
             {
-                _expressionParser = new ExpressionParser(ConfigData, TestflowRunner.GetInstance().LogService);
+                _expressionParser = new ExpressionParser(
+                        ConfigData.GetProperty<Dictionary<string, ExpressionOperatorInfo>>("ExpressionOperators"));
             }
         }
 

@@ -47,12 +47,7 @@
     <Compile Include="Runner\Attributes\AttributesProcessor.cs" />
     <Compile Include="Runner\EnumConvertor.cs" />
     <Compile Include="Runner\Expression\ExpressionCalculator.cs" />
-    <Compile Include="Runner\Expression\ExpressionData.cs" />
-    <Compile Include="Runner\Expression\ExpressionElement.cs" />
-    <Compile Include="Runner\Expression\ExpressionParser.cs" />
     <Compile Include="Runner\Expression\ExpressionProcessor.cs" />
-    <Compile Include="Runner\Expression\OperatorAdapter.cs" />
-    <Compile Include="Runner\Expression\OperatorAdapterComparer.cs" />
     <Compile Include="ProcessTestLauncher.cs" />
     <Compile Include="AppDomainTestLauncher.cs" />
     <Compile Include="Common\CallBackEventManager.cs" />
