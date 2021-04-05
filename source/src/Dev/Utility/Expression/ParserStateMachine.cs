@@ -598,6 +598,7 @@ namespace Testflow.Utility.Expression
                 this._operatorStack.Push(this._currentOperator);
                 this._currentOperator = new OperatorInstance(rightTokenInfos[0], this._elementIndex);
                 this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
                 CurrentOperatorOverCheck();
             }
             else if (rightTokenInfos.Count > 1)
@@ -609,7 +610,8 @@ namespace Testflow.Utility.Expression
                 this._operatorStack.Push(this._currentOperator);
                 this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
                 this._currentOperator.AddArgument(this._leftArgument);
-                
+                this._leftArgument = null;
+
                 CurrentOperatorOverCheck();
             }
             return false;
@@ -656,7 +658,10 @@ namespace Testflow.Utility.Expression
                 else if (rightTokenInfos.Count == 0)
                 {
                     OperatorInstance stackTopOperator = this._operatorStack.Peek();
-                    if (stackTopOperator.IsCurrentTokenFit(token) && stackTopOperator.IsNeedRightElement())
+                    bool topOperatorOneArgumentNeed = stackTopOperator.IsNeedRightElement() &&
+                                                      stackTopOperator.IsTokenIterationOver();
+                    bool topOperatorTokenFit = stackTopOperator.IsCurrentTokenFit(token) && stackTopOperator.IsNeedRightElement();
+                    if (topOperatorTokenFit || topOperatorOneArgumentNeed)
                     {
                         this._currentOperator.AddArgument(this._leftArgument);
                         IExpressionData expressionData = this._currentOperator.CreateExpression();
@@ -666,6 +671,7 @@ namespace Testflow.Utility.Expression
                         Func<bool> nextStateFunc = GetNextStateFunc();
                         return nextStateFunc();
                     }
+                    PopAmbiguousPoint();
                 }
             }
             else if (isCurrentTokenFit)
@@ -684,6 +690,7 @@ namespace Testflow.Utility.Expression
                 this._operatorStack.Push(this._currentOperator);
                 this._currentOperator = new OperatorInstance(rightTokenInfos[0], this._elementIndex);
                 this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
                 CurrentOperatorOverCheck();
             }
             else if (rightTokenInfos.Count > 1)
@@ -695,6 +702,7 @@ namespace Testflow.Utility.Expression
                 this._operatorStack.Push(this._currentOperator);
                 this._currentOperator = new OperatorInstance(firstTokenInfo, this._elementIndex);
                 this._currentOperator.AddArgument(this._leftArgument);
+                this._leftArgument = null;
                 CurrentOperatorOverCheck();
             }
             return false;

@@ -503,8 +503,6 @@ namespace Testflow.Utility.Expression
                 i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
         }
 
-
-
         private void InitFullySplitExpression(List<string> fullySplitExpression)
         {
             // 当前符号组在_divergenceIndexes中的索引号
@@ -513,7 +511,7 @@ namespace Testflow.Utility.Expression
             while (splitIndex < this._simpleSplitExpression.Count)
             {
                 string expressionElement = this._simpleSplitExpression[splitIndex];
-                if (tokenGroupIndex < this._tokenGroupIndexes.Count && this._tokenGroupIndexes[tokenGroupIndex] != splitIndex)
+                if (tokenGroupIndex >= this._tokenGroupIndexes.Count || this._tokenGroupIndexes[tokenGroupIndex] != splitIndex)
                 {
                     splitIndex++;
                     fullySplitExpression.Add(expressionElement);
@@ -581,9 +579,19 @@ namespace Testflow.Utility.Expression
             int index = 0;
             // 上一个操作符符号起始的位置
             int lastTokenStartIndex = -1;
+            char argElementFirstChar = UtilityConstants.ArgNamePrefix[0];
+            while (!expressionCache[index].Equals(argElementFirstChar))
+            {
+                index++;
+            }
+            if (index > 0)
+            {
+                this._simpleSplitExpression.Add(expressionCache.ToString(0, index));
+                this._tokenGroupIndexes.Add(0);
+            }
             while (index < expressionCache.Length)
             {
-                if (expressionCache[index].Equals('A'))
+                if (expressionCache[index].Equals(argElementFirstChar))
                 {
                     if (lastTokenStartIndex >= 0)
                     {
@@ -600,10 +608,7 @@ namespace Testflow.Utility.Expression
                     this._simpleSplitExpression.Add(expressionCache.ToString(lastTokenStartIndex, index - lastTokenStartIndex));
                     lastTokenStartIndex = index;
                 }
-                else
-                {
-                    index++;
-                }
+                index++;
             }
             if (lastTokenStartIndex < expressionCache.Length)
             {
@@ -745,6 +750,21 @@ namespace Testflow.Utility.Expression
 
         #endregion
 
+        private void ResetExpressionCache()
+        {
+            this._expressionCache.Clear();
+            if (this._expressionCache.Capacity > CacheCapacity)
+            {
+                this._expressionCache.Capacity = CacheCapacity;
+            }
+            this._argumentCache.Clear();
+            this._tokenGroupIndexes.Clear();
+            this._lastEnqueueTokenIndexes.Clear();
+            this._lastUsedPossibleSplit.Clear();
+            this._possibleSplitTokens.Clear();
+            this._simpleSplitExpression.Clear();
+        }
+
         public bool RenameVariable(string expression, string varOldName, string varNewName)
         {
             if (!expression.Contains(varOldName))
@@ -786,20 +806,12 @@ namespace Testflow.Utility.Expression
             return varExist;
         }
 
+        /// <summary>
+        /// 获取当前参数配置是否为表达式
+        /// </summary>
         public bool IsExpression(string parameterValue)
         {
             return parameterValue.Any(valueChar => this._operatorTokenChars.Contains(valueChar));
-        }
-
-        private void ResetExpressionCache()
-        {
-            this._expressionCache.Clear();
-            if (this._expressionCache.Capacity > CacheCapacity)
-            {
-                this._expressionCache.Capacity = CacheCapacity;
-            }
-            this._argumentCache.Clear();
-            this._tokenGroupIndexes.Clear();
         }
     }
 }
