@@ -7,55 +7,55 @@
       <Priority>10</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Get2DArrayElement" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Get2DArrayElement" Description="Get the element of speficied subscript in two-dimensional array.">
       <Symbol>[,]</Symbol>
       <FormatString>{0}[{1},{2}]</FormatString>
       <Priority>10</Priority>
       <ArgumentsCount>2</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Get3DArrayElement" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Get3DArrayElement" Description="Get the element of speficied subscript in three-dimensional array.">
       <Symbol>[,,]</Symbol>
       <FormatString>{0}[{1},{2},{3}]</FormatString>
       <Priority>10</Priority>
       <ArgumentsCount>3</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="NegativeOperation" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="NegativeOperation" Description="Get the result of -1*Source.">
       <Symbol>-</Symbol>
       <FormatString>-{0}</FormatString>
       <Priority>10</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Addition" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Addition" Description="Get the result of addition operation between two element.">
       <Symbol>+</Symbol>
       <FormatString>{0}+{1}</FormatString>
       <Priority>5</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Substraction" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Substraction" Description="Get the result of substraction operation between two element.">
       <Symbol>-</Symbol>
       <FormatString>{0}-{1}</FormatString>
       <Priority>5</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Multiplication" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Multiplication" Description="Get the result of multiplication operation between two element.">
       <Symbol>*</Symbol>
       <FormatString>{0}*{1}</FormatString>
       <Priority>8</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Division" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Division" Description="Get the result of division operation between two element.">
       <Symbol>/</Symbol>
       <FormatString>{0}/{1}</FormatString>
       <Priority>8</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Complementation" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Complementation" Description="Get the result of complementation operation between two element.">
       <Symbol>%</Symbol>
       <FormatString>{0}%{1}</FormatString>
       <Priority>8</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
-	<ExpressionOperator Name="Brackets" Description="Get the element in specified subscript.">
+	<ExpressionOperator Name="Brackets" Description="Get the result of value between brackets.">
       <Symbol>()</Symbol>
       <FormatString>({0})</FormatString>
       <Priority>0</Priority>
