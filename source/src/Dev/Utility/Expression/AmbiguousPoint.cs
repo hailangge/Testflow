@@ -28,6 +28,11 @@ namespace Testflow.Utility.Expression
         public string LeftArgument { get; set; }
 
         /// <summary>
+        /// 分歧点堆栈
+        /// </summary>
+        public OperatorInstance[] OperatorStack { get; set; }
+
+        /// <summary>
         /// 当前的操作符实例
         /// </summary>
         public OperatorInstance CurrentOperator { get; set; }

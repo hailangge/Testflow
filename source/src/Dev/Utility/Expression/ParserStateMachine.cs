@@ -122,6 +122,7 @@ namespace Testflow.Utility.Expression
             {
                 ElementIndex = this._elementIndex,
                 OperatorStackLength = this._operatorStack.Count,
+                OperatorStack = GetOperatorStackClone(),
                 ExpressionCacheLength = this._expressionCache.Count,
                 CurrentOperator = this._currentOperator?.Clone(),
                 LeftArgument = this._leftArgument,
@@ -129,6 +130,17 @@ namespace Testflow.Utility.Expression
             };
             this._ambiguousStack.Push(ambiguousPoint);
             possibleTokens.Clear();
+        }
+
+        private OperatorInstance[] GetOperatorStackClone()
+        {
+            OperatorInstance[] operatorStackArray = this._operatorStack.ToArray();
+            for (int i = 0; i < operatorStackArray.Length; i++)
+            {
+                operatorStackArray[i] = operatorStackArray[i].Clone();
+            }
+
+            return operatorStackArray;
         }
 
         private void PopAmbiguousPoint()
@@ -140,9 +152,10 @@ namespace Testflow.Utility.Expression
             AmbiguousPoint ambiguousPoint = this._ambiguousStack.Peek();
             // 将当前元素回退到最近歧义点的上一个元素
             this._elementIndex = ambiguousPoint.ElementIndex - 1;
-            while (this._operatorStack.Count > ambiguousPoint.OperatorStackLength)
+            this._operatorStack.Clear();
+            for (int i = ambiguousPoint.OperatorStack.Length - 1; i >= 0; i--)
             {
-                this._operatorStack.Pop();
+                this._operatorStack.Push(ambiguousPoint.OperatorStack[i]);
             }
             this._currentOperator = ambiguousPoint.CurrentOperator;
             this._leftArgument = ambiguousPoint.LeftArgument;
