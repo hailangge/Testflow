@@ -23,7 +23,7 @@
       <Symbol>-</Symbol>
       <FormatString>-{0}</FormatString>
       <Priority>10</Priority>
-      <ArgumentsCount>1</ArgumentsCount>
+      <ArgumentsCount>0</ArgumentsCount>
     </ExpressionOperator>
 	<ExpressionOperator Name="Addition" Description="Get the result of addition operation between two element.">
       <Symbol>+</Symbol>
@@ -60,6 +60,24 @@
       <FormatString>({0})</FormatString>
       <Priority>0</Priority>
       <ArgumentsCount>0</ArgumentsCount>
+    </ExpressionOperator>
+	<ExpressionOperator Name="GreaterThan" Description="Get the result that whether source value is greater than argument value.">
+      <Symbol>&gt;</Symbol>
+      <FormatString>{0}&gt;{1}</FormatString>
+      <Priority>1</Priority>
+      <ArgumentsCount>1</ArgumentsCount>
+    </ExpressionOperator>
+	<ExpressionOperator Name="LessThan" Description="Get the result that whether source value is less than argument value.">
+      <Symbol>&lt;</Symbol>
+      <FormatString>{0}&lt;{1}</FormatString>
+      <Priority>1</Priority>
+      <ArgumentsCount>1</ArgumentsCount>
+    </ExpressionOperator>
+	<ExpressionOperator Name="BinocularOperation" Description="Get the result of binocular operationo.">
+      <Symbol>?:</Symbol>
+      <FormatString>{0}?{1}:{2}</FormatString>
+      <Priority>1</Priority>
+      <ArgumentsCount>2</ArgumentsCount>
     </ExpressionOperator>
   </ExpressionOperators>
   <ExpressionCalculators>
@@ -112,6 +130,14 @@
         <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
       </ArgumentTypes>
     </ExpressionCalculatorInfo>
+	<ExpressionCalculatorInfo Name="StringAdd" Description="Get the value of two string add operation.">
+      <OperatorName>Addition</OperatorName>
+      <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.StringAddCalculator" />
+      <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.String" />
+      <ArgumentTypes>
+        <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.String" />
+      </ArgumentTypes>
+    </ExpressionCalculatorInfo>
 	<ExpressionCalculatorInfo Name="NumericSubstract" Description="Get the value of two numeric substract operation.">
       <OperatorName>Substraction</OperatorName>
       <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.NumericSubstractCalculator" />
@@ -149,6 +175,31 @@
       <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.BracketsOperator" />
       <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Object" />
       <ArgumentTypes></ArgumentTypes>
+    </ExpressionCalculatorInfo>
+	<ExpressionCalculatorInfo Name="NumericGreaterThanCalculator" Description="Get the result that if source numeric is greater than argument numeric.">
+      <OperatorName>GreaterThan</OperatorName>
+      <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.NumericGreaterThanCalculator" />
+      <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
+      <ArgumentTypes>
+        <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
+      </ArgumentTypes>
+    </ExpressionCalculatorInfo>
+	<ExpressionCalculatorInfo Name="NumericLessThanCalculator" Description="Get the result that if source numeric is less than argument numeric.">
+      <OperatorName>LessThan</OperatorName>
+      <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.NumericLessThanCalculator" />
+      <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
+      <ArgumentTypes>
+        <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
+      </ArgumentTypes>
+    </ExpressionCalculatorInfo>
+	<ExpressionCalculatorInfo Name="BinocularCalculator" Description="Get the binocular result of three elements.">
+      <OperatorName>BinocularOperation</OperatorName>
+      <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.BinocularCalculator" />
+      <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Boolean" />
+      <ArgumentTypes>
+        <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Object" />
+		<ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Object" />
+      </ArgumentTypes>
     </ExpressionCalculatorInfo>
   </ExpressionCalculators>
 </ExpressionOperatorConfiguration>

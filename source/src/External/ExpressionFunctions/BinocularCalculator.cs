@@ -2,23 +2,23 @@
 
 namespace Testflow.External.ExpressionCalculators
 {
-    public class StringAddCalculator : IExpressionCalculator
+    public class BinocularCalculator : IExpressionCalculator
     {
-        public StringAddCalculator()
+        public BinocularCalculator()
         {
-            Operator = "Addition";
+            Operator = "BinocularOperation";
         }
 
         public string Operator { get; }
 
         public bool IsCalculable(object sourceValue, params object[] arguments)
         {
-            return sourceValue is string && arguments[0] is string;
+            return sourceValue is bool;
         }
 
         public object Calculate(object sourceValue, params object[] arguments)
         {
-            return sourceValue.ToString() + arguments[0] ?? "NULL";
+            return ((bool)sourceValue) ? arguments[0] : arguments[1];
         }
     }
 }
