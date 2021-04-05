@@ -31,6 +31,10 @@ namespace Testflow.SequenceManager.SequenceElements
             this.InvokeErrorAction = FailedAction.Terminate;
             // this.PrecedingAttributes = new StepAttributeCollection();
             // this.PostAttributes = new StepAttributeCollection();
+            this.PrecedingAttributes = null;
+            this.PrepareActions = null;
+            this.PostAttributes = null;
+            this.PostActions = null;
         }
 
         [RuntimeSerializeIgnore]
@@ -53,17 +57,27 @@ namespace Testflow.SequenceManager.SequenceElements
         [RuntimeType(typeof(StepAttributeCollection))]
         public IStepAttributeCollection PrecedingAttributes { get; set; }
 
-        // TODO
+        // TODO 暂时标记为不序列化
+        [SerializationIgnore]
+        [RuntimeSerializeIgnore]
         public IStepActionCollection PrepareActions { get; set; }
-
+        
+        // TODO 暂时标记为不序列化
+        [SerializationIgnore]
+        [RuntimeSerializeIgnore]
         [RuntimeType(typeof(FunctionData))]
         public IFunctionData Function { get; set; }
 
-        // TODO
-        // public IStepActionCollection PostActions { get; set; }
+        // TODO 暂时标记为不序列化
+        [SerializationIgnore]
+        [RuntimeSerializeIgnore]
+        public IStepActionCollection PostActions { get; set; }
 
-        // [RuntimeType(typeof(StepAttributeCollection))]
-        // public IStepAttributeCollection PostAttributes { get; set; }
+        // TODO 暂时标记为不序列化
+        [SerializationIgnore]
+        [RuntimeSerializeIgnore]
+        [RuntimeType(typeof(StepAttributeCollection))]
+        public IStepAttributeCollection PostAttributes { get; set; }
 
         public SequenceStepType StepType { get; set; }
 
