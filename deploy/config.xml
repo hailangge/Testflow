@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ConfigurationData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TestflowConfiguration" ConfigVersion="1.0.0.0">
+<ConfigurationData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TestflowConfiguration" ConfigVersion="1.0.2.0">
   <ModuleConfigData Name="GlobalConfig">
     <ConfigItems Name="PlatformEncoding" Value="utf-8" Type="System.Text.Encoding" />
     <ConfigItems Name="PlatformLibDir" Value="lib\" Type="System.String" />
