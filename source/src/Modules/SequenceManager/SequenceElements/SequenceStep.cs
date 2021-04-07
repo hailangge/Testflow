@@ -64,7 +64,6 @@ namespace Testflow.SequenceManager.SequenceElements
         
         // TODO 暂时标记为不序列化
         [SerializationIgnore]
-        [RuntimeSerializeIgnore]
         [RuntimeType(typeof(FunctionData))]
         public IFunctionData Function { get; set; }
 
