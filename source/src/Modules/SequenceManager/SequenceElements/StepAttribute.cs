@@ -15,6 +15,8 @@ namespace Testflow.SequenceManager.SequenceElements
             this.Target = string.Empty;
             this.Type = string.Empty;
             this.ParameterValues = new FlexibleList<string>();
+            this.Name = string.Empty;
+            this.Value = null;
         }
 
         public StepAttribute(SerializationInfo info, StreamingContext context)
@@ -31,12 +33,24 @@ namespace Testflow.SequenceManager.SequenceElements
             info.AddValue("ParameterValues", this.ParameterValues);
         }
 
+        public string Name { get; set; }
         public int Index { get; set; }
         public string Target { get; set; }
         public string Type { get; set; }
-        public string FullType => $"{Target}.{Type}";
+
+        public string FullType
+        {
+            get { return $"{Target}.{Type}"; }
+            set
+            {
+                // ignore:为了兼容性保留
+            }
+        }
+
         public string Condition { get; set; }
         public IList<string> ParameterValues { get; set; }
+        public string Value { get; set; }
+
         public IStepAttribute Clone()
         {
             StepAttribute stepAttribute = new StepAttribute()
