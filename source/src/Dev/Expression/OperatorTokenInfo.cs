@@ -55,7 +55,7 @@ namespace Testflow.Utility.Expression
         {
             this.OperatorName = operationInfo.Name;
             this.OperatorPattern = operationInfo.FormatString;
-            string[] splitTokens = Regex.Split(operationInfo.FormatString, UtilityConstants.OperatorPlaceHolderRegex);
+            string[] splitTokens = Regex.Split(operationInfo.FormatString, Constants.OperatorPlaceHolderRegex);
             List<string> tokenList = new List<string>(splitTokens);
             for (int i = tokenList.Count - 1; i >= 0; i--)
             {
@@ -66,8 +66,8 @@ namespace Testflow.Utility.Expression
             }
             TokenGroup = tokenList.ToArray();
             this.Priority = operationInfo.Priority;
-            this.HasLeftElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.LeftValuePattern);
-            this.HasRightElement = Regex.IsMatch(operationInfo.FormatString, UtilityConstants.RightValuePattern);
+            this.HasLeftElement = Regex.IsMatch(operationInfo.FormatString, Constants.LeftValuePattern);
+            this.HasRightElement = Regex.IsMatch(operationInfo.FormatString, Constants.RightValuePattern);
             // 表达式匹配时认定Source也是Argument
             int argumentCountIncludeSource = operationInfo.ArgumentsCount + 1;
             this.ArgumentCount = argumentCountIncludeSource;
@@ -75,7 +75,7 @@ namespace Testflow.Utility.Expression
             int expectArgumentCount = TokenGroup.Length - 1 + (HasLeftElement ? 1 : 0) + (HasRightElement ? 1 : 0);
             if (expectArgumentCount != argumentCountIncludeSource)
             {
-                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalOperatorFormat", operationInfo.Symbol));
             }

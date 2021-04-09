@@ -134,6 +134,10 @@
       <Project>{1681cdd7-0cc2-49d2-9e82-7b03b52db283}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Dev\Expression\Expression.csproj">
+      <Project>{28540a24-9abf-4b25-b222-fae41ae823f5}</Project>
+      <Name>Expression</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Dev\Logger\Logger.csproj">
       <Project>{DC3CD3DE-1B8E-4847-B752-63352F35F1E2}</Project>
       <Name>Logger</Name>

@@ -73,7 +73,7 @@ namespace Testflow.Utility.Expression
 
             I18NOption i18NOption = new I18NOption(typeof(ExpressionParser).Assembly, "i18n_expression_zh", "i18n_expression_en")
             {
-                Name = UtilityConstants.ExpI18nName
+                Name = Constants.ExpI18nName
             };
             I18N.InitInstance(i18NOption);
 
@@ -89,12 +89,12 @@ namespace Testflow.Utility.Expression
             this._simpleSplitExpression = new List<string>(50);
 
             this._argumentCache = new Dictionary<string, string>(10);
-            this._digitRegex = new Regex(UtilityConstants.NumericPattern, RegexOptions.Compiled);
-            this._sciDigitRegex = new Regex(UtilityConstants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
-            this._strRegex = new Regex(UtilityConstants.StringPattern, RegexOptions.Compiled);
-            this._boolRegex = new Regex(UtilityConstants.BoolPattern, RegexOptions.Compiled);
-            this._argNamePattern = new Regex(UtilityConstants.ArgNamePattern, RegexOptions.Compiled);
-            this._singleArgRegex = new Regex(UtilityConstants.SingleArgPattern, RegexOptions.Compiled);
+            this._digitRegex = new Regex(Constants.NumericPattern, RegexOptions.Compiled);
+            this._sciDigitRegex = new Regex(Constants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
+            this._strRegex = new Regex(Constants.StringPattern, RegexOptions.Compiled);
+            this._boolRegex = new Regex(Constants.BoolPattern, RegexOptions.Compiled);
+            this._argNamePattern = new Regex(Constants.ArgNamePattern, RegexOptions.Compiled);
+            this._singleArgRegex = new Regex(Constants.SingleArgPattern, RegexOptions.Compiled);
 
             const int presetLevel = 7;
             this._presetSplitArranges = new List<int[][]>(presetLevel);
@@ -130,7 +130,7 @@ namespace Testflow.Utility.Expression
         {
             I18NOption i18NOption = new I18NOption(typeof(ExpressionParser).Assembly, "i18n_expression_zh", "i18n_expression_en")
             {
-                Name = UtilityConstants.ExpI18nName
+                Name = Constants.ExpI18nName
             };
             I18N.InitInstance(i18NOption);
 
@@ -146,12 +146,12 @@ namespace Testflow.Utility.Expression
             this._simpleSplitExpression = new List<string>(50);
 
             this._argumentCache = new Dictionary<string, string>(10);
-            this._digitRegex = new Regex(UtilityConstants.NumericPattern, RegexOptions.Compiled);
-            this._sciDigitRegex = new Regex(UtilityConstants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
-            this._strRegex = new Regex(UtilityConstants.StringPattern, RegexOptions.Compiled);
-            this._boolRegex = new Regex(UtilityConstants.BoolPattern, RegexOptions.Compiled);
-            this._argNamePattern = new Regex(UtilityConstants.ArgNamePattern, RegexOptions.Compiled);
-            this._singleArgRegex = new Regex(UtilityConstants.SingleArgPattern, RegexOptions.Compiled);
+            this._digitRegex = new Regex(Constants.NumericPattern, RegexOptions.Compiled);
+            this._sciDigitRegex = new Regex(Constants.SciNumericPattern, RegexOptions.Compiled | RegexOptions.RightToLeft);
+            this._strRegex = new Regex(Constants.StringPattern, RegexOptions.Compiled);
+            this._boolRegex = new Regex(Constants.BoolPattern, RegexOptions.Compiled);
+            this._argNamePattern = new Regex(Constants.ArgNamePattern, RegexOptions.Compiled);
+            this._singleArgRegex = new Regex(Constants.SingleArgPattern, RegexOptions.Compiled);
 
             const int presetLevel = 7;
             this._presetSplitArranges = new List<int[][]>(presetLevel);
@@ -401,7 +401,7 @@ namespace Testflow.Utility.Expression
                 Match containArgMatch = this._argNamePattern.Match(element);
                 if (containArgMatch.Success)
                 {
-                    I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                    I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                     throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                         i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
                 }
@@ -440,7 +440,7 @@ namespace Testflow.Utility.Expression
         private void CacheArgumentValue(StringBuilder expressionCache, ref int argIndex, int argStartIndex,
             int argEndIndex, Dictionary<string, string> argumentCache)
         {
-            string argName = string.Format(UtilityConstants.ArgNameFormat, argIndex++);
+            string argName = string.Format(Constants.ArgNameFormat, argIndex++);
             string argumentValue = GetTrimmedArgValue(expressionCache, argStartIndex, argEndIndex);
             // 获取需要移除的长度，包括引号
             argumentCache.Add(argName, argumentValue);
@@ -463,7 +463,7 @@ namespace Testflow.Utility.Expression
             int argValueLength = argEndIndex - argStartIndex + 1;
             if (argValueLength <= 0)
             {
-                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
             }
@@ -498,7 +498,7 @@ namespace Testflow.Utility.Expression
                 UpdateFullySplitExpression(fullySplitExpression);
             }
             // 遍历到最后也未能找到有效的解析，则抛出异常
-            I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+            I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
             throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                 i18N.GetFStr("IllegalExpression", expressionCache.ToString()));
         }
@@ -550,7 +550,7 @@ namespace Testflow.Utility.Expression
             // 未找到可以继续更新的符号位置，抛出错误
             if (!hasUpdate)
             {
-                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -579,7 +579,7 @@ namespace Testflow.Utility.Expression
             int index = 0;
             // 上一个操作符符号起始的位置
             int lastTokenStartIndex = -1;
-            char argElementFirstChar = UtilityConstants.ArgNamePrefix[0];
+            char argElementFirstChar = Constants.ArgNamePrefix[0];
             while (!expressionCache[index].Equals(argElementFirstChar))
             {
                 index++;
@@ -600,7 +600,7 @@ namespace Testflow.Utility.Expression
                     }
 
                     lastTokenStartIndex = index;
-                    index += UtilityConstants.ArgNamePrefix.Length + 1;
+                    index += Constants.ArgNamePrefix.Length + 1;
                     while (index < expressionCache.Length && expressionCache[index] >= '0' && expressionCache[index] <= '9')
                     {
                         index++;
@@ -633,7 +633,7 @@ namespace Testflow.Utility.Expression
             List<string> singlePossibleSplits = new List<string>(10);
             if (tokenGroup.Length > this._presetSplitArranges.Count)
             {
-                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -648,7 +648,7 @@ namespace Testflow.Utility.Expression
             }
             if (possibleSplits.Count == 0)
             {
-                I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                 throw new TestflowDataException(ModuleErrorCode.ExpressionError,
                     i18N.GetFStr("IllegalExpression", this._expressionCache.ToString()));
             }
@@ -727,7 +727,7 @@ namespace Testflow.Utility.Expression
             {
                 if (null != parent && !SequenceUtils.IsVariableExist(value, parent))
                 {
-                    I18N i18N = I18N.GetInstance(UtilityConstants.ExpI18nName);
+                    I18N i18N = I18N.GetInstance(Constants.ExpI18nName);
                     throw new TestflowDataException(ModuleErrorCode.ExpressionError, i18N.GetFStr("ExpVariableNotExist", value));
                 }
                 // 否则则认为表达式为变量值

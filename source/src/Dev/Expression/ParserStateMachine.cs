@@ -250,7 +250,7 @@ namespace Testflow.Utility.Expression
             bool elementIsArgument = false;
             if (elementIterationNotOver)
             {
-                elementIsArgument = this._splitExpression[this._elementIndex].StartsWith(UtilityConstants.ArgNamePrefix);
+                elementIsArgument = this._splitExpression[this._elementIndex].StartsWith(Constants.ArgNamePrefix);
             }
             // 遍历到参数
             if (elementIterationNotOver && elementIsArgument)
@@ -838,7 +838,7 @@ namespace Testflow.Utility.Expression
         /// </summary>
         private void UpdateNameAndAddToCache(IExpressionData expression)
         {
-            expression.Name = string.Format(UtilityConstants.ExpPlaceHolderFormat, this._expressionIndex++.ToString());
+            expression.Name = string.Format(Constants.ExpPlaceHolderFormat, this._expressionIndex++.ToString());
             this._expressionCache.Add(expression.Name, expression);
         }
 

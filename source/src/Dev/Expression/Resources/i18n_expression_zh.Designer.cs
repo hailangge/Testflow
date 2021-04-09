@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Testflow.Utility.Resources {
+namespace Testflow.Utility.Expression.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Testflow.Utility.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Testflow.Utility.Resources.i18n_expression_zh", typeof(i18n_expression_zh).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Testflow.Utility.Expression.Resources.i18n_expression_zh", typeof(i18n_expression_zh).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
