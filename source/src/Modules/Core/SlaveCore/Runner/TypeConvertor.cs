@@ -83,7 +83,7 @@ namespace Testflow.SlaveCore.Runner
             {
                 return sourceValue;
             }
-            if (IsValidValueCast(sourceType, targetType))
+            if (IsValidValueCastExceptEnum(sourceType, targetType))
             {
                 return _convertors[sourceType.Name].CastValue(targetType, sourceValue);
             }
@@ -178,6 +178,15 @@ namespace Testflow.SlaveCore.Runner
             return sourceType.IsEnum
                 ? _enumConvertor.IsValidCastTarget(targetType)
                 : _enumConvertor.IsValidCastSource(sourceType);
+        }
+
+        private bool IsValidValueCastExceptEnum(Type sourceType, Type targetType)
+        {
+            if (sourceType.IsEnum || targetType.IsEnum)
+            {
+                return false;
+            }
+            return IsValidValueCast(sourceType, targetType);
         }
     }
 }
