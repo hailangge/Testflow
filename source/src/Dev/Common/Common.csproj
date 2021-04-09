@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\..\..\export\Release\libCommon.xml</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
-    <RegisterForComInterop>true</RegisterForComInterop>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

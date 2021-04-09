@@ -70,14 +70,14 @@ namespace Testflow.MasterCore.Core
 
         public void Start()
         {
-            if (null == this._operationPanelInfo)
+            if (null == this._operationPanelInfo || string.IsNullOrWhiteSpace(this._operationPanelInfo.Parameters))
             {
                 return;
             }
             RegisterEvent();
             this._blockHandle = new AutoResetEvent(false);
             this._isStartConfirmed = false;
-            this._operationPanel.OiReady += OiStartSequenceConfirmed;
+            this._operationPanel.ConfigurationOver += OiStartSequenceConfirmed;
             ThreadPool.QueueUserWorkItem(ShowOperationPanel);
             // 设定OI配置超时时间为1小时
             bool isNotTimeout = this._blockHandle.WaitOne(new TimeSpan(0, 1, 0, 0));

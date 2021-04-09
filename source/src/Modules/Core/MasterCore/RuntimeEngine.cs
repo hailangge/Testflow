@@ -30,7 +30,8 @@ namespace Testflow.MasterCore
         private readonly RuntimeStatusManager _statusManager;
         private readonly SynchronousManager _syncManager;
         private readonly EngineFlowController _controller;
-        private readonly OperationPanelManager _oiManager;
+        // TODO 为了保证向下的兼容性，暂时封闭该接口，待后续处理
+        // private readonly OperationPanelManager _oiManager;
         private readonly RuntimeObjectManager _runtimeObjectManager;
         private readonly CallBackProcessor _callBackProcessor;
         private readonly RuntimeInfoSelector _runtimeInfoSelector;
@@ -49,7 +50,7 @@ namespace Testflow.MasterCore
             _callBackProcessor = new CallBackProcessor(_globalInfo);
             _debugManager = EnableDebug ? new DebugManager(_globalInfo) : null;
             _runtimeInfoSelector = new RuntimeInfoSelector(_globalInfo, this);
-            _oiManager = new OperationPanelManager(_globalInfo);
+            // _oiManager = new OperationPanelManager(_globalInfo);
 
             _globalInfo.RuntimeInitialize(messageTransceiver, _debugManager);
 
@@ -99,7 +100,8 @@ namespace Testflow.MasterCore
                 _statusManager.Initialize(sequenceContainer);
                 _callBackProcessor.Initialize(sequenceContainer);
                 _debugManager?.Initialize(sequenceContainer);
-                _oiManager.Initialize(sequenceContainer);
+                // TODO 为了保证向下的兼容性，暂时封闭该接口，待后续处理
+                // _oiManager.Initialize(sequenceContainer);
                 // 注册状态更新事件
                 _globalInfo.StateMachine.StateAbort += Stop;
                 _globalInfo.StateMachine.StateError += Stop;
@@ -177,8 +179,9 @@ namespace Testflow.MasterCore
         {
             try
             {
-                // 等待AO开始并确认
-                this._oiManager.Start();
+                // 等待OI开始并确认
+                // TODO 为了保证向下的兼容性，暂时封闭该接口，待后续处理
+                // this._oiManager.Start();
                 _globalInfo.MessageTransceiver.Activate();
                 _statusManager.Start();
                 _syncManager.Start();

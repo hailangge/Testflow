@@ -18,7 +18,13 @@ namespace Testflow.Runtime.OperationPanel
         /// <summary>
         /// OI面板确认可以开始运行的事件
         /// </summary>
-        event Action<bool, Dictionary<string, object>> OiReady;
+        event Action<bool, Dictionary<string, object>> ConfigurationOver;
+
+        /// <summary>
+        /// OI面板确认可以开始运行的事件
+        /// </summary>
+        [Obsolete]
+        event Action<bool, string> OiReady;
 
         /// <summary>
         /// OI运行的序列对象
