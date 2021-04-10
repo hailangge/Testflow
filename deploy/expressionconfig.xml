@@ -22,7 +22,7 @@
 	<ExpressionOperator Name="NegativeOperation" Description="Get the result of -1*Source.">
       <Symbol>-</Symbol>
       <FormatString>-{0}</FormatString>
-      <Priority>10</Priority>
+      <Priority>9</Priority>
       <ArgumentsCount>0</ArgumentsCount>
     </ExpressionOperator>
 	<ExpressionOperator Name="Addition" Description="Get the result of addition operation between two element.">
@@ -64,13 +64,13 @@
 	<ExpressionOperator Name="GreaterThan" Description="Get the result that whether source value is greater than argument value.">
       <Symbol>&gt;</Symbol>
       <FormatString>{0}&gt;{1}</FormatString>
-      <Priority>1</Priority>
+      <Priority>2</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
 	<ExpressionOperator Name="LessThan" Description="Get the result that whether source value is less than argument value.">
       <Symbol>&lt;</Symbol>
       <FormatString>{0}&lt;{1}</FormatString>
-      <Priority>1</Priority>
+      <Priority>2</Priority>
       <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
 	<ExpressionOperator Name="BinocularOperation" Description="Get the result of binocular operationo.">
