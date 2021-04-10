@@ -76,7 +76,7 @@ namespace Testflow.SlaveCore.Runner.Expression
                 IExpressionData currentExpression = _expElementStack.Peek();
                 int currentIndex = _expArgIndexStack.Pop() + 1;
                 // 当前层遍历结束后直接进入下一个循环
-                if (currentIndex >= expressionData.Arguments.Count)
+                if (currentIndex >= currentExpression.Arguments.Count)
                 {
                     _expElementStack.Pop();
                     continue;
