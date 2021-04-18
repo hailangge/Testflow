@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ExpressionOperatorConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.2.0">
+<ExpressionOperatorConfiguration xmlns:tfexp="Testflow.Utility.Expression" Version="1.0.2.0">
   <ExpressionOperators>
     <ExpressionOperator Name="GetElement" Description="Get the element in specified subscript.">
       <Symbol>[]</Symbol>
@@ -78,6 +78,12 @@
       <FormatString>{0}?{1}:{2}</FormatString>
       <Priority>1</Priority>
       <ArgumentsCount>2</ArgumentsCount>
+    </ExpressionOperator>
+	<ExpressionOperator Name="StringFormat" Description="Convert value to string with specified format.">
+      <Symbol>{:}</Symbol>
+      <FormatString>{{0}:{1}}</FormatString>
+      <Priority>0</Priority>
+      <ArgumentsCount>1</ArgumentsCount>
     </ExpressionOperator>
   </ExpressionOperators>
   <ExpressionCalculators>
@@ -199,6 +205,14 @@
       <ArgumentTypes>
         <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Object" />
 		<ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Object" />
+      </ArgumentTypes>
+    </ExpressionCalculatorInfo>
+	<ExpressionCalculatorInfo Name="NumericToStringFormatter" Description="Convert numeric value to string with specified format.">
+      <OperatorName>StringFormat</OperatorName>
+      <CalculatorClass AssemblyPath="ExpressionCalculators.dll" AssemblyName='ExpressionCalculators' ClassName="Testflow.External.ExpressionCalculators.NumericToStringFormatter" />
+      <SourceType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.Double" />
+      <ArgumentTypes>
+        <ArgumentType AssemblyPath="mscorlib.dll" AssemblyName="mscorlib" ClassName="System.String" />
       </ArgumentTypes>
     </ExpressionCalculatorInfo>
   </ExpressionCalculators>

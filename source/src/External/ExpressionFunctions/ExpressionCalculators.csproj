@@ -55,6 +55,7 @@
     <Compile Include="ListElementAcquirer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BinocularCalculator.cs" />
+    <Compile Include="NumericToStringFormatter.cs" />
     <Compile Include="StringAddCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
