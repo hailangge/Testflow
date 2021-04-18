@@ -21,7 +21,7 @@ namespace Testflow.External.ExpressionCalculators
             string format = arguments[0] as string;
             return string.IsNullOrWhiteSpace(format)
                 ? ((double) sourceValue).ToString()
-                : ((double) sourceValue).ToString(format) + arguments[0];
+                : ((double) sourceValue).ToString(format);
         }
     }
 }
