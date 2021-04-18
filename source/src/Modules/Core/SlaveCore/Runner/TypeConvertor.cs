@@ -114,7 +114,7 @@ namespace Testflow.SlaveCore.Runner
         /// </summary>
         public object CastConstantValue(Type targetType, string sourceValue, object originalValue = null)
         {
-            if (targetType == typeof(string))
+            if (targetType == typeof(string) || targetType == typeof(object))
             {
                 return sourceValue;
             }
