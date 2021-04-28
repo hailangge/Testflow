@@ -346,9 +346,15 @@ namespace Testflow.Utility.Expression
                     lastQuoteIndex = i;
                     lastQuoteChar = character;
                 }
-                else if (lastQuoteIndex > -1 && character == lastQuoteChar)
+                // 如果包含在引号中，且当前符号为结束符则字符串缓存结束
+                else if (lastQuoteIndex > -1)
                 {
-                    CacheArgumentValue(expressionCache, ref argumentIndex, i, lastQuoteIndex, argumentCache);
+                    if (character == lastQuoteChar)
+                    {
+                        CacheArgumentValue(expressionCache, ref argumentIndex, i, lastQuoteIndex, argumentCache);
+                        lastQuoteIndex = -1;
+                        lastQuoteChar = '\0';
+                    }
                 }
                 else if (character == ' ')
                 {
