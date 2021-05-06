@@ -182,7 +182,7 @@ namespace Testflow.ComInterfaceManager
                 AssemblyName = assemblyName,
                 Category = typeCategory,
                 Description = classDescriptionStr,
-                Name = GetTypeName(classType),
+                Name = ModuleUtils.GetTypeName(classType),
                 Namespace = GetNamespace(classType),
                 Kind = classKind
             };
@@ -209,7 +209,7 @@ namespace Testflow.ComInterfaceManager
             {
                 AssemblyName = assemblyName,
                 Category = typeCategory,
-                Name = GetTypeName(classType),
+                Name = ModuleUtils.GetTypeName(classType),
                 Namespace = GetNamespace(classType),
                 Description = classDescriptionStr,
                 Kind = classKind
@@ -218,7 +218,7 @@ namespace Testflow.ComInterfaceManager
             {
                 ClassTypeDescription = typeDescription,
                 Description = typeDescription.Description,
-                Name = GetTypeName(classType),
+                Name = ModuleUtils.GetTypeName(classType),
                 Kind = classKind
             };
             AddConstructorDescription(classType, classDescription, classKind);
@@ -455,7 +455,7 @@ namespace Testflow.ComInterfaceManager
                     AssemblyName = propertyType.Assembly.GetName().Name,
                     Category = string.Empty,
                     Description = descriptionStr,
-                    Name = GetTypeName(propertyType),
+                    Name = ModuleUtils.GetTypeName(propertyType),
                     Namespace = GetNamespace(propertyType)
                 };
 
@@ -491,7 +491,7 @@ namespace Testflow.ComInterfaceManager
                     AssemblyName = fieldType.Assembly.GetName().Name,
                     Category = string.Empty,
                     Description = descriptionStr,
-                    Name = GetTypeName(fieldType),
+                    Name = ModuleUtils.GetTypeName(fieldType),
                     Namespace = GetNamespace(fieldType)
                 };
 
@@ -577,7 +577,7 @@ namespace Testflow.ComInterfaceManager
                 AssemblyName = propertyType.Assembly.GetName().Name,
                 Category = string.Empty,
                 Description = string.Empty,
-                Name = GetTypeName(propertyType),
+                Name = ModuleUtils.GetTypeName(propertyType),
                 Namespace = GetNamespace(propertyType)
             };
 
@@ -680,7 +680,7 @@ namespace Testflow.ComInterfaceManager
                     AssemblyName = dataType.Assembly.GetName().Name,
                     Category = category,
                     Description = description,
-                    Name = GetTypeName(dataType),
+                    Name = ModuleUtils.GetTypeName(dataType),
                     Namespace = GetNamespace(dataType)
                 };
                 return typeDescription;
@@ -732,7 +732,7 @@ namespace Testflow.ComInterfaceManager
                 {
                     AssemblyName = assemblyName,
                     Category = typeCategory,
-                    Name = GetTypeName(classType),
+                    Name = ModuleUtils.GetTypeName(classType),
                     Namespace = GetNamespace(classType),
                     Description = classDescriptionStr,
                     Kind = classKind
@@ -741,7 +741,7 @@ namespace Testflow.ComInterfaceManager
                 {
                     ClassTypeDescription = typeDescription,
                     Description = typeDescription.Description,
-                    Name = GetTypeName(classType),
+                    Name = ModuleUtils.GetTypeName(classType),
                     Kind = classKind
                 };
                 classDescription.IsStatic = classKind == VariableType.Class && classDescription.Functions.All(
@@ -972,7 +972,7 @@ namespace Testflow.ComInterfaceManager
                 AssemblyName = assembly.GetName().Name,
                 Category = LibraryCategory.Platform.ToString(),
                 Description = "",
-                Name = GetTypeName(type),
+                Name = ModuleUtils.GetTypeName(type),
                 Namespace = GetNamespace(type),
                 Kind = classType
             };
@@ -992,26 +992,6 @@ namespace Testflow.ComInterfaceManager
             comDescription.TypeDescriptions.Add(typeDescription);
         }
 
-        private static string GetTypeName(Type type)
-        {
-            const char delim = '.';
-            // 如果DeclaringType为空则该类不是nestedType，直接返回名称
-            if (null == type.DeclaringType)
-            {
-                return type.Name;
-            }
-            // 如果是nested类型，则其名称应该为：上级类类名.本类类名
-            Type nestedType = type;
-            StringBuilder typeName = new StringBuilder(50);
-            typeName.Append(type.Name);
-            while (null != nestedType.DeclaringType)
-            {
-                nestedType = nestedType.DeclaringType;
-                typeName.Insert(0, delim).Insert(0, nestedType.Name);
-            }
-            return typeName.ToString();
-        }
-
         // 部分类型支持原生的ref类型type，这在slave端会导致识别的困难，需要将其替换为非ref类型。例如所有基础类型和数组都有原生的ref类型
         private static string GetParamTypeName(Type type)
         {
@@ -1019,14 +999,14 @@ namespace Testflow.ComInterfaceManager
             {
                 type = type.GetElementType();
             }
-            string typeName = type.IsArray ? GetArrayTypeName(type) : GetTypeName(type);
+            string typeName = type.IsArray ? GetArrayTypeName(type) : ModuleUtils.GetTypeName(type);
             return typeName;
         }
 
         private static string GetArrayTypeName(Type paramType)
         {
             Type elementType = paramType.GetElementType();
-            string typeName = elementType.IsArray ? GetArrayTypeName(elementType) : GetTypeName(elementType);
+            string typeName = elementType.IsArray ? GetArrayTypeName(elementType) : ModuleUtils.GetTypeName(elementType);
             int rank = paramType.GetArrayRank();
             if (rank == 1)
             {
@@ -1046,7 +1026,7 @@ namespace Testflow.ComInterfaceManager
         private static string GetParamTypeFullName(Type type)
         {
             const string refTypeSymbol = "&";
-            string typeName = GetTypeName(type);
+            string typeName = ModuleUtils.GetTypeName(type);
             string typeFullName = ModuleUtils.GetFullName(type.Namespace, typeName);
             return !typeFullName.Contains(refTypeSymbol) ? typeFullName : typeFullName.Replace(refTypeSymbol, "");
         }
@@ -1092,7 +1072,7 @@ namespace Testflow.ComInterfaceManager
         private bool IsSimpleType(Type type)
         {
             // 如果对象未枚举或者简单值类型，则判定为简单类型
-            return type.IsEnum || _simpleValueType.Contains(GetTypeName(type));
+            return type.IsEnum || _simpleValueType.Contains(ModuleUtils.GetFullName(type));
         }
 
         private static string GetNamespace(Type type)

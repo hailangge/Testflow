@@ -123,7 +123,8 @@ namespace Testflow.ComInterfaceManager
         public static string GetFullName(Type dataType)
         {
             const string fullNameFormat = "{0}.{1}";
-            return string.Format(fullNameFormat, dataType.Namespace, dataType.Name);
+            string typeName = GetTypeName(dataType);
+            return string.Format(fullNameFormat, dataType.Namespace, typeName);
         }
 
         public static string GetFullName(ITypeDescription typeDescription)
@@ -136,6 +137,26 @@ namespace Testflow.ComInterfaceManager
         {
             const string fullNameFormat = "{0}.{1}";
             return string.Format(fullNameFormat, typeData.Namespace, typeData.Name);
+        }
+
+        public static string GetTypeName(Type type)
+        {
+            const char delim = '.';
+            // 如果DeclaringType为空则该类不是nestedType，直接返回名称
+            if (null == type.DeclaringType)
+            {
+                return type.Name;
+            }
+            // 如果是nested类型，则其名称应该为：上级类类名.本类类名
+            Type nestedType = type;
+            StringBuilder typeName = new StringBuilder(50);
+            typeName.Append(type.Name);
+            while (null != nestedType.DeclaringType)
+            {
+                nestedType = nestedType.DeclaringType;
+                typeName.Insert(0, delim).Insert(0, nestedType.Name);
+            }
+            return typeName.ToString();
         }
 
         /// <summary>
@@ -177,5 +198,6 @@ namespace Testflow.ComInterfaceManager
                 }
             }
         }
+
     }
 }
