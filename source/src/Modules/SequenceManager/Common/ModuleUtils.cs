@@ -132,14 +132,16 @@ namespace Testflow.SequenceManager.Common
 
         #region Collection Operation
 
-        private const string IndexPropertName = "Index";
+        private const string IndexPropertyName = "Index";
 
-        public static bool RefreshIndex<TDataType>(IList<TDataType> collection, TDataType item)
+        public static bool UpdateIndex<TDataType>(IList<TDataType> collection, int startIndex)
         {
-            int index = collection.IndexOf(item);
-            PropertyInfo propertyInfo = item.GetType()
-                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
-            propertyInfo?.SetValue(item, index);
+            PropertyInfo propertyInfo = typeof(TDataType)
+                .GetProperty(IndexPropertyName, BindingFlags.Instance | BindingFlags.Public);
+            for (int i = startIndex; i < collection.Count; i++)
+            {
+                propertyInfo?.SetValue(collection[i], i);
+            }
             return true;
         }
 
@@ -148,7 +150,7 @@ namespace Testflow.SequenceManager.Common
             int index = collection.Count;
             collection.Add(item);
             PropertyInfo propertyInfo = item.GetType()
-                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
+                .GetProperty(IndexPropertyName, BindingFlags.Instance | BindingFlags.Public);
             propertyInfo?.SetValue(item, index);
             return true;
         }
@@ -157,7 +159,7 @@ namespace Testflow.SequenceManager.Common
         {
             collection.Insert(index, item);
             PropertyInfo propertyInfo = item.GetType()
-                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
+                .GetProperty(IndexPropertyName, BindingFlags.Instance | BindingFlags.Public);
             for (int i = index; i < collection.Count; i++)
             {
                 propertyInfo?.SetValue(collection[i], i);
@@ -170,7 +172,7 @@ namespace Testflow.SequenceManager.Common
             int index = collection.IndexOf(item);
             collection.Remove(item);
             PropertyInfo propertyInfo = item.GetType()
-                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
+                .GetProperty(IndexPropertyName, BindingFlags.Instance | BindingFlags.Public);
             for (int i = index; i < collection.Count; i++)
             {
                 propertyInfo?.SetValue(collection[i], i);
@@ -183,7 +185,7 @@ namespace Testflow.SequenceManager.Common
             TDataType item = collection[index];
             collection.RemoveAt(index);
             PropertyInfo propertyInfo = item.GetType()
-                .GetProperty(IndexPropertName, BindingFlags.Instance | BindingFlags.Public);
+                .GetProperty(IndexPropertyName, BindingFlags.Instance | BindingFlags.Public);
             for (int i = index; i < collection.Count; i++)
             {
                 propertyInfo?.SetValue(collection[i], i);
