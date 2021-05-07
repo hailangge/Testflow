@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Testflow.SequenceManager.Common
 {
@@ -18,25 +19,32 @@ namespace Testflow.SequenceManager.Common
         public override void Add(TDataType item)
         {
             base.Add(item);
-            ModuleUtils.RefreshIndex(this.InnerCollection ?? EmptyCollection, item);
+            ModuleUtils.UpdateIndex(this.InnerCollection ?? EmptyCollection, this.Count - 1);
         }
 
         public override bool Remove(TDataType item)
         {
+            List<TDataType> collection = this.InnerCollection ?? EmptyCollection;
+            if (!collection.Any(collectionItem => collectionItem.Equals(item)))
+            {
+                return false;
+            }
+            int index = collection.IndexOf(item);
             base.Remove(item);
-            return ModuleUtils.RemoveAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item);
+            ModuleUtils.UpdateIndex(collection, index);
+            return true;
         }
 
         public override void Insert(int index, TDataType item)
         {
             base.Insert(index, item);
-            ModuleUtils.InsertAndRefreshIndex(this.InnerCollection ?? EmptyCollection, item, index);
+            ModuleUtils.UpdateIndex(this.InnerCollection ?? EmptyCollection, index);
         }
 
         public override void RemoveAt(int index)
         {
             base.RemoveAt(index);
-            ModuleUtils.RemoveAtAndRefreshIndex(this.InnerCollection ?? EmptyCollection, index);
+            ModuleUtils.UpdateIndex(this.InnerCollection ?? EmptyCollection, index);
         }
     }
 }
