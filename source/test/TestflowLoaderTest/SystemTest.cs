@@ -30,13 +30,14 @@ namespace Testflow.TestflowLoaderTest
             Dictionary<string, ExpressionOperatorInfo> operatorInfos =
                     runnerInstance.SequenceManager.ConfigData.GetProperty<Dictionary<string, ExpressionOperatorInfo>>("ExpressionOperators");
             ExpressionParser parser = new ExpressionParser(operatorInfos);
-            IExpressionData expressionData = parser.ParseExpression("a[1, 2] -(- b) [1E-10]");
-            IExpressionData expressionData1 = parser.ParseExpression("e ? a[1, 2] -(- b) [1E-10] : c");
-            IExpressionData expressionData2 = parser.ParseExpression("e ? a[1, 2] -(- b) [1E-10] : c*d");
-            IExpressionData expressionData5 = parser.ParseExpression("(e ? a[1, 2] -(- b) [1E-10] : c)*d");
-            IExpressionData expressionData3 = parser.ParseExpression("a[1, 1-a*b+2] -(- b) [1E-10*5]");
-            IExpressionData expressionData6 = parser.ParseExpression("a[1, e[1,b[1,2],3]] -(- b) [1E-10*5]");
-            IExpressionData expressionData4 = parser.ParseExpression("a[1, 1-a*b+2] -(- b) [1E-10*5]+");
+            // IExpressionData expressionData = parser.ParseExpression("a[1, 2] -(- b) [1E-10]");
+            // IExpressionData expressionData1 = parser.ParseExpression("e ? a[1, 2] -(- b) [1E-10] : c");
+            // IExpressionData expressionData2 = parser.ParseExpression("e ? a[1, 2] -(- b) [1E-10] : c*d");
+            // IExpressionData expressionData5 = parser.ParseExpression("(e ? a[1, 2] -(- b) [1E-10] : c)*d");
+            // IExpressionData expressionData3 = parser.ParseExpression("a[1, 1-a*b+2] -(- b) [1E-10*5]");
+            // IExpressionData expressionData6 = parser.ParseExpression("a[1, e[1,b[1,2],3]] -(- b) [1E-10*5]");
+            // IExpressionData expressionData4 = parser.ParseExpression("a[1, 1-a*b+2] -(- b) [1E-10*5]+");
+            IExpressionData expressionData7 = parser.ParseExpression("-a[10]");
         }
     }
 }
