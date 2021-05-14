@@ -100,6 +100,11 @@ namespace Testflow.SlaveCore.Runner.Model
             return CurrentModel[sequenceIndex][coroutineId];
         }
 
+        protected static void SetCurrentStep(int sequenceIndex, int coroutineId, StepTaskEntityBase value)
+        {
+            CurrentModel[sequenceIndex][coroutineId] = value;
+        }
+
         public static void AddSequenceEntrance(StepTaskEntityBase stepModel)
         {
             if (!CurrentModel.ContainsKey(stepModel.SequenceIndex))

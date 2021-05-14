@@ -36,7 +36,7 @@ namespace Testflow.SlaveCore.Runner.Model
 
             StepTaskEntityBase tryBlock = SubStepRoot;
             StepTaskEntityBase finallyBlock = tryBlock.NextStep;
-
+            StepTaskEntityBase errorStep = null;
             try
             {
                 tryBlock.Invoke(forceInvoke);
@@ -44,7 +44,7 @@ namespace Testflow.SlaveCore.Runner.Model
             // 需要处理上次出错的Step的数据
             catch (TestflowAssertException ex)
             {
-                StepTaskEntityBase errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
+                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
                 if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
@@ -56,7 +56,7 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TargetInvocationException ex)
             {
-                StepTaskEntityBase errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
+                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
                 if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
@@ -67,7 +67,7 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TargetException ex)
             {
-                StepTaskEntityBase errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
+                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
                 if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
@@ -81,11 +81,11 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 throw;
             }
-            catch (TestflowException ex)
+            catch (Exception ex)
             {
                 // 停止计时
                 Actuator.EndTiming();
-                StepTaskEntityBase errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
+                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
                 if (errorStep.Result == StepResult.NotAvailable)
                 {
                     errorStep.Result = StepResult.Error;
@@ -104,6 +104,10 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 // finally模块是强制调用
                 finallyBlock.Invoke(true);
+                if (null != errorStep)
+                {
+                    SetCurrentStep(SequenceIndex, Coroutine.Id, errorStep);
+                }
             }
             if (null != StepData && StepData.RecordStatus)
             {
