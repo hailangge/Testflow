@@ -91,6 +91,7 @@ namespace Testflow.SlaveCore.Runner.Model
             return new EmptyStepEntity(context, sequenceIndex, null);
         }
 
+        // 维护当前Step的缓存
         private static readonly Dictionary<int, Dictionary<int, StepTaskEntityBase>> CurrentModel = 
             new Dictionary<int, Dictionary<int, StepTaskEntityBase>>(Constants.DefaultRuntimeSize);
 
@@ -263,7 +264,7 @@ namespace Testflow.SlaveCore.Runner.Model
         /// <param name="forceInvoke">是否忽略取消标识强制调用，在teardown中配置为true</param>
         public void Invoke(bool forceInvoke)
         {
-            CurrentModel[SequenceIndex][Coroutine.Id] = this;
+            SetCurrentStep(SequenceIndex, Coroutine.Id, this);
             if (_hasLoopCounter)
             {
                 string variableFullName = null;
@@ -857,7 +858,7 @@ namespace Testflow.SlaveCore.Runner.Model
             // 一旦失败，需要记录WatchData
             Context.StatusQueue.Enqueue(statusInfo);
             LogLevel logLevel = ex is TestflowAssertException ? LogLevel.Debug : LogLevel.Error;
-            Context.LogSession.Print(logLevel, Context.SessionId, ex, $"ErrorCode:{ex.HResult}. ErrorInfo:{ex.Message}");
+            Context.LogSession.Print(logLevel, Context.SessionId, ex, $"Step:{GetStack()} ErrorCode:{ex.HResult}. ErrorInfo:{ex.Message}");
         }
 
         // 获取当前Step是否是包含在Retry节点下

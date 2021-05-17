@@ -119,7 +119,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止失败的step的计时
                 StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -131,7 +131,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止失败的step的计时
                 StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -143,7 +143,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止失败的step的计时
                 StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // Abort异常不会在内部处理，需要在外部强制抛出
                 currentStep?.SetStatusAndSendErrorEvent(lastStepResult, failedInfo);
             }
@@ -152,7 +152,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止失败的step的计时
                 StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult, out failedInfo);
+                FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -168,7 +168,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 if (null != ex.InnerException)
                 {
                     FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult,
-                        out failedInfo);
+                        out failedInfo, currentStep);
                     // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                     if (null != currentStep && currentStep.BreakIfFailed)
                     {
@@ -186,7 +186,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止失败的step的计时
                 StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出Exception到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.BreakIfFailed)
                 {
@@ -215,9 +215,10 @@ namespace Testflow.SlaveCore.Runner.Model
         }
 
         private void FillFinalExceptionReportInfo(Exception ex, out StatusReportType finalReportType,
-            out StepResult lastStepResult, out FailedInfo failedInfo)
+            out StepResult lastStepResult, out FailedInfo failedInfo, StepTaskEntityBase currentStep)
         {
             bool isCriticalError = false;
+            string currentStack = currentStep?.GetStack().ToString() ?? string.Empty;
             if (ex is TaskFailedException)
             {
                 TaskFailedException failedException = (TaskFailedException) ex;
@@ -226,7 +227,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = ModuleUtils.GetReportType(failedType);
                 lastStepResult = ModuleUtils.GetStepResult(failedType);
                 failedInfo = new FailedInfo(ex, failedType);
-                _context.LogSession.Print(LogLevel.Debug, Index, "Step force failed.");
+                _context.LogSession.Print(LogLevel.Debug, Index, $"Step <{currentStack}> force failed.");
             }
             else if (ex is TestflowAssertException)
             {
@@ -235,7 +236,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Failed;
                 lastStepResult = StepResult.Failed;
                 failedInfo = new FailedInfo(ex, FailedType.AssertionFailed);
-                _context.LogSession.Print(LogLevel.Error, Index, "Assert exception catched.");
+                _context.LogSession.Print(LogLevel.Error, Index, $"Assert exception catched in step <{currentStack}>.");
             }
             else if (ex is ThreadAbortException)
             {
@@ -243,7 +244,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Abort;
                 failedInfo = new FailedInfo(ex, FailedType.Abort);
-                _context.LogSession.Print(LogLevel.Warn, Index, $"Sequence {Index} execution aborted");
+                _context.LogSession.Print(LogLevel.Warn, Index, $"Sequence {Index} execution aborted in step <{currentStack}>");
             }
             else if (ex is TestflowException)
             {
@@ -252,7 +253,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, "Inner exception catched.");
+                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Inner exception catched in step <{currentStack}>.");
             }
             else
             {
@@ -261,7 +262,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, "Runtime exception catched.");
+                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Runtime exception catched in step <{currentStack}>.");
             }
 //            else if (ex is TargetInvocationException)
 //            {

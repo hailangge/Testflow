@@ -108,7 +108,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                         if (null == variable)
                         {
                             Context.LogSession.Print(LogLevel.Error, Context.SessionId,
-                                $"Unexist variable '{variableName}' in sequence data.");
+                                $"Variable '{variableName}' in the parameter '{argumentInfos[i].Name}' Step <{GetStack()}> does not exist.");
                             throw new TestflowDataException(ModuleErrorCode.SequenceDataError,
                                 Context.I18N.GetFStr("UnexistVariable", variableName));
                         }
@@ -122,7 +122,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                         if (argumentInfos[i].Modifier != ArgumentModifier.Out)
                         {
                             Context.LogSession.Print(LogLevel.Error, Context.SessionId,
-                                $"The value of parameter '{argumentInfos[i].Name}' in step '{StepData.Name}' is not configured");
+                                $"The value of parameter '{argumentInfos[i].Name}' in step <{GetStack()}> is not configured");
                             throw new TestflowDataException(ModuleErrorCode.SequenceDataError,
                                     Context.I18N.GetFStr("UnconfiguredParam", argumentInfos[i].Name));
                         }
@@ -148,7 +148,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                 if (null == variable)
                 {
                     Context.LogSession.Print(LogLevel.Error, SequenceIndex,
-                        $"Unexist variable '{variableName}' in sequence data.");
+                        $"The variable '{variableName}' in return parameter of Step <{GetStack()}> does not exist.");
                     throw new TestflowDataException(ModuleErrorCode.SequenceDataError,
                         Context.I18N.GetFStr("UnexistVariable", variableName));
                 }
@@ -289,7 +289,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
         private void LogTraceVariable(IVariable variable, object value)
         {
             const string variableLogFormat = "[Variable Trace] Name:{0}, Stack:{1}, Value: {2}.";
-            string stackStr = CallStack.GetStack(Context.SessionId, StepData).ToString();
+            string stackStr = GetStack().ToString();
             string varValueStr;
             if (null != value)
             {

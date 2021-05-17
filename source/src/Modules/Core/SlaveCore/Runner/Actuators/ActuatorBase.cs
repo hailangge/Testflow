@@ -3,6 +3,7 @@ using Testflow.CoreCommon;
 using Testflow.CoreCommon.Data;
 using Testflow.Data;
 using Testflow.Data.Sequence;
+using Testflow.Runtime;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
 using Testflow.Usr;
@@ -172,6 +173,11 @@ namespace Testflow.SlaveCore.Runner.Actuators
         {
             // 仅执行一个操作的Actuator中ResumeInvoke不执行任何行为。执行多个操作的Actuator需要手动实现
             return resultBeforeResume;
+        }
+
+        protected ICallStack GetStack()
+        {
+            return CallStack.GetStack(Context.SessionId, StepData);
         }
 
         #endregion
