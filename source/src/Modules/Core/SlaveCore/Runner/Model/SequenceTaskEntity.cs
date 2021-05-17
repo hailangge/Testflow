@@ -63,14 +63,26 @@ namespace Testflow.SlaveCore.Runner.Model
             }
 
             StepTaskEntityBase stepEntity = _stepEntityRoot;
-            do
+            try
             {
-                stepEntity.Generate(ref startCoroutineId);
-            } while (null != (stepEntity = stepEntity.NextStep));
+                do
+                {
+                    stepEntity.Generate(ref startCoroutineId);
+                } while (null != (stepEntity = stepEntity.NextStep));
 
-            this.State = RuntimeState.StartIdle;
-            // 添加当前根节点到stepModel管理中
-            StepTaskEntityBase.AddSequenceEntrance(_stepEntityRoot);
+                this.State = RuntimeState.StartIdle;
+                // 添加当前根节点到stepModel管理中
+                StepTaskEntityBase.AddSequenceEntrance(_stepEntityRoot);
+            }
+            catch (Exception)
+            {
+                if (null != stepEntity)
+                {
+                    this._context.LogSession.Print(LogLevel.Error, RootCoroutineId,
+                        $"Exception occur during test generation of step <{stepEntity.GetStack()}>.");
+                }
+                throw;
+            }
         }
 
         /// <summary>

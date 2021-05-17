@@ -179,10 +179,10 @@ namespace Testflow.SlaveCore.Runner.Model
                     subStepEntity.Generate(ref coroutineId);
                 } while (null != (subStepEntity = subStepEntity.NextStep));
             }
-            InintializeInvokeAction();
+            InitializeInvokeAction();
         }
 
-        private void InintializeInvokeAction()
+        private void InitializeInvokeAction()
         {
             if (null == StepData)
             {
