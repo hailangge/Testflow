@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ExecutionInfo.cs" />
+    <Compile Include="Data\TargetOperation.cs" />
     <Compile Include="Runner\Attributes\AttributesProcessor.cs" />
     <Compile Include="Runner\EnumConvertor.cs" />
     <Compile Include="Runner\Expression\ExpressionCalculator.cs" />
@@ -61,7 +63,7 @@
     <Compile Include="Coroutine\CoroutineHandle.cs" />
     <Compile Include="Coroutine\CoroutineState.cs" />
     <Compile Include="Data\ExecutionTrack.cs" />
-    <Compile Include="Data\StepExecutionInfo.cs" />
+    <Compile Include="Data\StepExecutionResult.cs" />
     <Compile Include="Debugger\DebugManager.cs" />
     <Compile Include="Runner\Actuators\ActuatorBase.cs" />
     <Compile Include="Runner\Actuators\EmptyActuator.cs" />

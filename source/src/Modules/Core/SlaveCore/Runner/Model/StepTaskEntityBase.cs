@@ -24,8 +24,6 @@ namespace Testflow.SlaveCore.Runner.Model
     {
         // 块步骤类型集合。块集合中的Function可以为null或者定义在funcdefs的特殊类型接口
         private static HashSet<SequenceStepType> _blockStepTypes = new HashSet<SequenceStepType>();
-        // 保存测试生成时当前Step的字段，生成结束后重置为null
-        public static StepTaskEntityBase CurrentGenerationStep { get; internal set; }
 
         static StepTaskEntityBase()
         {
@@ -91,31 +89,6 @@ namespace Testflow.SlaveCore.Runner.Model
             return new EmptyStepEntity(context, sequenceIndex, null);
         }
 
-        // 维护当前Step的缓存
-        private static readonly Dictionary<int, Dictionary<int, StepTaskEntityBase>> CurrentModel = 
-            new Dictionary<int, Dictionary<int, StepTaskEntityBase>>(Constants.DefaultRuntimeSize);
-
-        public static StepTaskEntityBase GetCurrentStep(int sequenceIndex, int coroutineId)
-        {
-//            return CurrentModel.ContainsKey(sequenceIndex) ? CurrentModel[sequenceIndex] : null;
-            return CurrentModel[sequenceIndex][coroutineId];
-        }
-
-        protected static void SetCurrentStep(int sequenceIndex, int coroutineId, StepTaskEntityBase value)
-        {
-            CurrentModel[sequenceIndex][coroutineId] = value;
-        }
-
-        public static void AddSequenceEntrance(StepTaskEntityBase stepModel)
-        {
-            if (!CurrentModel.ContainsKey(stepModel.SequenceIndex))
-            {
-                CurrentModel.Add(stepModel.SequenceIndex, 
-                    new Dictionary<int, StepTaskEntityBase>(Constants.DefaultRuntimeSize));
-            }
-            CurrentModel[stepModel.SequenceIndex].Add(stepModel.Coroutine.Id, stepModel);
-        }
-
         public StepTaskEntityBase NextStep { get; set; }
 
         protected readonly SlaveContext Context;
@@ -165,7 +138,6 @@ namespace Testflow.SlaveCore.Runner.Model
 
         public virtual void Generate(ref int coroutineId)
         {
-            StepTaskEntityBase.CurrentGenerationStep = this;
             this.Coroutine = Context.CoroutineManager.GetCoroutineHandle(coroutineId);
             Actuator.Generate(coroutineId);
             // 只有在StepData的LoopCounter不为null，loop最大值大于1，并且Step类型不是ConditionLoop的情况下才会执行LoopCounter
@@ -264,7 +236,6 @@ namespace Testflow.SlaveCore.Runner.Model
         /// <param name="forceInvoke">是否忽略取消标识强制调用，在teardown中配置为true</param>
         public void Invoke(bool forceInvoke)
         {
-            SetCurrentStep(SequenceIndex, Coroutine.Id, this);
             if (_hasLoopCounter)
             {
                 string variableFullName = null;
@@ -275,6 +246,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 }
                 do
                 {
+                    Coroutine.StepStart(this);
                     // 如果是取消状态并且不是强制执行则返回
                     if (!forceInvoke && Context.Cancellation.IsCancellationRequested)
                     {
@@ -285,17 +257,20 @@ namespace Testflow.SlaveCore.Runner.Model
                         Context.VariableMapper.SetParamValue(variableFullName, StepData.LoopCounter.CounterVariable, currentIndex);
                     }
                     _invokeStepAction.Invoke(forceInvoke);
+                    Coroutine.StepOver(this);
                     currentIndex++;
                 } while (currentIndex < StepData.LoopCounter.MaxValue);
             }
             else
             {
+                Coroutine.StepStart(this);
                 // 如果是取消状态并且不是强制执行则返回
                 if (!forceInvoke && Context.Cancellation.IsCancellationRequested)
                 {
                     BreakAndReportAbortMessage();
                 }
                 _invokeStepAction.Invoke(forceInvoke);
+                Coroutine.StepOver(this);
             }
         }
 

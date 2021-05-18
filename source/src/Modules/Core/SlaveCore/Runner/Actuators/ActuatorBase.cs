@@ -71,7 +71,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
         public long ExecutionTicks { get; protected set; }
 
         /// <summary>
-        /// 当前运行所在运行器的逻辑ID。(因为是在县城内部控制调用逻辑，可以认为是某种协程)
+        /// 当前运行所在运行器的逻辑ID。
         /// </summary>
         protected int CoroutineId { get; private set; }
 

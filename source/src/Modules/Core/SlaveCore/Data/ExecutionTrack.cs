@@ -8,25 +8,25 @@ namespace Testflow.SlaveCore.Data
 {
     internal class ExecutionTrack : IDisposable
     {
-        private OverLapBuffer<StepExecutionInfo> _stepExecutionInfos;
+        private OverLapBuffer<StepExecutionResult> _stepExecutionInfos;
         public ExecutionTrack(int capacity)
         {
-            _stepExecutionInfos = new OverLapBuffer<StepExecutionInfo>(capacity);
+            _stepExecutionInfos = new OverLapBuffer<StepExecutionResult>(capacity);
         }
 
         public void Enqueue(StepTaskEntityBase stepEntity)
         {
-            _stepExecutionInfos.Enqueue(new StepExecutionInfo(stepEntity, StepResult.NotAvailable));
+            _stepExecutionInfos.Enqueue(new StepExecutionResult(stepEntity, StepResult.NotAvailable));
         }
 
-        public StepExecutionInfo GetLastStep(int offset)
+        public StepExecutionResult GetLastStep(int offset)
         {
             return _stepExecutionInfos.GetLastElement(offset);
         }
 
-        public StepExecutionInfo GetLastNotAvailableStep()
+        public StepExecutionResult GetLastNotAvailableStep()
         {
-            StepExecutionInfo stepInfo;
+            StepExecutionResult stepInfo;
             int offset = 1;
             do
             {

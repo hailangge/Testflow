@@ -13,6 +13,11 @@ namespace Testflow.SlaveCore.Coroutine
     {
         private int _stateValue;
 
+        /// <summary>
+        /// TODO 当前执行信息，后续通过内部操作。目前使用外部更新处理
+        /// </summary>
+        public ExecutionInfo ExecutionInfo { get; }
+
         public CoroutineState State
         {
             get { return (CoroutineState) _stateValue; }
@@ -69,12 +74,15 @@ namespace Testflow.SlaveCore.Coroutine
             this._stopWatch = new Stopwatch();
             this.ElapsedTicks = -1;
             ExpressionProcessor = new ExpressionProcessor(slaveContext, id);
+            ExecutionInfo = new ExecutionInfo(slaveContext.SessionId, id);
         }
 
         public void SequenceGenerationEnd()
         {
             ExpressionProcessor.TrimExpressionCache();
         }
+
+        #region 全局控制
 
         public void Start()
         {
@@ -117,6 +125,40 @@ namespace Testflow.SlaveCore.Coroutine
             _blockEvent.Set();
         }
 
+        #endregion
+
+        #region 执行目标更新
+
+        public void SequenceStart(int sequenceIndex)
+        {
+            this.ExecutionInfo.Initialize(sequenceIndex);
+        }
+
+        public void StepStart(StepTaskEntityBase step)
+        {
+            this.ExecutionInfo.Initialize(step);
+        }
+
+        public void StepOver(StepTaskEntityBase step)
+        {
+            this.ExecutionInfo.TargetOver(step);
+        }
+
+        public void SequenceOver(int sequenceIndex)
+        {
+            this.ExecutionInfo.SequenceOver();
+        }
+
+        public void ExecuteTarget(TargetOperation target, string targetName, params string[] arguments)
+        {
+            this.ExecutionInfo.SetTarget(target, targetName, arguments);
+        }
+
+        #endregion
+
+
+        #region 监听器
+
         public void OnPreListener(StepTaskEntityBase stepEntity)
         {
             PreListener?.Invoke(stepEntity);
@@ -127,14 +169,16 @@ namespace Testflow.SlaveCore.Coroutine
             PostListener?.Invoke(stepEntity);
         }
 
-        private int _diposedFlag = 0;
+        #endregion
+
+        private int _disposedFlag = 0;
         public void Dispose()
         {
-            if (_diposedFlag != 0)
+            if (this._disposedFlag != 0)
             {
                 return;
             }
-            Thread.VolatileWrite(ref _diposedFlag, 1);
+            Thread.VolatileWrite(ref this._disposedFlag, 1);
             Thread.MemoryBarrier();
             if (IsRunState(_stateValue))
             {

@@ -63,13 +63,13 @@ namespace Testflow.SlaveCore.Coroutine
         }
 
         // 获取最后一个执行的Step
-        public StepExecutionInfo GetLastStepInfo(int coroutineId)
+        public StepExecutionResult GetLastStepInfo(int coroutineId)
         {
             return _coroutineHandles[coroutineId].ExecutionTracker.GetLastStep(1);
         }
 
         // 获取最后一个没有成功执行的Step
-        public StepExecutionInfo GetLastNAtepInfo(int coroutineId)
+        public StepExecutionResult GetLastNAtepInfo(int coroutineId)
         {
             return _coroutineHandles[coroutineId].ExecutionTracker.GetLastNotAvailableStep();
         }

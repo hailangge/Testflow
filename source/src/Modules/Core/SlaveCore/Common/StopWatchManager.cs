@@ -5,6 +5,7 @@ using System.Threading;
 
 namespace Testflow.SlaveCore.Common
 {
+    // TODO 这个计时器管理可以删除，将功能添加到Coroutine里
     internal class StopWatchManager : IDisposable
     {
         private readonly SlaveContext _context;

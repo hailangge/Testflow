@@ -3,13 +3,13 @@ using Testflow.SlaveCore.Runner.Model;
 
 namespace Testflow.SlaveCore.Data
 {
-    internal class StepExecutionInfo
+    internal class StepExecutionResult
     {
         public StepResult StepResult { get; set; }
 
         public StepTaskEntityBase StepEntity { get; }
 
-        public StepExecutionInfo(StepTaskEntityBase stepEntity, StepResult result)
+        public StepExecutionResult(StepTaskEntityBase stepEntity, StepResult result)
         {
             this.StepEntity = stepEntity;
             this.StepResult = result;
