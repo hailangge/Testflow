@@ -6,6 +6,7 @@ using Testflow.Data;
 using Testflow.Data.Sequence;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Data;
 using Testflow.SlaveCore.Runner.Expression;
 using Testflow.SlaveCore.Runner.Model;
 using Testflow.Usr;
@@ -134,21 +135,29 @@ namespace Testflow.SlaveCore.Runner.Actuators
                 {
                     continue;
                 }
-
                 if (parameters[this._propertyIndex].ParameterType == ParameterType.Variable)
                 {
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.ArgumentCalculation, arguments[this._propertyIndex].Name);
                     // 获取变量值的名称，该名称为变量的运行时名称，其值在InitializeParamValue方法里配置
                     string variableName = ModuleUtils.GetVariableNameFromParamValue(parameters[this._propertyIndex].Value);
                     // 根据ParamString和变量对应的值配置参数。
                     this._params[this._propertyIndex] = Context.VariableMapper.GetParamValue(variableName, parameters[this._propertyIndex].Value,
                         arguments[this._propertyIndex].Type);
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
                 }
                 else if (parameters[this._propertyIndex].ParameterType == ParameterType.Expression)
                 {
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.ArgumentCalculation, arguments[this._propertyIndex].Name);
                     int expIndex = int.Parse(parameters[this._propertyIndex].Value);
                     ExpressionProcessor expProcessor = Coroutine.ExpressionProcessor;
                     this._params[this._propertyIndex] = expProcessor.Calculate(expIndex, arguments[this._propertyIndex].Type);
+
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
                 }
                 // 如果参数类型为value且参数值为null且参数配置的字符不为空且参数类型是类或结构体，则需要实时计算该属性或字段的值
@@ -156,6 +165,8 @@ namespace Testflow.SlaveCore.Runner.Actuators
                          !string.IsNullOrEmpty(parameters[this._propertyIndex].Value) &&
                          !Context.TypeInvoker.IsSimpleType(this._properties[this._propertyIndex].PropertyType))
                 {
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     object originalValue = this._properties[this._propertyIndex].GetValue(instance);
                     this._params[this._propertyIndex] = Context.TypeInvoker.CastConstantValue(this._properties[this._propertyIndex].PropertyType,
                         parameters[this._propertyIndex].Value,
@@ -168,10 +179,11 @@ namespace Testflow.SlaveCore.Runner.Actuators
                 }
                 else
                 {
+                    // 更新协程中当前执行目标的信息
+                    Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
                 }
             }
-
             // 停止计时
             EndTiming();
             return StepResult.Pass;

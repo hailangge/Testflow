@@ -1,6 +1,7 @@
 ﻿using Testflow.Data.Sequence;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Data;
 
 namespace Testflow.SlaveCore.Runner.Actuators
 {
@@ -22,6 +23,8 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
         public override StepResult InvokeStep(bool forceInvoke)
         {
+            // 更新协程中当前执行目标的信息
+            Coroutine.ExecuteTarget(TargetOperation.Execution, string.Empty);
             // 开始计时
             StartTiming();
             // 停止计时

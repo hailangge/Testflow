@@ -8,6 +8,7 @@ using Testflow.Data;
 using Testflow.Data.Sequence;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Data;
 using Testflow.SlaveCore.Runner.Expression;
 using Testflow.SlaveCore.Runner.Model;
 using Testflow.Usr;
@@ -179,6 +180,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
             }
             for (int i = 0; i < parameters.Count; i++)
             {
+                // 更新协程中当前执行目标的信息
+                Coroutine.ExecuteTarget(TargetOperation.ArgumentCalculation, arguments[i].Name);
+
                 if (parameters[i].ParameterType == ParameterType.Variable)
                 {
                     // 获取变量值的名称，该名称为变量的运行时名称，其值在InitializeParamValue方法里配置
@@ -200,6 +204,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
         {
             object instance;
             object returnValue = null;
+            // 更新协程中当前执行目标的信息
+            Coroutine.ExecuteTarget(TargetOperation.Execution, string.Empty);
+
             switch (FunctionType)
             {
                 case FunctionType.Constructor:
@@ -256,6 +263,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     throw new ArgumentOutOfRangeException();
             }
             this.Return = returnValue;
+
+            // 更新协程中当前执行目标的信息
+            Coroutine.ExecuteTarget(TargetOperation.PostExecution, string.Empty);
         }
 
         // 因为Variable的值在整个过程中会变化，所以需要在运行前实时获取

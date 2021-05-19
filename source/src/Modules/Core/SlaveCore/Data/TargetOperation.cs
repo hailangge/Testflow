@@ -53,7 +53,12 @@
         /// <summary>
         /// 执行方法
         /// </summary>
-        FunctionExecution = 9,
+        Execution = 9,
+
+        /// <summary>
+        /// 方法执行后续处理
+        /// </summary>
+        PostExecution = 10,
 
         /// <summary>
         /// 目标执行结束
