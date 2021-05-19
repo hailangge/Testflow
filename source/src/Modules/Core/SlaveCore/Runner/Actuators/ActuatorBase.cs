@@ -6,6 +6,7 @@ using Testflow.Data.Sequence;
 using Testflow.Runtime;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Coroutine;
 using Testflow.Usr;
 
 namespace Testflow.SlaveCore.Runner.Actuators
@@ -71,9 +72,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
         public long ExecutionTicks { get; protected set; }
 
         /// <summary>
-        /// 当前运行所在运行器的逻辑ID。
+        /// 当前运行所在运行器的协程。
         /// </summary>
-        protected int CoroutineId { get; private set; }
+        protected CoroutineHandle Coroutine { get; private set; }
 
         #region 测试生成相关接口
 
@@ -113,9 +114,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
         /// <summary>
         /// 生成运行器
         /// </summary>
-        public void Generate(int coroutineId)
+        public void Generate(CoroutineHandle coroutine)
         {
-            this.CoroutineId = coroutineId;
+            this.Coroutine = coroutine;
             this.GenerateInvokeInfo();
             this.InitializeParamsValues();
         }
@@ -137,7 +138,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             }
             this.ExecutionTicks = -1;
             this.ExecutionTime = DateTime.Now;
-            Context.TimingManager.StartTiming(CoroutineId);
+            Coroutine.StartTiming();
         }
 
         /// <summary>
@@ -145,7 +146,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
         /// </summary>
         public void EndTiming()
         {
-            long ticks = Context.TimingManager.EndTiming(CoroutineId);
+            long ticks = Coroutine.EndTiming();
             if (this.ExecutionTicks <= -1)
             {
                 this.ExecutionTicks = ticks;

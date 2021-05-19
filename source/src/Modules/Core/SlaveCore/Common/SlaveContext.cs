@@ -52,7 +52,6 @@ namespace Testflow.SlaveCore.Common
             this.ReturnVariables = new HashSet<string>();
             this.RuntimeType = GetProperty<RuntimeType>("RuntimeType");
             this.Cancellation = new CancellationTokenSource();
-            this.TimingManager = new StopWatchManager(this);
             this.CoroutineManager = new CoroutineManager(this);
             this.DebugManager = new DebugManager(this);
             LogSession.Print(LogLevel.Debug, SessionId, "Slave context constructed.");
@@ -91,8 +90,6 @@ namespace Testflow.SlaveCore.Common
         public CallBackEventManager CallBackEventManager { get; set; }
 
         public TypeConvertor Convertor { get; }
-
-        public StopWatchManager TimingManager { get; }
 
         public CoroutineManager CoroutineManager { get; }
 
@@ -175,7 +172,6 @@ namespace Testflow.SlaveCore.Common
             Thread.MemoryBarrier();
             MessageTransceiver?.Dispose();
             RmtGenMessages?.FreeBlocks();
-            TimingManager.Dispose();
             CoroutineManager.Dispose();
             DebugManager.Dispose();
         }

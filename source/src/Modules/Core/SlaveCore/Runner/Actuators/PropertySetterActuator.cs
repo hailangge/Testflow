@@ -79,8 +79,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                         _params.Add(null);
                         break;
                     case ParameterType.Expression:
-                        ExpressionProcessor expProcessor =
-                            Context.CoroutineManager.GetCoroutineHandle(CoroutineId).ExpressionProcessor;
+                        ExpressionProcessor expProcessor = Coroutine.ExpressionProcessor;
                         int expIndex = expProcessor.CompileExpression(paramValue, StepData);
                         // 在参数数据中写入表达式索引
                         parameters[i].Value = expIndex.ToString();
@@ -148,8 +147,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                 else if (parameters[this._propertyIndex].ParameterType == ParameterType.Expression)
                 {
                     int expIndex = int.Parse(parameters[this._propertyIndex].Value);
-                    ExpressionProcessor expProcessor =
-                        Context.CoroutineManager.GetCoroutineHandle(CoroutineId).ExpressionProcessor;
+                    ExpressionProcessor expProcessor = Coroutine.ExpressionProcessor;
                     this._params[this._propertyIndex] = expProcessor.Calculate(expIndex, arguments[this._propertyIndex].Type);
                     this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
                 }

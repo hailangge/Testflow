@@ -61,7 +61,20 @@ namespace Testflow.SlaveCore.Coroutine
         /// </summary>
         public long ElapsedTicks { get; private set; }
 
-        private readonly Stopwatch _stopWatch;
+        /// <summary>
+        /// 用于计算协程全局执行时间的计时器
+        /// </summary>
+        private readonly Stopwatch _activeTimingTimer;
+
+        /// <summary>
+        /// 用于计算单个Step单次执行时间的计时器
+        /// </summary>
+        private readonly Stopwatch _executionTimer;
+
+        /// <summary>
+        /// 时钟频率
+        /// </summary>
+        private readonly long _timerFrequency;
 
         public CoroutineHandle(SlaveContext slaveContext, int id)
         {
@@ -71,7 +84,9 @@ namespace Testflow.SlaveCore.Coroutine
 //            this.ExecutionTracker = new ExecutionTrack(Constants.ExecutionTrackerSize);
             this.StartTime = DateTime.MinValue;
             this.EndTime = DateTime.MinValue;
-            this._stopWatch = new Stopwatch();
+            this._activeTimingTimer = new Stopwatch();
+            this._executionTimer = new Stopwatch();
+            this._timerFrequency = Stopwatch.Frequency;
             this.ElapsedTicks = -1;
             ExpressionProcessor = new ExpressionProcessor(slaveContext, id);
             ExecutionInfo = new ExecutionInfo(slaveContext.SessionId, id);
@@ -89,26 +104,26 @@ namespace Testflow.SlaveCore.Coroutine
             this.State = CoroutineState.Running;
             this.StartTime = DateTime.Now;
             this.ElapsedTicks = -1;
-            this._stopWatch.Reset();
-            this._stopWatch.Start();
+            this._activeTimingTimer.Reset();
+            this._activeTimingTimer.Start();
         }
 
         public void Pause()
         {
             this.State = CoroutineState.Blocked;
-            this._stopWatch.Stop();
+            this._activeTimingTimer.Stop();
         }
 
         public void Continue()
         {
             this.State = CoroutineState.Running;
-            this._stopWatch.Start();
+            this._activeTimingTimer.Start();
         }
 
         public void Stop()
         {
-            this._stopWatch.Stop();
-            this.ElapsedTicks = this._stopWatch.ElapsedTicks;
+            this._activeTimingTimer.Stop();
+            this.ElapsedTicks = this._activeTimingTimer.ElapsedTicks;
             this.EndTime = DateTime.Now;
             this.State = CoroutineState.Over;
         }
@@ -153,9 +168,21 @@ namespace Testflow.SlaveCore.Coroutine
         {
             this.ExecutionInfo.SetTarget(target, targetName, arguments);
         }
+        
+        public void StartTiming()
+        {
+            this._executionTimer.Reset();
+            this._executionTimer.Start();
+        }
+
+        public long EndTiming()
+        {
+            this._executionTimer.Stop();
+            // 计算精确到微秒级别的数据
+            return (long)((double)this._executionTimer.ElapsedTicks * 1E6 / this._timerFrequency );
+        }
 
         #endregion
-
 
         #region 监听器
 
