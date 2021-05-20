@@ -26,18 +26,21 @@ namespace Testflow.SlaveCore.Runner.Actuators
             bindingFlags |= (Function.Type == FunctionType.InstancePropertySetter)
                 ? BindingFlags.Instance
                 : BindingFlags.Static;
-            for (int i = 0; i < Function.ParameterType.Count; i++)
+            IArgumentCollection arguments = Function.ParameterType;
+            for (int i = 0; i < arguments.Count; i++)
             {
+                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.FunctionGeneration, 
+                    arguments[i].Name);
+
                 if (Function.Parameters[i].ParameterType == ParameterType.NotAvailable)
                 {
                     _fields.Add(null);
                     continue;
                 }
-                string propertyName = Function.ParameterType[i].Name;
+                string propertyName = arguments[i].Name;
                 Type classType = Context.TypeInvoker.GetType(Function.ClassType);
                 _fields.Add(classType.GetField(propertyName, bindingFlags));
             }
-
         }
 
         protected override void InitializeParamsValues()
@@ -51,6 +54,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
             IParameterDataCollection parameters = Function.Parameters;
             for (int i = 0; i < _fields.Count; i++)
             {
+                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.ArgumentInitialization,
+                    Function.ParameterType[i].Name);
+
                 string paramValue = parameters[i].Value;
                 IArgument argument = Function.ParameterType[i];
                 if (null == _fields[i] || string.IsNullOrEmpty(paramValue))

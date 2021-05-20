@@ -37,34 +37,42 @@ namespace Testflow.SlaveCore.Data
             this._syncVariables = new HashSet<string>();
             this._context = context;
             _fullTraceVariables = new List<string>(Constants.DefaultRuntimeSize);
+            this._context.CoroutineManager.TestGenerationTrace.Reset();
             if (context.SequenceType == RunnerType.TestProject)
             {
                 ITestProject testProject = (ITestProject)sequenceData;
-                AddVariables(testProject.Variables, false);
-                AddVariables(testProject.SetUp.Variables, false);
-                AddVariables(testProject.TearDown.Variables, false);
+                AddVariables(testProject.Variables, false, Constants.SessionSequenceIndex);
+                AddVariables(testProject.SetUp.Variables, false, CommonConst.SetupIndex);
+                AddVariables(testProject.TearDown.Variables, false, CommonConst.TeardownIndex);
             }
             else
             {
                 bool addSessionVarToSyncSet = ExecutionModel.ParallelExecution == context.ExecutionModel;
                 ISequenceGroup sequenceGroup = (ISequenceGroup)sequenceData;
-                AddVariables(sequenceGroup.Variables, addSessionVarToSyncSet);
-                AddVariables(sequenceGroup.SetUp.Variables, false);
-                AddVariables(sequenceGroup.TearDown.Variables, false);
+                AddVariables(sequenceGroup.Variables, addSessionVarToSyncSet, Constants.SessionSequenceIndex);
+                AddVariables(sequenceGroup.SetUp.Variables, false, CommonConst.SetupIndex);
+                AddVariables(sequenceGroup.TearDown.Variables, false, CommonConst.TeardownIndex);
                 foreach (ISequence sequence in sequenceGroup.Sequences)
                 {
-                    AddVariables(sequence.Variables, false);
+                    AddVariables(sequence.Variables, false, sequence.Index);
                 }
             }
             this._keyVarLock = new SpinLock(false);
             this._syncVarLock = new ReaderWriterLockSlim();
         }
 
-        private void AddVariables(IVariableCollection variables, bool addToSyncSet)
+        private void AddVariables(IVariableCollection variables, bool addToSyncSet, int sequenceIndex)
         {
+            this._context.CoroutineManager.TestGenerationTrace.SequenceStart(sequenceIndex);
+            // 变量不依附于任何变量
+            this._context.CoroutineManager.TestGenerationTrace.StepStart(null);
+
             int sessionId = _context.SessionId;
             foreach (IVariable variable in variables)
             {
+                this._context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.VariableInitialization,
+                    variable.Name);
+
                 string variableName = CoreUtils.GetRuntimeVariableName(sessionId, variable);
                 object value = null;
                 // 如果变量已匹配类型并且配置的值有效，则初始化变量值。如果是值类型但是未配置值则获取默认值
@@ -97,6 +105,8 @@ namespace Testflow.SlaveCore.Data
                     _syncVariables.Add(variableName);
                 }
             }
+
+            this._context.CoroutineManager.TestGenerationTrace.SequenceOver(sequenceIndex);
         }
 
         public void SetParamValue(string variableName, string paramValue, object value)

@@ -2,6 +2,7 @@
 using System.Text;
 using Testflow.CoreCommon.Data;
 using Testflow.Runtime;
+using Testflow.SlaveCore.Common;
 using Testflow.SlaveCore.Runner.Model;
 using Testflow.Usr;
 
@@ -55,12 +56,14 @@ namespace Testflow.SlaveCore.Data
             Reset();
         }
 
+        #region 标记状态切换
+
         public void Reset()
         {
             this.Operation = TargetOperation.None;
             this.StepEntity = null;
             this.TargetName = string.Empty;
-            this.Sequence = int.MinValue;
+            this.Sequence = Constants.SessionSequenceIndex;
             this.Arguments.Clear();
         }
 
@@ -122,6 +125,8 @@ namespace Testflow.SlaveCore.Data
             }
         }
 
+        #endregion
+
         public CallStack GetCurrentStack()
         {
             return StepEntity?.GetStack() ?? CallStack.GetEmptyStack(Session, Sequence);
@@ -146,7 +151,7 @@ namespace Testflow.SlaveCore.Data
             {
                 dataCache.Append("Step:").Append(StepEntity.GetStack()).Append(delim);
             }
-            else if (Sequence != int.MinValue)
+            else if (Sequence != Constants.SessionSequenceIndex)
             {
                 dataCache.Append("Sequence:").Append(Session).Append('_').Append(Sequence).Append(delim);
             }

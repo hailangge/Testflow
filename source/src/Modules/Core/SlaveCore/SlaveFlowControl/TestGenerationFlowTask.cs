@@ -61,6 +61,9 @@ namespace Testflow.SlaveCore.SlaveFlowControl
             // 加载用到的程序集
             Context.TypeInvoker.LoadAssemblyAndType();
 
+            // 重置测试生成跟踪对象
+            Context.CoroutineManager.TestGenerationTrace.Reset();
+
             // 构造变量映射器
             Context.VariableMapper = new VariableMapper(Context);
 

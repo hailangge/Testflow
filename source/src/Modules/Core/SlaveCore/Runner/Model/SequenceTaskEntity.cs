@@ -108,7 +108,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
                 // 停止失败的step的计时
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo,
+                    rootCoroutine.TaskPointer);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -120,7 +121,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
                 // 停止失败的step的计时
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo,
+                    rootCoroutine.TaskPointer);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -132,7 +134,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
                 // 停止失败的step的计时
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo,
+                    rootCoroutine.TaskPointer);
                 // Abort异常不会在内部处理，需要在外部强制抛出
                 currentStep?.SetStatusAndSendErrorEvent(lastStepResult, failedInfo);
             }
@@ -141,7 +144,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
                 // 停止失败的step的计时
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult, out failedInfo, currentStep);
+                FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult, out failedInfo,
+                    rootCoroutine.TaskPointer);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.Result == StepResult.NotAvailable)
                 {
@@ -157,7 +161,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 if (null != ex.InnerException)
                 {
                     FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult,
-                        out failedInfo, currentStep);
+                        out failedInfo, rootCoroutine.TaskPointer);
                     // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
                     if (null != currentStep && currentStep.BreakIfFailed)
                     {
@@ -172,10 +176,11 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (Exception ex)
             {
-                StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
+                ExecutionInfo taskPointer = rootCoroutine.TaskPointer;
+                StepTaskEntityBase currentStep = taskPointer.StepEntity;
                 // 停止失败的step的计时
                 currentStep?.EndTiming();
-                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
+                FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, taskPointer);
                 // 如果抛出Exception到当前位置则说明内部没有发送错误事件
                 if (null != currentStep && currentStep.BreakIfFailed)
                 {
@@ -200,16 +205,15 @@ namespace Testflow.SlaveCore.Runner.Model
                 this._stepEntityRoot = null;
                 // 将失败步骤职责链以后的step标记为null
                 currentStep.NextStep = null;
-
-                rootCoroutine.SequenceOver(Index);
             }
+            rootCoroutine.SequenceOver(Index);
         }
 
         private void FillFinalExceptionReportInfo(Exception ex, out StatusReportType finalReportType,
-            out StepResult lastStepResult, out FailedInfo failedInfo, StepTaskEntityBase currentStep)
+            out StepResult lastStepResult, out FailedInfo failedInfo, ExecutionInfo taskPointer)
         {
             bool isCriticalError = false;
-            string currentStack = currentStep?.GetStack().ToString() ?? string.Empty;
+            string currentStack = taskPointer.StepEntity?.GetStack().ToString() ?? string.Empty;
             if (ex is TaskFailedException)
             {
                 TaskFailedException failedException = (TaskFailedException) ex;
@@ -244,7 +248,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Inner exception catched in step <{currentStack}>.");
+                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Inner exception catched in location <{taskPointer}>.");
             }
             else
             {
@@ -253,7 +257,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Runtime exception catched in step <{currentStack}>.");
+                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Runtime exception catched in location <{taskPointer}>.");
             }
 //            else if (ex is TargetInvocationException)
 //            {

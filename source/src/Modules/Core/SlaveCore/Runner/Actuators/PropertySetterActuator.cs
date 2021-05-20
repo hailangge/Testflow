@@ -28,18 +28,22 @@ namespace Testflow.SlaveCore.Runner.Actuators
             bindingFlags |= (Function.Type == FunctionType.InstancePropertySetter)
                 ? BindingFlags.Instance
                 : BindingFlags.Static;
-            for (int i = 0; i < Function.ParameterType.Count; i++)
+            IArgumentCollection arguments = Function.ParameterType;
+            IParameterDataCollection parameters = Function.Parameters;
+            for (int i = 0; i < arguments.Count; i++)
             {
-                if (Function.Parameters[i].ParameterType == ParameterType.NotAvailable)
+                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.FunctionGeneration,
+                    arguments[i].Name);
+
+                if (parameters[i].ParameterType == ParameterType.NotAvailable)
                 {
                     _properties.Add(null);
                     continue;
                 }
-                string propertyName = Function.ParameterType[i].Name;
+                string propertyName = arguments[i].Name;
                 Type classType = Context.TypeInvoker.GetType(Function.ClassType);
                 _properties.Add(classType.GetProperty(propertyName, bindingFlags));
             }
-
         }
 
         protected override void InitializeParamsValues()
@@ -53,6 +57,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
             IParameterDataCollection parameters = Function.Parameters;
             for (int i = 0; i < _properties.Count; i++)
             {
+                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.ArgumentInitialization,
+                    _properties[i].Name);
+
                 string paramValue = parameters[i].Value;
                 IArgument argument = Function.ParameterType[i];
                 if (null == _properties[i] || string.IsNullOrEmpty(paramValue))
@@ -169,8 +176,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     object originalValue = this._properties[this._propertyIndex].GetValue(instance);
                     this._params[this._propertyIndex] = Context.TypeInvoker.CastConstantValue(this._properties[this._propertyIndex].PropertyType,
-                        parameters[this._propertyIndex].Value,
-                        originalValue);
+                        parameters[this._propertyIndex].Value, originalValue);
                     // 如果原始值为空，则需要配置Value，否则其参数都已经写入，无需外部更新
                     if (null == originalValue)
                     {

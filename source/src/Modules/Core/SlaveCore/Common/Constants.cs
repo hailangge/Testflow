@@ -40,6 +40,11 @@
 
         public const string EnumTypeName = "EnumerationType";
 
+        /// <summary>
+        /// Session级别操作时SequenceIndex的值
+        /// </summary>
+        public const int SessionSequenceIndex = int.MinValue;
+
 
         // 起始协程ID
         public const int StartCoroutineId = 0;

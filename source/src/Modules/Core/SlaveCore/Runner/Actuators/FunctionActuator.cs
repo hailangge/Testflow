@@ -47,7 +47,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             this._params = new object[step.Function.Parameters?.Count ?? 0];
             this._constructor = null;
             this.FunctionType = step.Function.Type;
-
+            
             if (CoreUtils.IsValidVaraible(step.Function.Instance))
             {
                 string variableName = ModuleUtils.GetVariableNameFromParamValue(step.Function.Instance);
@@ -62,6 +62,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
         protected override void GenerateInvokeInfo()
         {
+            this.Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.FunctionGeneration,
+                string.Empty);
+
             switch (FunctionType)
             {
                 case FunctionType.StaticFunction:
@@ -96,6 +99,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
             IParameterDataCollection parameters = Function.Parameters;
             for (int i = 0; i < argumentInfos.Count; i++)
             {
+                this.Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.ArgumentInitialization,
+                    argumentInfos[i].Name);
+
                 string paramValue = parameters[i].Value;
                 switch (parameters[i].ParameterType)
                 {
