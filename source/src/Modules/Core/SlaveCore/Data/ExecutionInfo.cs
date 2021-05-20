@@ -35,7 +35,7 @@ namespace Testflow.SlaveCore.Data
         /// <summary>
         /// 当前的执行步骤实体对象
         /// </summary>
-        public StepTaskEntityBase TaskEntity { get; private set; }
+        public StepTaskEntityBase StepEntity { get; private set; }
 
         /// <summary>
         /// 执行目标名称
@@ -58,7 +58,7 @@ namespace Testflow.SlaveCore.Data
         public void Reset()
         {
             this.Operation = TargetOperation.None;
-            this.TaskEntity = null;
+            this.StepEntity = null;
             this.TargetName = string.Empty;
             this.Sequence = int.MinValue;
             this.Arguments.Clear();
@@ -76,7 +76,7 @@ namespace Testflow.SlaveCore.Data
 
         public void Initialize(StepTaskEntityBase taskEntity)
         {
-            this.TaskEntity = taskEntity;
+            this.StepEntity = taskEntity;
             this.Operation = TargetOperation.None;
             this.TargetName = string.Empty;
             if (Arguments.Count > 0)
@@ -101,7 +101,7 @@ namespace Testflow.SlaveCore.Data
 
         public void TargetOver(StepTaskEntityBase taskEntity)
         {
-            this.TaskEntity = taskEntity;
+            this.StepEntity = taskEntity;
             this.Operation = TargetOperation.Over;
             this.TargetName = string.Empty;
             if (Arguments.Count > 0)
@@ -113,7 +113,7 @@ namespace Testflow.SlaveCore.Data
         public void SequenceOver(int sequenceIndex)
         {
             this.Sequence = sequenceIndex;
-            this.TaskEntity = null;
+            this.StepEntity = null;
             this.Operation = TargetOperation.Over;
             this.TargetName = string.Empty;
             if (Arguments.Count > 0)
@@ -124,7 +124,7 @@ namespace Testflow.SlaveCore.Data
 
         public CallStack GetCurrentStack()
         {
-            return TaskEntity?.GetStack() ?? CallStack.GetEmptyStack(Session, Sequence);
+            return StepEntity?.GetStack() ?? CallStack.GetEmptyStack(Session, Sequence);
         }
 
         public ExecutionInfo Clone()
@@ -132,7 +132,7 @@ namespace Testflow.SlaveCore.Data
             ExecutionInfo executionInfo = new ExecutionInfo(Session, CoroutineId)
             {
                 Sequence = this.Sequence,
-                TaskEntity = this.TaskEntity,
+                StepEntity = this.StepEntity,
             };
             executionInfo.SetTarget(this.Operation, TargetName, this.Arguments.ToArray());
             return executionInfo;
@@ -142,9 +142,9 @@ namespace Testflow.SlaveCore.Data
         {
             const char delim = ' ';
             StringBuilder dataCache = new StringBuilder(100);
-            if (null != TaskEntity)
+            if (null != StepEntity)
             {
-                dataCache.Append("Step:").Append(TaskEntity.GetStack()).Append(delim);
+                dataCache.Append("Step:").Append(StepEntity.GetStack()).Append(delim);
             }
             else if (Sequence != int.MinValue)
             {

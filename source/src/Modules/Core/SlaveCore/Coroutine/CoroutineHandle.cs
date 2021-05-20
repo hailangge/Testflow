@@ -16,7 +16,7 @@ namespace Testflow.SlaveCore.Coroutine
         /// <summary>
         /// TODO 当前执行信息，后续通过内部操作。目前使用外部更新处理
         /// </summary>
-        public ExecutionInfo ExecutionInfo { get; }
+        public ExecutionInfo TaskPointer { get; }
 
         public CoroutineState State
         {
@@ -89,7 +89,7 @@ namespace Testflow.SlaveCore.Coroutine
             this._timerFrequency = Stopwatch.Frequency;
             this.ElapsedTicks = -1;
             ExpressionProcessor = new ExpressionProcessor(slaveContext, id);
-            ExecutionInfo = new ExecutionInfo(slaveContext.SessionId, id);
+            TaskPointer = new ExecutionInfo(slaveContext.SessionId, id);
         }
 
         #region 全局控制
@@ -151,27 +151,27 @@ namespace Testflow.SlaveCore.Coroutine
 
         public void SequenceStart(int sequenceIndex)
         {
-            this.ExecutionInfo.Initialize(sequenceIndex);
+            this.TaskPointer.Initialize(sequenceIndex);
         }
 
         public void StepStart(StepTaskEntityBase step)
         {
-            this.ExecutionInfo.Initialize(step);
+            this.TaskPointer.Initialize(step);
         }
 
         public void StepOver(StepTaskEntityBase step)
         {
-            this.ExecutionInfo.TargetOver(step);
+            this.TaskPointer.TargetOver(step);
         }
 
         public void SequenceOver(int sequenceIndex)
         {
-            this.ExecutionInfo.SequenceOver(sequenceIndex);
+            this.TaskPointer.SequenceOver(sequenceIndex);
         }
 
         public void ExecuteTarget(TargetOperation target, string targetName, params string[] arguments)
         {
-            this.ExecutionInfo.SetTarget(target, targetName, arguments);
+            this.TaskPointer.SetTarget(target, targetName, arguments);
         }
         
         public void StartTiming()

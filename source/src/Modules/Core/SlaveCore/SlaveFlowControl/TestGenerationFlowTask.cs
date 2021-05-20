@@ -104,7 +104,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
             Context.UplinkMsgProcessor.SendMessage(testGenMessage, true);
 
             CallStack currentStack = this.Context.CoroutineManager.GetCoroutineHandle(Constants.StartCoroutineId)
-                .ExecutionInfo.GetCurrentStack();
+                .TaskPointer.GetCurrentStack();
 
             // 发送远程运行器生成失败的消息
             RmtGenMessage rmtGenMessage = new RmtGenMessage(MessageNames.UpRmtGenMsgName, Context.SessionId,
@@ -131,7 +131,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
             };
             Context.UplinkMsgProcessor.SendMessage(testGenFailMessage, true);
 
-            CallStack errorStack = this.Context.CoroutineManager.TestGenerationTrace.TaskEntity?.GetStack() ??
+            CallStack errorStack = this.Context.CoroutineManager.TestGenerationTrace.StepEntity?.GetStack() ??
                                    CallStack.GetEmptyStack(this.Context.SessionId, CommonConst.SetupIndex);
 
             // 发送远程运行器生成失败的消息
