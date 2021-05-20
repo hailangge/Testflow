@@ -69,7 +69,7 @@ namespace Testflow.SlaveCore.Data
             this.SetTarget(executionInfo.Operation, executionInfo.TargetName, executionInfo.Arguments.ToArray());
         }
 
-        public void Initialize(int sequence)
+        public void SequenceStart(int sequence)
         {
             this.Sequence = sequence;
         }

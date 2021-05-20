@@ -151,7 +151,7 @@ namespace Testflow.SlaveCore.Coroutine
 
         public void SequenceStart(int sequenceIndex)
         {
-            this.TaskPointer.Initialize(sequenceIndex);
+            this.TaskPointer.SequenceStart(sequenceIndex);
         }
 
         public void StepStart(StepTaskEntityBase step)

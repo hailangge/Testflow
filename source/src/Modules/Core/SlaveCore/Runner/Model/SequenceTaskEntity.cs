@@ -64,7 +64,7 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             
 
-            this._context.CoroutineManager.TestGenerationTrace.Initialize(Index);
+            this._context.CoroutineManager.TestGenerationTrace.SequenceStart(Index);
 
             try
             {
