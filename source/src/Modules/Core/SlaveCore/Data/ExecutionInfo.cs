@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Testflow.CoreCommon.Data;
+using Testflow.Runtime;
 using Testflow.SlaveCore.Runner.Model;
 using Testflow.Usr;
 
@@ -8,7 +10,7 @@ namespace Testflow.SlaveCore.Data
     /// <summary>
     /// 当前执行信息的缓存
     /// </summary>
-    internal class ExecutionInfo
+    internal class ExecutionInfo : ICloneableClass<ExecutionInfo>
     {
         /// <summary>
         /// 会话ID
@@ -62,6 +64,11 @@ namespace Testflow.SlaveCore.Data
             this.Arguments.Clear();
         }
 
+        public void Reset(ExecutionInfo executionInfo)
+        {
+            this.SetTarget(executionInfo.Operation, executionInfo.TargetName, executionInfo.Arguments.ToArray());
+        }
+
         public void Initialize(int sequence)
         {
             this.Sequence = sequence;
@@ -103,8 +110,9 @@ namespace Testflow.SlaveCore.Data
             }
         }
 
-        public void SequenceOver()
+        public void SequenceOver(int sequenceIndex)
         {
+            this.Sequence = sequenceIndex;
             this.TaskEntity = null;
             this.Operation = TargetOperation.Over;
             this.TargetName = string.Empty;
@@ -112,6 +120,22 @@ namespace Testflow.SlaveCore.Data
             {
                 this.Arguments.Clear();
             }
+        }
+
+        public CallStack GetCurrentStack()
+        {
+            return TaskEntity?.GetStack() ?? CallStack.GetEmptyStack(Session, Sequence);
+        }
+
+        public ExecutionInfo Clone()
+        {
+            ExecutionInfo executionInfo = new ExecutionInfo(Session, CoroutineId)
+            {
+                Sequence = this.Sequence,
+                TaskEntity = this.TaskEntity,
+            };
+            executionInfo.SetTarget(this.Operation, TargetName, this.Arguments.ToArray());
+            return executionInfo;
         }
 
         public override string ToString()

@@ -92,11 +92,6 @@ namespace Testflow.SlaveCore.Coroutine
             ExecutionInfo = new ExecutionInfo(slaveContext.SessionId, id);
         }
 
-        public void SequenceGenerationEnd()
-        {
-            ExpressionProcessor.TrimExpressionCache();
-        }
-
         #region 全局控制
 
         public void Start()
@@ -144,6 +139,16 @@ namespace Testflow.SlaveCore.Coroutine
 
         #region 执行目标更新
 
+        public void SequenceGenerationStart()
+        {
+
+        }
+
+        public void SequenceGenerationOver()
+        {
+            ExpressionProcessor.TrimExpressionCache();
+        }
+
         public void SequenceStart(int sequenceIndex)
         {
             this.ExecutionInfo.Initialize(sequenceIndex);
@@ -161,7 +166,7 @@ namespace Testflow.SlaveCore.Coroutine
 
         public void SequenceOver(int sequenceIndex)
         {
-            this.ExecutionInfo.SequenceOver();
+            this.ExecutionInfo.SequenceOver(sequenceIndex);
         }
 
         public void ExecuteTarget(TargetOperation target, string targetName, params string[] arguments)

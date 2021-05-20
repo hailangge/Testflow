@@ -11,6 +11,7 @@ using Testflow.FlowControl;
 using Testflow.Runtime;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Coroutine;
 using Testflow.SlaveCore.Data;
 
 namespace Testflow.SlaveCore.Runner.Model
@@ -61,27 +62,33 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 return;
             }
+            
 
-            StepTaskEntityBase stepEntity = _stepEntityRoot;
+            this._context.CoroutineManager.TestGenerationTrace.Initialize(Index);
+
             try
             {
+                StepTaskEntityBase stepEntity = _stepEntityRoot;
                 do
                 {
                     stepEntity.Generate(ref startCoroutineId);
                 } while (null != (stepEntity = stepEntity.NextStep));
 
                 this.State = RuntimeState.StartIdle;
-                // 添加当前根节点到stepModel管理中
-                StepTaskEntityBase.AddSequenceEntrance(_stepEntityRoot);
             }
             catch (Exception)
             {
-                if (null != stepEntity)
+                StepTaskEntityBase currentEntity = this._context.CoroutineManager.TestGenerationTrace.TaskEntity;
+                if (null != currentEntity)
                 {
                     this._context.LogSession.Print(LogLevel.Error, RootCoroutineId,
-                        $"Exception occur during test generation of step <{stepEntity.GetStack()}>.");
+                        $"Exception occur during test generation of step <{currentEntity.GetStack()}>.");
                 }
                 throw;
+            }
+            finally
+            {
+                this._context.CoroutineManager.TestGenerationTrace.SequenceOver(Index);
             }
         }
 
@@ -95,6 +102,8 @@ namespace Testflow.SlaveCore.Runner.Model
             FailedInfo failedInfo = null;
             StepResult lastStepResult = StepResult.NotAvailable;
             StatusReportType finalReportType = StatusReportType.Failed;
+            CoroutineHandle rootCoroutine = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId);
+            rootCoroutine.SequenceStart(Index);
             try
             {
                 this.State = RuntimeState.Running;
@@ -106,7 +115,6 @@ namespace Testflow.SlaveCore.Runner.Model
                     CoroutineId = RootCoroutineId
                 };
                 _context.StatusQueue.Enqueue(startStatusInfo);
-
                 StepTaskEntityBase stepEntity = _stepEntityRoot;
                 do
                 {
@@ -116,8 +124,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TaskFailedException ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
@@ -128,8 +136,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TestflowAssertException ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
@@ -140,8 +148,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (ThreadAbortException ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // Abort异常不会在内部处理，需要在外部强制抛出
@@ -149,8 +157,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TargetInvocationException ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 FillFinalExceptionReportInfo(ex.InnerException, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出TargetInvokcationException到当前位置则说明内部没有发送错误事件
@@ -161,8 +169,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (TestflowLoopBreakException ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 // 如果包含内部异常，则说明发生了运行时错误，记录错误信息。
                 if (null != ex.InnerException)
@@ -183,8 +191,8 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             catch (Exception ex)
             {
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 停止失败的step的计时
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
                 currentStep?.EndTiming();
                 FillFinalExceptionReportInfo(ex, out finalReportType, out lastStepResult, out failedInfo, currentStep);
                 // 如果抛出Exception到当前位置则说明内部没有发送错误事件
@@ -195,7 +203,7 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             finally
             {
-                StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
+                StepTaskEntityBase currentStep = rootCoroutine.ExecutionInfo.TaskEntity;
                 // 发送结束事件，包括所有的ReturnData信息
                 SequenceStatusInfo overStatusInfo = new SequenceStatusInfo(Index, currentStep.GetStack(),
                     finalReportType, this.State, StepResult.Over, failedInfo)
@@ -211,6 +219,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 this._stepEntityRoot = null;
                 // 将失败步骤职责链以后的step标记为null
                 currentStep.NextStep = null;
+
+                rootCoroutine.SequenceOver(Index);
             }
         }
 
@@ -282,8 +292,9 @@ namespace Testflow.SlaveCore.Runner.Model
         private void SetResultState(out StepResult lastStepResult, out StatusReportType finalReportType, 
             out FailedInfo failedInfo)
         {
-            StepTaskEntityBase lastStep = StepTaskEntityBase.GetCurrentStep(this.Index, RootCoroutineId);
-            lastStepResult = lastStep.Result;
+            StepTaskEntityBase lastStep = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId)
+                    .ExecutionInfo.TaskEntity;
+            lastStepResult = lastStep?.Result ?? StepResult.NotAvailable;
             failedInfo = null;
             this.State = ModuleUtils.GetSequenceState(this._stepEntityRoot);
             switch (this.State)
@@ -319,7 +330,8 @@ namespace Testflow.SlaveCore.Runner.Model
                 return;
             }
             message.SequenceStates.Add(this.State);
-            StepTaskEntityBase currentStep = StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId);
+            StepTaskEntityBase currentStep = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId)
+                .ExecutionInfo.TaskEntity;
             currentStep.FillStatusInfo(message);
         }
 
@@ -330,7 +342,9 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 return;
             }
-            message.Stacks.Add(StepTaskEntityBase.GetCurrentStep(Index, RootCoroutineId).GetStack());
+            StepTaskEntityBase currentStep = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId)
+                .ExecutionInfo.TaskEntity;
+            message.Stacks.Add(currentStep.GetStack());
             message.SequenceStates.Add(this.State);
             message.Results.Add(StepResult.NotAvailable);
         }

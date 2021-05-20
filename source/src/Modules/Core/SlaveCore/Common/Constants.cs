@@ -40,6 +40,10 @@
 
         public const string EnumTypeName = "EnumerationType";
 
+
+        // 起始协程ID
+        public const int StartCoroutineId = 0;
+
         #region 表达式相关
 
         public const string ArgNameFormat = "ARG{0}";

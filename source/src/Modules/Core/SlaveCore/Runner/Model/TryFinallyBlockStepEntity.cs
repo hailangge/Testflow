@@ -36,7 +36,7 @@ namespace Testflow.SlaveCore.Runner.Model
 
             StepTaskEntityBase tryBlock = SubStepRoot;
             StepTaskEntityBase finallyBlock = tryBlock.NextStep;
-            StepTaskEntityBase errorStep = null;
+            ExecutionInfo errorExecutionInfo = null;
             try
             {
                 tryBlock.Invoke(forceInvoke);
@@ -44,36 +44,36 @@ namespace Testflow.SlaveCore.Runner.Model
             // 需要处理上次出错的Step的数据
             catch (TestflowAssertException ex)
             {
-                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
-                if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
+                errorExecutionInfo = Coroutine.ExecutionInfo.Clone();
+                if (null != errorExecutionInfo.TaskEntity && errorExecutionInfo.TaskEntity.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
-                    errorStep.EndTiming();
-                    errorStep.Result = StepResult.Failed;
-                    errorStep.RecordInvocationError(ex, FailedType.AssertionFailed);
+                    errorExecutionInfo.TaskEntity.EndTiming();
+                    errorExecutionInfo.TaskEntity.Result = StepResult.Failed;
+                    errorExecutionInfo.TaskEntity.RecordInvocationError(ex, FailedType.AssertionFailed);
                 }
                 throw;
             }
             catch (TargetInvocationException ex)
             {
-                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
-                if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
+                errorExecutionInfo = Coroutine.ExecutionInfo.Clone();
+                if (null != errorExecutionInfo.TaskEntity && errorExecutionInfo.TaskEntity.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
-                    errorStep.EndTiming();
-                    errorStep.RecordTargetInvocationError(ex.InnerException);
+                    errorExecutionInfo.TaskEntity.EndTiming();
+                    errorExecutionInfo.TaskEntity.RecordTargetInvocationError(ex.InnerException);
                 }
                 throw;
             }
             catch (TargetException ex)
             {
-                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
-                if (null != errorStep && errorStep.Result == StepResult.NotAvailable)
+                errorExecutionInfo = Coroutine.ExecutionInfo.Clone();
+                if (null != errorExecutionInfo.TaskEntity && errorExecutionInfo.TaskEntity.Result == StepResult.NotAvailable)
                 {
                     // 停止计时
-                    errorStep.EndTiming();
-                    errorStep.Result = StepResult.Error;
-                    errorStep.RecordInvocationError(ex, FailedType.TargetError);
+                    errorExecutionInfo.TaskEntity.EndTiming();
+                    errorExecutionInfo.TaskEntity.Result = StepResult.Error;
+                    errorExecutionInfo.TaskEntity.RecordInvocationError(ex, FailedType.TargetError);
                 }
                 throw;
             }
@@ -85,17 +85,17 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 // 停止计时
                 Actuator.EndTiming();
-                errorStep = StepTaskEntityBase.GetCurrentStep(SequenceIndex, Coroutine.Id);
-                if (errorStep.Result == StepResult.NotAvailable)
+                errorExecutionInfo = Coroutine.ExecutionInfo.Clone();
+                if (null != errorExecutionInfo.TaskEntity && errorExecutionInfo.TaskEntity.Result == StepResult.NotAvailable)
                 {
-                    errorStep.Result = StepResult.Error;
+                    errorExecutionInfo.TaskEntity.Result = StepResult.Error;
                     if (null != ex.InnerException)
                     {
-                        errorStep.RecordTargetInvocationError(ex.InnerException);
+                        errorExecutionInfo.TaskEntity.RecordTargetInvocationError(ex.InnerException);
                     }
                     else
                     {
-                        errorStep.RecordInvocationError(ex, FailedType.TargetError);
+                        errorExecutionInfo.TaskEntity.RecordInvocationError(ex, FailedType.TargetError);
                     }
                 }
                 throw;
@@ -104,9 +104,10 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 // finally模块是强制调用
                 finallyBlock.Invoke(true);
-                if (null != errorStep)
+                // 如果错误执行对象不为空，则在finally结束后将错误执行指针重新指向该对象
+                if (null != errorExecutionInfo?.TaskEntity)
                 {
-                    SetCurrentStep(SequenceIndex, Coroutine.Id, errorStep);
+                    Coroutine.ExecutionInfo.Reset(errorExecutionInfo);
                 }
             }
             if (null != StepData && StepData.RecordStatus)

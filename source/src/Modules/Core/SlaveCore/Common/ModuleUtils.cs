@@ -192,12 +192,7 @@ namespace Testflow.SlaveCore.Common
             elems[0] = fullVariableName;
             return string.Join(Constants.PropertyDelim, elems);
         }
-
-        public static CallStack GetSequenceStack(int index, int coroutineId)
-        {
-            return StepTaskEntityBase.GetCurrentStep(index, coroutineId).GetStack();
-        }
-
+        
         public static string GetVariableFullName(string variableName, ISequenceStep step, int session)
         {
             while (step.Parent is ISequenceStep)

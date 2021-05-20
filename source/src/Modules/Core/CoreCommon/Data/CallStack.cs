@@ -11,6 +11,18 @@ namespace Testflow.CoreCommon.Data
     [Serializable]
     public class CallStack : ICallStack, ISerializable
     {
+        // public static readonly CallStack EmptyStack;
+        //
+        // static CallStack()
+        // {
+        //     EmptyStack = new CallStack()
+        //     {
+        //         Sequence = int.MinValue,
+        //         Session = int.MinValue,
+        //         StepStack = new List<int>() { int.MinValue}
+        //     };
+        // }
+
         private const string StackDelim = "_";
 
         public CallStack()
@@ -43,6 +55,9 @@ namespace Testflow.CoreCommon.Data
             return callStack;
         }
 
+        /// <summary>
+        /// 获取指定会话指定序列的空栈(如果序列为空)或者第一个序列步骤的栈(序列不为空)
+        /// </summary>
         public static CallStack GetEmptyStack(int session, int sequenceIndex)
         {
             CallStack callStack = new CallStack()

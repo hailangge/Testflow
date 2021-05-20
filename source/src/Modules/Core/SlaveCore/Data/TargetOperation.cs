@@ -33,7 +33,7 @@
         /// <summary>
         /// 执行目标初始化
         /// </summary>
-        TargetGeneration = 5,
+        FunctionGeneration = 5,
 
         /// <summary>
         /// 参数计算

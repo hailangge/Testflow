@@ -9,6 +9,7 @@ using Testflow.Data;
 using Testflow.Runtime;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
+using Testflow.SlaveCore.Coroutine;
 using Testflow.SlaveCore.Data;
 using Testflow.SlaveCore.Runner.Model;
 
@@ -44,11 +45,13 @@ namespace Testflow.SlaveCore.SlaveFlowControl
                 Context.LogSession.Print(LogLevel.Error, Context.SessionId, "Run testproject setup failed.");
                 for (int i = 0; i < sessionTaskEntity.SequenceCount; i++)
                 {
-                    sessionTaskEntity.GetSequenceTaskEntity(i).State = RuntimeState.Failed;
+                    SequenceTaskEntity sequenceTaskEntity = sessionTaskEntity.GetSequenceTaskEntity(i);
+                    sequenceTaskEntity.State = RuntimeState.Failed;
 
                     FailedInfo failedInfo = new FailedInfo(Context.I18N.GetStr("SetUpFailed"), FailedType.SetUpFailed);
-                    SequenceStatusInfo statusInfo = new SequenceStatusInfo(i, ModuleUtils.GetSequenceStack(i, 0), 
-                        StatusReportType.Failed, setUpState, StepResult.NotAvailable, failedInfo)
+                    CallStack startUpStack = CallStack.GetEmptyStack(this.Context.SessionId, sequenceTaskEntity.Index);
+                    SequenceStatusInfo statusInfo = new SequenceStatusInfo(i, startUpStack, StatusReportType.Failed,
+                        setUpState, StepResult.NotAvailable, failedInfo)
                     {
                         ExecutionTime = DateTime.Now,
                         ExecutionTicks = -1,

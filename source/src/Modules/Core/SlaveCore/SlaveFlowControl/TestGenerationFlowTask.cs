@@ -103,12 +103,15 @@ namespace Testflow.SlaveCore.SlaveFlowControl
             };
             Context.UplinkMsgProcessor.SendMessage(testGenMessage, true);
 
+            CallStack currentStack = this.Context.CoroutineManager.GetCoroutineHandle(Constants.StartCoroutineId)
+                .ExecutionInfo.GetCurrentStack();
+
             // 发送远程运行器生成失败的消息
             RmtGenMessage rmtGenMessage = new RmtGenMessage(MessageNames.UpRmtGenMsgName, Context.SessionId,
                 RunnerType.SequenceGroup)
             {
                 ErrorInfo = Context.I18N.GetStr("OperationAborted"),
-                ErrorStack = StepTaskEntityBase.CurrentGenerationStep?.GetStack()
+                ErrorStack = currentStack
             };
             rmtGenMessage.Params.Add("MsgType", "Failed");
             FailedInfo failedInfo = new FailedInfo(Context.I18N.GetStr("OperationAborted"), FailedType.Abort);
@@ -128,12 +131,15 @@ namespace Testflow.SlaveCore.SlaveFlowControl
             };
             Context.UplinkMsgProcessor.SendMessage(testGenFailMessage, true);
 
+            CallStack errorStack = this.Context.CoroutineManager.TestGenerationTrace.TaskEntity?.GetStack() ??
+                                   CallStack.GetEmptyStack(this.Context.SessionId, CommonConst.SetupIndex);
+
             // 发送远程运行器生成失败的消息
             RmtGenMessage rmtGenMessage = new RmtGenMessage(MessageNames.UpRmtGenMsgName, Context.SessionId,
                 RunnerType.SequenceGroup)
             {
                 ErrorInfo = ex.Message,
-                ErrorStack = StepTaskEntityBase.CurrentGenerationStep?.GetStack()
+                ErrorStack = errorStack
             };
             rmtGenMessage.Params.Add("MsgType", "Failed");
             FailedInfo failedInfo = new FailedInfo(ex, FailedType.TestGenFailed);

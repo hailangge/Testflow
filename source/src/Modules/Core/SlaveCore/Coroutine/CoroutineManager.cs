@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Testflow.SlaveCore.Common;
 using Testflow.SlaveCore.Data;
@@ -14,11 +15,16 @@ namespace Testflow.SlaveCore.Coroutine
 
         private readonly SlaveContext _context;
         private int _currentIndex;
+
+        public ExecutionInfo TestGenerationTrace { get; }
+        
         public CoroutineManager(SlaveContext context)
         {
             this._context = context;
             _coroutineHandles = new Dictionary<int, CoroutineHandle>(Constants.DefaultRuntimeSize);
             _currentIndex = -1*CommonConst.SequenceCoroutineCapacity;
+            // 执行对象生成在起始协程上执行
+            this.TestGenerationTrace = new ExecutionInfo(context.SessionId, Constants.StartCoroutineId);
         }
 
         public CoroutineHandle GetNextCoroutine()
@@ -54,11 +60,15 @@ namespace Testflow.SlaveCore.Coroutine
             _coroutineHandles[coroutineId].Stop();
         }
 
+        public void StartSequenceGeneration()
+        {
+        }
+
         public void SequenceGenerationEnd()
         {
             foreach (CoroutineHandle coroutineHandle in _coroutineHandles.Values)
             {
-                coroutineHandle.SequenceGenerationEnd();
+                coroutineHandle.SequenceGenerationOver();
             }
         }
 

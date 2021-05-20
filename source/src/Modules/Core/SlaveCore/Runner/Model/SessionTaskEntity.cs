@@ -54,7 +54,6 @@ namespace Testflow.SlaveCore.Runner.Model
         public void Generate(ExecutionModel executionModel)
         {
             CoroutineHandle defaultCoroutine = _context.CoroutineManager.GetNextCoroutine();
-            _context.TimingManager.RegisterStopWatch(defaultCoroutine.Id);
             _setUp.Generate(defaultCoroutine.Id);
             _tearDown.Generate(defaultCoroutine.Id);
             switch (executionModel)
@@ -69,7 +68,6 @@ namespace Testflow.SlaveCore.Runner.Model
                     CoroutineHandle coroutine = _context.CoroutineManager.GetNextCoroutine();
                     foreach (SequenceTaskEntity sequenceModel in _sequenceEntities)
                     {
-                        _context.TimingManager.RegisterStopWatch(coroutine.Id);
                         sequenceModel.Generate(coroutine.Id);
                     }
                     break;
