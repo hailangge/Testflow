@@ -123,7 +123,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
 
         protected override void TaskErrorAction(Exception ex)
         {
-            Context.LogSession.Print(LogLevel.Error, CommonConst.PlatformLogSession, "Test Generation failed.");
+            Context.LogSession.Print(LogLevel.Fatal, CommonConst.PlatformLogSession, "Test Generation failed.");
             TestGenMessage testGenFailMessage = new TestGenMessage(MessageNames.TestGenName, Context.SessionId,
                 CommonConst.PlatformSession, GenerationStatus.Failed)
             {

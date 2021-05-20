@@ -62,34 +62,15 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 return;
             }
-            
-
             this._context.CoroutineManager.TestGenerationTrace.SequenceStart(Index);
+            StepTaskEntityBase stepEntity = _stepEntityRoot;
+            do
+            {
+                stepEntity.Generate(ref startCoroutineId);
+            } while (null != (stepEntity = stepEntity.NextStep));
 
-            try
-            {
-                StepTaskEntityBase stepEntity = _stepEntityRoot;
-                do
-                {
-                    stepEntity.Generate(ref startCoroutineId);
-                } while (null != (stepEntity = stepEntity.NextStep));
-
-                this.State = RuntimeState.StartIdle;
-            }
-            catch (Exception)
-            {
-                StepTaskEntityBase currentEntity = this._context.CoroutineManager.TestGenerationTrace.StepEntity;
-                if (null != currentEntity)
-                {
-                    this._context.LogSession.Print(LogLevel.Error, RootCoroutineId,
-                        $"Exception occur during test generation of step <{currentEntity.GetStack()}>.");
-                }
-                throw;
-            }
-            finally
-            {
-                this._context.CoroutineManager.TestGenerationTrace.SequenceOver(Index);
-            }
+            this.State = RuntimeState.StartIdle;
+            this._context.CoroutineManager.TestGenerationTrace.SequenceOver(Index);
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using Testflow.Runtime;
 using Testflow.SlaveCore.Common;
 using Testflow.Data;
 using Testflow.SlaveCore.Coroutine;
+using Testflow.SlaveCore.Data;
 
 namespace Testflow.SlaveCore.Runner.Model
 {
@@ -54,25 +55,36 @@ namespace Testflow.SlaveCore.Runner.Model
         public void Generate(ExecutionModel executionModel)
         {
             CoroutineHandle defaultCoroutine = _context.CoroutineManager.GetNextCoroutine();
-            _setUp.Generate(defaultCoroutine.Id);
-            _tearDown.Generate(defaultCoroutine.Id);
-            switch (executionModel)
+            try
             {
-                case ExecutionModel.SequentialExecution:
-                    foreach (SequenceTaskEntity sequenceModel in _sequenceEntities)
-                    {
-                        sequenceModel.Generate(defaultCoroutine.Id);
-                    }
-                    break;
-                case ExecutionModel.ParallelExecution:
-                    CoroutineHandle coroutine = _context.CoroutineManager.GetNextCoroutine();
-                    foreach (SequenceTaskEntity sequenceModel in _sequenceEntities)
-                    {
-                        sequenceModel.Generate(coroutine.Id);
-                    }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(executionModel), executionModel, null);
+                _setUp.Generate(defaultCoroutine.Id);
+                _tearDown.Generate(defaultCoroutine.Id);
+                switch (executionModel)
+                {
+                    case ExecutionModel.SequentialExecution:
+                        foreach (SequenceTaskEntity sequenceModel in _sequenceEntities)
+                        {
+                            sequenceModel.Generate(defaultCoroutine.Id);
+                        }
+                        break;
+                    case ExecutionModel.ParallelExecution:
+                        CoroutineHandle coroutine = _context.CoroutineManager.GetNextCoroutine();
+                        foreach (SequenceTaskEntity sequenceModel in _sequenceEntities)
+                        {
+                            sequenceModel.Generate(coroutine.Id);
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(executionModel), executionModel, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                ExecutionInfo testGenerationTrace = this._context.CoroutineManager.TestGenerationTrace;
+                this._context.LogSession.Print(LogLevel.Error, testGenerationTrace.CoroutineId,
+                    $"Error occur during generation operation, Location information:<{testGenerationTrace}>.");
+                this._context.LogSession.Print(LogLevel.Fatal, testGenerationTrace.CoroutineId, ex, "Generation failed.");
+                throw;
             }
         }
 
