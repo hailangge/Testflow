@@ -141,7 +141,6 @@ namespace Testflow.SlaveCore.Coroutine
 
         public void SequenceGenerationStart()
         {
-
         }
 
         public void SequenceGenerationOver()
@@ -156,12 +155,12 @@ namespace Testflow.SlaveCore.Coroutine
 
         public void StepStart(StepTaskEntityBase step)
         {
-            this.TaskPointer.Initialize(step);
+            this.TaskPointer.StepStart(step);
         }
 
         public void StepOver(StepTaskEntityBase step)
         {
-            this.TaskPointer.TargetOver(step);
+            this.TaskPointer.StepOver(step);
         }
 
         public void SequenceOver(int sequenceIndex)

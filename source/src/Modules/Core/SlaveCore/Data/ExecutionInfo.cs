@@ -74,7 +74,7 @@ namespace Testflow.SlaveCore.Data
             this.Sequence = sequence;
         }
 
-        public void Initialize(StepTaskEntityBase taskEntity)
+        public void StepStart(StepTaskEntityBase taskEntity)
         {
             this.StepEntity = taskEntity;
             this.Operation = TargetOperation.None;
@@ -99,7 +99,7 @@ namespace Testflow.SlaveCore.Data
             }
         }
 
-        public void TargetOver(StepTaskEntityBase taskEntity)
+        public void StepOver(StepTaskEntityBase taskEntity)
         {
             this.StepEntity = taskEntity;
             this.Operation = TargetOperation.Over;
