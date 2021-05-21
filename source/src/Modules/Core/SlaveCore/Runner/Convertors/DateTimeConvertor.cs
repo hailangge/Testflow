@@ -7,7 +7,12 @@ namespace Testflow.SlaveCore.Runner.Convertors
     {
         protected override void InitializeConvertFuncs()
         {
-            ConvertFuncs.Add(typeof(string).Name, sourceValue => ((DateTime)sourceValue).ToString(CommonConst.GlobalTimeFormat));
+            ConvertFuncs.Add(typeof(string).Name,
+                (object sourceValue, out object castValue) =>
+                {
+                    castValue = ((DateTime) sourceValue).ToString(CommonConst.GlobalTimeFormat);
+                    return true;
+                });
         }
 
         public override object GetDefaultValue()

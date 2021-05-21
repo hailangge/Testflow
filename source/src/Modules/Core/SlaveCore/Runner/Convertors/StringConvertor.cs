@@ -9,28 +9,107 @@ namespace Testflow.SlaveCore.Runner.Convertors
     {
         protected override void InitializeConvertFuncs()
         {
-            ConvertFuncs.Add(typeof(decimal).Name, sourceValue => System.Convert.ToDecimal((string)sourceValue));
-            ConvertFuncs.Add(typeof(double).Name, sourceValue => System.Convert.ToDouble((string)sourceValue));
-            ConvertFuncs.Add(typeof(float).Name, sourceValue => System.Convert.ToSingle((string)sourceValue));
-            ConvertFuncs.Add(typeof(long).Name, sourceValue => System.Convert.ToInt64((string)sourceValue));
-            ConvertFuncs.Add(typeof(ulong).Name, sourceValue => System.Convert.ToUInt64((string)sourceValue));
-            ConvertFuncs.Add(typeof(int).Name, sourceValue => System.Convert.ToInt32((string)sourceValue));
-            ConvertFuncs.Add(typeof(uint).Name, sourceValue => System.Convert.ToUInt32((string)sourceValue));
-            ConvertFuncs.Add(typeof(short).Name, sourceValue => System.Convert.ToInt16((string)sourceValue));
-            ConvertFuncs.Add(typeof(ushort).Name, sourceValue => System.Convert.ToUInt16((string)sourceValue));
-            ConvertFuncs.Add(typeof(char).Name, sourceValue => System.Convert.ToChar((string)sourceValue));
-            ConvertFuncs.Add(typeof (byte).Name, sourceValue => System.Convert.ToByte((string)sourceValue));
-            ConvertFuncs.Add(typeof(bool).Name, sourceValue => System.Convert.ToBoolean((string)sourceValue));
-            ConvertFuncs.Add(typeof(DateTime).Name, sourceValue =>
+            ConvertFuncs.Add(typeof(decimal).Name, (object sourceValue, out object castValue) =>
             {
-                DateTime dateTime;
-                bool validCast = DateTime.TryParse((string) sourceValue, out dateTime);
-                if (!validCast)
+                decimal value;
+                bool parseSuccess = false;
+                parseSuccess = decimal.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccess;
+            });
+            ConvertFuncs.Add(typeof(double).Name, (object sourceValue, out object castValue) =>
+            {
+                double value;
+                bool parseSuccss = false;
+                parseSuccss = double.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(float).Name, (object sourceValue, out object castValue) => {
+                float value;
+                bool parseSuccss = false;
+                parseSuccss = float.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(long).Name, (object sourceValue, out object castValue) => {
+                long value;
+                bool parseSuccss = false;
+                parseSuccss = long.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(ulong).Name, (object sourceValue, out object castValue) => {
+                ulong value;
+                bool parseSuccss = false;
+                parseSuccss = ulong.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(int).Name, (object sourceValue, out object castValue) => {
+                int value;
+                bool parseSuccss = false;
+                parseSuccss = int.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(uint).Name, (object sourceValue, out object castValue) => {
+                uint value;
+                bool parseSuccss = false;
+                parseSuccss = uint.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(short).Name, (object sourceValue, out object castValue) => {
+                short value;
+                bool parseSuccss = false;
+                parseSuccss = short.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(ushort).Name, (object sourceValue, out object castValue) => {
+                ushort value;
+                bool parseSuccss = false;
+                parseSuccss = ushort.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(char).Name, (object sourceValue, out object castValue) => {
+                char value;
+                bool parseSuccss = false;
+                parseSuccss = char.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof (byte).Name, (object sourceValue, out object castValue) => {
+                byte value;
+                bool parseSuccss = false;
+                parseSuccss = byte.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
+            });
+            ConvertFuncs.Add(typeof(bool).Name, (object sourceValue, out object castValue) => {
+                string sourceValueStr = ((string)sourceValue).Trim();
+                if ("true".Equals(sourceValueStr, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                        "Illegal string for datetime cast.");
+                    castValue = true;
+                    return true;
                 }
-                return dateTime;
+                if ("false".Equals(sourceValueStr, StringComparison.OrdinalIgnoreCase))
+                {
+                    castValue = false;
+                    return true;
+                }
+                castValue = sourceValue;
+                return false;
+            });
+            ConvertFuncs.Add(typeof(DateTime).Name, (object sourceValue, out object castValue) =>
+            {
+                DateTime value;
+                bool parseSuccss = false;
+                parseSuccss = DateTime.TryParse((string)sourceValue, out value);
+                castValue = value;
+                return parseSuccss;
             });
 //            ConvertFuncs.Add(typeof(string).Name, sourceValue => sourceValue.ToString());
         }

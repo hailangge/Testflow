@@ -179,8 +179,7 @@ namespace Testflow.SlaveCore.Data
                 propertyType = paramProperty.PropertyType;
             }
             // 如果变量值不为null，并且变量类型和待写入属性类型不匹配则执行类型转换
-            if (null != paramValue && !propertyType.IsInstanceOfType(paramValue) &&
-                _context.Convertor.IsValidValueCast(paramValue.GetType(), propertyType))
+            if (null != paramValue && !propertyType.IsInstanceOfType(paramValue))
             {
                 paramValue = _context.Convertor.CastValue(propertyType, paramValue);
             }

@@ -6,19 +6,59 @@ namespace Testflow.SlaveCore.Runner.Convertors
     {
         protected override void InitializeConvertFuncs()
         {
-            ConvertFuncs.Add(typeof(decimal).Name, sourceValue => (bool)sourceValue ? 1 : 0);
+            ConvertFuncs.Add(typeof(decimal).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (decimal)((bool) sourceValue ? 1 : 0);
+                return true;
+            });
 //            ConvertFuncs.Add(typeof(double).Name, sourceValue => sourceValue.ToString());
 //            ConvertFuncs.Add(typeof(float).Name, sourceValue => sourceValue.ToString());
-            ConvertFuncs.Add(typeof(long).Name, sourceValue => (long)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(ulong).Name, sourceValue => (ulong)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(int).Name, sourceValue => (int)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(uint).Name, sourceValue => (uint)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(short).Name, sourceValue => (short)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(ushort).Name, sourceValue => (ushort)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(char).Name, sourceValue => (char)((bool)sourceValue ? 1 : 0));
-            ConvertFuncs.Add(typeof(byte).Name, sourceValue => (byte)((bool)sourceValue ? 1 : 0));
+            ConvertFuncs.Add(typeof(long).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (long)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(ulong).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (ulong)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(int).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (int)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(uint).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (uint)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(short).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (short)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(ushort).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (ushort)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(char).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (char)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(byte).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (byte)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
 //            ConvertFuncs.Add(typeof(bool).Name, sourceValue => sourceValue.ToString());
-            ConvertFuncs.Add(typeof(string).Name, sourceValue => sourceValue.ToString());
+            ConvertFuncs.Add(typeof(string).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = sourceValue.ToString();
+                return true;
+            });
         }
 
         public override object GetDefaultValue()

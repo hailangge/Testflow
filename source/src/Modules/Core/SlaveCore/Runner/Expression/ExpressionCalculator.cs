@@ -101,8 +101,7 @@ namespace Testflow.SlaveCore.Runner.Expression
             {
                 return false;
             }
-            elementValue = _context.Convertor.CastValue(targetType, originalValue);
-            return true;
+            return _context.Convertor.TryCastValue(targetType, originalValue, out elementValue);
         }
 
         private bool TryGetElementOriginalValue(IExpressionElement element, out object originalValue)

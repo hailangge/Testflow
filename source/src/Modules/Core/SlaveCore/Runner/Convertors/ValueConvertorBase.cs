@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using Testflow.Data;
+using Testflow.Usr;
 
 namespace Testflow.SlaveCore.Runner.Convertors
 {
     internal abstract class ValueConvertorBase
     {
-        protected Dictionary<string, Func<object, object>> ConvertFuncs { get; }
+        protected delegate bool ConvertFunction(object sourceValue, out object targetValue);
+
+        protected Dictionary<string, ConvertFunction> ConvertFuncs { get; }
 
         protected ValueConvertorBase()
         {
-            ConvertFuncs = new Dictionary<string, Func<object, object>>(20);
+            ConvertFuncs = new Dictionary<string, ConvertFunction>(20);
             InitializeConvertFuncs();
         }
 
@@ -18,14 +21,14 @@ namespace Testflow.SlaveCore.Runner.Convertors
 
         public abstract object GetDefaultValue();
 
-        public object CastValue(ITypeData targetType, object sourceValue)
+        public bool TryCastValue(ITypeData targetType, object sourceValue, out object castValue)
         {
-            return ConvertFuncs[targetType.Name].Invoke(sourceValue);
+            return ConvertFuncs[targetType.Name](sourceValue, out castValue);
         }
 
-        public object CastValue(Type targetType, object sourceValue)
+        public bool TryCastValue(Type targetType, object sourceValue, out object castValue)
         {
-            return ConvertFuncs[targetType.Name].Invoke(sourceValue);
+            return ConvertFuncs[targetType.Name](sourceValue, out castValue);
         }
 
         public bool IsValidCastTarget(ITypeData targetType)

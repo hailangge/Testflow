@@ -13,91 +13,170 @@ namespace Testflow.SlaveCore.Runner
 {
     internal class EnumConvertor
     {
-        private readonly SlaveContext _context;
+        private readonly TypeConvertor _convertor;
 
-        private readonly Dictionary<string, Func<object, object>> _convertFuncs;
-        private readonly Dictionary<string, Func<Type, object, object>> _reverseConvertFuncs;
+        private delegate bool ConvertFunction(object sourceValue, out object targetValue);
 
-        public EnumConvertor(SlaveContext context)
+        private readonly Dictionary<string, ConvertFunction> _convertFuncs;
+
+        public EnumConvertor(TypeConvertor convertor)
         {
-            this._context = context;
-            _convertFuncs = new Dictionary<string, Func<object, object>>(15)
+            this._convertor = convertor;
+            _convertFuncs = new Dictionary<string, ConvertFunction>(15)
             {
-                {typeof (decimal).Name, sourceValue => (decimal) (int) sourceValue},
-                {typeof (double).Name, sourceValue => (double) (int) sourceValue},
-                {typeof (float).Name, sourceValue => (float) (int) sourceValue},
-                {typeof (long).Name, sourceValue => (long) (int) sourceValue},
-                {typeof (ulong).Name, sourceValue => (ulong) (int) sourceValue},
-                {typeof (int).Name, sourceValue => (int) sourceValue},
-                {typeof (uint).Name, sourceValue => (uint) (int) sourceValue},
-                {typeof (short).Name, sourceValue => (short) (int) sourceValue},
-                {typeof (ushort).Name, sourceValue => (ushort) (int) sourceValue},
-                {typeof (char).Name, sourceValue => (char) (int) sourceValue},
-                {typeof (byte).Name, sourceValue => (byte) (int) sourceValue},
-                {typeof (string).Name, sourceValue => sourceValue.ToString()}
-            };
-            _reverseConvertFuncs = new Dictionary<string, Func<Type, object, object>>(15)
-            {
-                {typeof (decimal).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (int)sourceValue)},
-                {typeof (double).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (int)sourceValue)},
-                {typeof (float).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (int)sourceValue)},
-                {typeof (long).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (long)sourceValue)},
-                {typeof (ulong).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (ulong)sourceValue)},
-                {typeof (int).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (int)sourceValue)},
-                {typeof (uint).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (uint)sourceValue)},
-                {typeof (short).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (short)sourceValue)},
-                {typeof (ushort).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (ushort)sourceValue)},
-                {typeof (char).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (char)sourceValue)},
-                {typeof (byte).Name, (targetType, sourceValue) => Enum.ToObject(targetType, (byte)sourceValue)},
-                {typeof (string).Name, (targetType, sourceValue) => Enum.Parse(targetType, (string)sourceValue)}
-            };
-        }
-
-        public object CastConstantValue(Type targetType, string objStr, object originalValue)
-        {
-            string[] enumNames = Enum.GetNames(targetType);
-            // 获取同名的枚举项名称
-            string enumName = enumNames.FirstOrDefault
-                (item => item.Equals(objStr, StringComparison.OrdinalIgnoreCase));
-            //如果未找到同名的枚举项，则检查该字符是否可以转换为整型，如果可以，则根据索引获取其第n个元素，否则抛出异常
-            if (null == enumName)
-            {
-                int index;
-                if (!int.TryParse(objStr, out index))
                 {
-                    _context.LogSession.Print(LogLevel.Error, _context.SessionId, 
-                        $"Cast value <{objStr}> to type <{targetType.Name}> failed.");
-                    throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                        _context.I18N.GetFStr("CastValueFailed", targetType.Name));
+                    typeof(decimal).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (decimal) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(double).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (double) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(float).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (float) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(long).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (long) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(ulong).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (ulong) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(int).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (int) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(uint).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = (uint) EnumToIndex(sourceValue.GetType(), sourceValue);
+                        return true;
+                    }
+                },
+                {
+                    typeof(short).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        int index = EnumToIndex(sourceValue.GetType(), sourceValue);
+                        if (index > short.MaxValue)
+                        {
+                            targetValue = short.MaxValue;
+                            return false;
+                        }
+                        targetValue = (short) index;
+                        return true;
+                    }
+                },
+                {
+                    typeof(ushort).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        int index = EnumToIndex(sourceValue.GetType(), sourceValue);
+                        if (index > ushort.MaxValue)
+                        {
+                            targetValue = ushort.MaxValue;
+                            return false;
+                        }
+                        targetValue = (ushort) index;
+                        return true;
+                    }
+                },
+                {
+                    typeof(char).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        int index = EnumToIndex(sourceValue.GetType(), sourceValue);
+                        if (index > char.MaxValue)
+                        {
+                            targetValue = char.MaxValue;
+                            return false;
+                        }
+                        targetValue = (char) index;
+                        return true;
+                    }
+                },
+                {
+                    typeof(byte).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        int index = EnumToIndex(sourceValue.GetType(), sourceValue);
+                        if (index > byte.MaxValue)
+                        {
+                            targetValue = byte.MaxValue;
+                            return false;
+                        }
+                        targetValue = (byte) index;
+                        return true;
+                    }
+                },
+                {
+                    typeof(string).Name, (object sourceValue, out object targetValue) =>
+                    {
+                        targetValue = EnumToString(sourceValue);
+                        return true;
+                    }
                 }
-                enumName = enumNames[index];
-            }
-            return Enum.Parse(targetType, enumName);
+            };
         }
 
-        public object CastFromEnumToValue(Type targetType, object sourceValue)
+        public bool TryCastConstantValue(Type targetType, string objStr, object originalValue, out object castValue)
+        {
+            bool parsePassed = TryFromStringToEnum(targetType, objStr, out castValue);
+            if (parsePassed)
+            {
+                return true;
+            }
+            int index;
+            // 如果未找到同名的枚举项，则检查该字符是否可以转换为整型，如果可以，则根据索引获取其第n个元素，否则抛出异常
+            if (!int.TryParse(objStr, out index))
+            {
+                return false;
+            }
+            return TryFromIndexToEnum(targetType, index, out castValue);
+        }
+
+        public bool TryCastFromEnumToValue(Type targetType, object sourceValue, out object castValue)
         {
             if (!_convertFuncs.ContainsKey(targetType.Name))
             {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
-                        $"Cast value <{sourceValue}> to type <{targetType.Name}> failed.");
-                throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                    _context.I18N.GetFStr("CastValueFailed", targetType.Name));
+                castValue = null;
+                return false;
             }
-            return _convertFuncs[targetType.Name].Invoke(sourceValue);
+            return _convertFuncs[targetType.Name].Invoke(sourceValue, out castValue);
         }
 
-        public object CastFromValueToEnum(Type targetType, object sourceValue)
+        public bool TryCastFromValueToEnum(Type targetType, object sourceValue, out object castValue)
         {
-            Type sourceType = sourceValue.GetType();
-            if (!_reverseConvertFuncs.ContainsKey(sourceType.Name))
+            if (sourceValue is string)
             {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
-                        $"Cast value <{sourceValue}> to type <{targetType.Name}> failed.");
-                throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                    _context.I18N.GetFStr("CastValueFailed", targetType.Name));
+                return TryFromStringToEnum(targetType, (string)sourceValue, out castValue);
             }
-            return _reverseConvertFuncs[sourceType.Name].Invoke(targetType, sourceValue);
+            else
+            {
+                object indexObj;
+                if (!this._convertor.TryCastValue(typeof(int), sourceValue, out indexObj))
+                {
+                    castValue = null;
+                    return false;
+                }
+                return TryFromIndexToEnum(targetType, (int) indexObj, out castValue);
+            }
         }
 
         public bool IsValidCastTarget(Type targetType)
@@ -107,7 +186,54 @@ namespace Testflow.SlaveCore.Runner
 
         public bool IsValidCastSource(Type targetType)
         {
-            return _reverseConvertFuncs.ContainsKey(targetType.Name);
+            return targetType == typeof(string) || this._convertor.IsValidValueCast(targetType, typeof(int));
+        }
+
+        private bool TryFromStringToEnum(Type enumType, string valueString, out object enumValue)
+        {
+            FieldInfo[] fieldValue =
+                enumType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo fitEnumField = fieldValue.FirstOrDefault(item => item.Name.Equals(valueString));
+            if (null == fitEnumField)
+            {
+                enumValue = null;
+                return false;
+            }
+            enumValue = fitEnumField.GetValue(null);
+            return true;
+        }
+
+        private bool TryFromIndexToEnum(Type enumType, int index, out object enumValue)
+        {
+            FieldInfo[] fieldValues =
+                enumType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            if (fieldValues.Length <= index || index < 0)
+            {
+                enumValue = null;
+                return false;
+            }
+            enumValue = fieldValues[index].GetValue(null);
+            return true;
+        }
+
+        private string EnumToString(object enumValue)
+        {
+            return enumValue.ToString();
+        }
+
+        private int EnumToIndex(Type enumType, object enumValue)
+        {
+            string enumName = enumValue.ToString();
+            FieldInfo[] fieldValues =
+                enumType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            for (int i = 0; i < fieldValues.Length; i++)
+            {
+                if (string.CompareOrdinal(fieldValues[i].Name, enumName) == 0)
+                {
+                    return i;
+                }
+            }
+            return int.MinValue;
         }
     }
 }
