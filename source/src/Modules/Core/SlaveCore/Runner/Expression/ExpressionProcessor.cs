@@ -181,7 +181,8 @@ namespace Testflow.SlaveCore.Runner.Expression
             string expSignature = $"Operator:'{expData.Operation}', {GetExpressionSignature(expData)}";
             _context.LogSession.Print(LogLevel.Error, _context.SessionId,
                 $"Unable to find available calculator for expression '{expSignature}'.");
-            throw new TestflowRuntimeException(ModuleErrorCode.ExpressionError, "");
+            throw new TestflowRuntimeException(ModuleErrorCode.ExpressionError,
+                this._context.I18N.GetStr("ExpressionCalculateError"));
         }
 
         private string GetExpressionSignature(ExpressionData expression)
