@@ -138,6 +138,7 @@ namespace Testflow.SlaveCore.Runner.Model
 
         public virtual void Generate(ref int coroutineId)
         {
+            this.Coroutine = this.Context.CoroutineManager.GetCoroutineHandle(coroutineId);
             this.Context.CoroutineManager.TestGenerationTrace.StepStart(this);
             Actuator.Generate(Coroutine);
             // 只有在StepData的LoopCounter不为null，loop最大值大于1，并且Step类型不是ConditionLoop的情况下才会执行LoopCounter
