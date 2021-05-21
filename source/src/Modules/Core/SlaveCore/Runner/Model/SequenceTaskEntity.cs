@@ -239,7 +239,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Abort;
                 failedInfo = new FailedInfo(ex, FailedType.Abort);
-                _context.LogSession.Print(LogLevel.Warn, Index, $"Sequence {Index} execution aborted in step <{currentStack}>");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Sequence {Index} execution aborted in step <{currentStack}>");
             }
             else if (ex is TestflowException)
             {
@@ -248,7 +248,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Inner exception catched in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Inner exception catched in location <{taskPointer}>.");
             }
             else
             {
@@ -257,7 +257,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Error, Index, ex, $"Runtime exception catched in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Runtime exception catched in location <{taskPointer}>.");
             }
 //            else if (ex is TargetInvocationException)
 //            {
@@ -270,7 +270,7 @@ namespace Testflow.SlaveCore.Runner.Model
             // 如果异常由关键异常触发，则打印错误信息
             if (isCriticalError)
             {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId, ex, $"ErrorCode:{ex.HResult}. ErrorInfo: {ex.Message}");
+                _context.LogSession.Print(LogLevel.Fatal, _context.SessionId, ex, $"ErrorCode:{ex.HResult}. ErrorInfo: {ex.Message}");
             }
         }
 
