@@ -11,8 +11,16 @@ namespace Testflow.SlaveCore.Runner.Convertors
                 castValue = (decimal)((bool) sourceValue ? 1 : 0);
                 return true;
             });
-//            ConvertFuncs.Add(typeof(double).Name, sourceValue => sourceValue.ToString());
-//            ConvertFuncs.Add(typeof(float).Name, sourceValue => sourceValue.ToString());
+            ConvertFuncs.Add(typeof(double).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (double)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
+            ConvertFuncs.Add(typeof(float).Name, (object sourceValue, out object castValue) =>
+            {
+                castValue = (float)((bool)sourceValue ? 1 : 0);
+                return true;
+            });
             ConvertFuncs.Add(typeof(long).Name, (object sourceValue, out object castValue) =>
             {
                 castValue = (long)((bool)sourceValue ? 1 : 0);
