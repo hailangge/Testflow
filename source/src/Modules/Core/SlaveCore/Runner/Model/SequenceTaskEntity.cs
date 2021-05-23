@@ -231,7 +231,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Failed;
                 lastStepResult = StepResult.Failed;
                 failedInfo = new FailedInfo(ex, FailedType.AssertionFailed);
-                _context.LogSession.Print(LogLevel.Error, Index, $"Assert exception catched in step <{currentStack}>.");
+                _context.LogSession.Print(LogLevel.Error, Index, $"Assert exception caught in step <{currentStack}>.");
             }
             else if (ex is ThreadAbortException)
             {
@@ -239,7 +239,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Abort;
                 failedInfo = new FailedInfo(ex, FailedType.Abort);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Sequence {Index} execution aborted in step <{currentStack}>");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Sequence {Index} caught aborted in step <{currentStack}>");
             }
             else if (ex is TestflowException)
             {
@@ -248,7 +248,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Inner exception catched in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Inner exception caught in location <{taskPointer}>.");
             }
             else
             {
@@ -257,7 +257,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Runtime exception catched in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Fatal, Index, $"Runtime exception caught in location <{taskPointer}>.");
             }
 //            else if (ex is TargetInvocationException)
 //            {
