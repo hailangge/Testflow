@@ -31,34 +31,44 @@ namespace Testflow.SlaveCore.Data
 
         public VariableMapper(SlaveContext context)
         {
-            ISequenceFlowContainer sequenceData = context.Sequence;
-            this._variables = new Dictionary<string, object>(512);
-            this._keyVariables = new HashSet<string>();
-            this._syncVariables = new HashSet<string>();
-            this._context = context;
-            _fullTraceVariables = new List<string>(Constants.DefaultRuntimeSize);
-            this._context.CoroutineManager.TestGenerationTrace.Reset();
-            if (context.SequenceType == RunnerType.TestProject)
+            try
             {
-                ITestProject testProject = (ITestProject)sequenceData;
-                AddVariables(testProject.Variables, false, Constants.SessionSequenceIndex);
-                AddVariables(testProject.SetUp.Variables, false, CommonConst.SetupIndex);
-                AddVariables(testProject.TearDown.Variables, false, CommonConst.TeardownIndex);
-            }
-            else
-            {
-                bool addSessionVarToSyncSet = ExecutionModel.ParallelExecution == context.ExecutionModel;
-                ISequenceGroup sequenceGroup = (ISequenceGroup)sequenceData;
-                AddVariables(sequenceGroup.Variables, addSessionVarToSyncSet, Constants.SessionSequenceIndex);
-                AddVariables(sequenceGroup.SetUp.Variables, false, CommonConst.SetupIndex);
-                AddVariables(sequenceGroup.TearDown.Variables, false, CommonConst.TeardownIndex);
-                foreach (ISequence sequence in sequenceGroup.Sequences)
+                ISequenceFlowContainer sequenceData = context.Sequence;
+                this._variables = new Dictionary<string, object>(512);
+                this._keyVariables = new HashSet<string>();
+                this._syncVariables = new HashSet<string>();
+                this._context = context;
+                _fullTraceVariables = new List<string>(Constants.DefaultRuntimeSize);
+                this._context.CoroutineManager.TestGenerationTrace.Reset();
+                if (context.SequenceType == RunnerType.TestProject)
                 {
-                    AddVariables(sequence.Variables, false, sequence.Index);
+                    ITestProject testProject = (ITestProject)sequenceData;
+                    AddVariables(testProject.Variables, false, Constants.SessionSequenceIndex);
+                    AddVariables(testProject.SetUp.Variables, false, CommonConst.SetupIndex);
+                    AddVariables(testProject.TearDown.Variables, false, CommonConst.TeardownIndex);
                 }
+                else
+                {
+                    bool addSessionVarToSyncSet = ExecutionModel.ParallelExecution == context.ExecutionModel;
+                    ISequenceGroup sequenceGroup = (ISequenceGroup)sequenceData;
+                    AddVariables(sequenceGroup.Variables, addSessionVarToSyncSet, Constants.SessionSequenceIndex);
+                    AddVariables(sequenceGroup.SetUp.Variables, false, CommonConst.SetupIndex);
+                    AddVariables(sequenceGroup.TearDown.Variables, false, CommonConst.TeardownIndex);
+                    foreach (ISequence sequence in sequenceGroup.Sequences)
+                    {
+                        AddVariables(sequence.Variables, false, sequence.Index);
+                    }
+                }
+                this._keyVarLock = new SpinLock(false);
+                this._syncVarLock = new ReaderWriterLockSlim();
             }
-            this._keyVarLock = new SpinLock(false);
-            this._syncVarLock = new ReaderWriterLockSlim();
+            catch (Exception)
+            {
+                ExecutionInfo generationTrace = this._context.CoroutineManager.TestGenerationTrace;
+                this._context.LogSession.Print(LogLevel.Fatal, this._context.SessionId,
+                    $"VariableMapper initialization failed. Error location:{generationTrace}");
+                throw;
+            }
         }
 
         private void AddVariables(IVariableCollection variables, bool addToSyncSet, int sequenceIndex)
@@ -242,8 +252,7 @@ namespace Testflow.SlaveCore.Data
 
             Type dstType = _context.TypeInvoker.GetType(targetType);
             // 如果Value不为null，并且value和targetType不匹配，则执行转换
-            if (null != paramValue && !dstType.IsInstanceOfType(paramValue) &&
-                _context.Convertor.IsValidValueCast(paramValue.GetType(), dstType))
+            if (null != paramValue && !dstType.IsInstanceOfType(paramValue))
             {
                 paramValue = _context.Convertor.CastValue(targetType, paramValue);
             }

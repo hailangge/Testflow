@@ -196,6 +196,23 @@ namespace Testflow.SlaveCore.Runner
             return _context.Convertor.IsValidValueCast(typeof(string), type);
         }
 
+        /// <summary>
+        /// 判断某个类型是否为可以配置为NULL(字符串或者类)
+        /// </summary>
+        public bool IsAssignableAsNull(ITypeData type)
+        {
+            Type dataType = _typeDataMapping[ModuleUtils.GetTypeFullName(type)];
+            return IsAssignableAsNull(dataType);
+        }
+
+        /// <summary>
+        /// 判断某个类型是否为可以配置为NULL(字符串或者类)
+        /// </summary>
+        public bool IsAssignableAsNull(Type type)
+        {
+            return type.IsClass || type.IsInterface || type.IsAbstract || type == typeof(string);
+        }
+
         private void LoadAssemblies()
         {
             string assemblyName = string.Empty;
