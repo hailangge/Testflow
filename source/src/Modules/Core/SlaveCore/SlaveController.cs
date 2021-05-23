@@ -56,7 +56,7 @@ namespace Testflow.SlaveCore
             catch (Exception ex)
             {
                 _context.LogSession.Print(LogLevel.Fatal, CommonConst.PlatformLogSession, ex,
-                    "TestflowRuntimeException caught.");
+                    "Testflow Runtime Exception caught.");
                 // 发送异常错误信息
                 RuntimeErrorMessage runtimeErrorMessage = new RuntimeErrorMessage(_context.SessionId, ex)
                 {

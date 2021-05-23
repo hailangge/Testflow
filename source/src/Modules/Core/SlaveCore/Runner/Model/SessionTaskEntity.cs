@@ -82,8 +82,7 @@ namespace Testflow.SlaveCore.Runner.Model
             {
                 ExecutionInfo testGenerationTrace = this._context.CoroutineManager.TestGenerationTrace;
                 this._context.LogSession.Print(LogLevel.Error, testGenerationTrace.CoroutineId,
-                    $"Error occur during generation operation, Location information:<{testGenerationTrace}>.");
-                this._context.LogSession.Print(LogLevel.Fatal, testGenerationTrace.CoroutineId, ex, "Generation failed.");
+                    $"Error occur during generation operation, Error location:<{testGenerationTrace}>.");
                 throw;
             }
         }

@@ -71,7 +71,7 @@ namespace Testflow.SlaveCore.Runner
                     _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                     return null;
                 }
-                _context.LogSession.Print(LogLevel.Fatal, _context.SessionId,
+                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
                     $"NULL cannot be assigned to type {targetType.Name}.");
                 throw new TestflowDataException(ModuleErrorCode.RuntimeError,
                     this._context.I18N.GetFStr("CastNullValue", targetType.Name));
@@ -92,7 +92,7 @@ namespace Testflow.SlaveCore.Runner
                     _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                     return null;
                 }
-                _context.LogSession.Print(LogLevel.Fatal, _context.SessionId,
+                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
                     $"NULL cannot be assigned to type {targetType.Name}.");
                 throw new TestflowDataException(ModuleErrorCode.RuntimeError,
                     this._context.I18N.GetFStr("CastNullValue", targetType.Name));

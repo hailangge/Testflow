@@ -239,7 +239,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Abort;
                 failedInfo = new FailedInfo(ex, FailedType.Abort);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Sequence {Index} caught aborted in step <{currentStack}>");
+                _context.LogSession.Print(LogLevel.Error, Index, $"Sequence {Index} is aborted in step <{currentStack}>");
             }
             else if (ex is TestflowException)
             {
@@ -248,7 +248,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Inner exception caught in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Error, Index, $"Inner exception caught in location <{taskPointer}>.");
             }
             else
             {
@@ -257,21 +257,18 @@ namespace Testflow.SlaveCore.Runner.Model
                 finalReportType = StatusReportType.Error;
                 lastStepResult = StepResult.Error;
                 failedInfo = new FailedInfo(ex, FailedType.RuntimeError);
-                _context.LogSession.Print(LogLevel.Fatal, Index, $"Runtime exception caught in location <{taskPointer}>.");
+                _context.LogSession.Print(LogLevel.Error, Index, $"Runtime exception caught in location <{taskPointer}>.");
             }
-//            else if (ex is TargetInvocationException)
-//            {
-//                this.State = RuntimeState.Failed;
-//                finalReportType = StatusReportType.Failed;
-//                lastStepResult = StepResult.Failed;
-//                failedInfo = new FailedInfo(ex.InnerException, FailedType.TargetError);
-//                _context.LogSession.Print(LogLevel.Error, Index, ex, "Invocation exception catched.");
-//            }
+            //            else if (ex is TargetInvocationException)
+            //            {
+            //                this.State = RuntimeState.Failed;
+            //                finalReportType = StatusReportType.Failed;
+            //                lastStepResult = StepResult.Failed;
+            //                failedInfo = new FailedInfo(ex.InnerException, FailedType.TargetError);
+            //                _context.LogSession.Print(LogLevel.Error, Index, ex, "Invocation exception catched.");
+            //            }
             // 如果异常由关键异常触发，则打印错误信息
-            if (isCriticalError)
-            {
-                _context.LogSession.Print(LogLevel.Fatal, _context.SessionId, ex, $"ErrorCode:{ex.HResult}. ErrorInfo: {ex.Message}");
-            }
+            _context.LogSession.Print(LogLevel.Fatal, _context.SessionId, ex, $"ErrorCode:{ex.HResult}. ErrorInfo:{ex.Message}");
         }
 
         private void SetResultState(out StepResult lastStepResult, out StatusReportType finalReportType, 

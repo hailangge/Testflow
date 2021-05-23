@@ -86,7 +86,7 @@ namespace Testflow.SlaveCore.Runner.Model
                 // 停止计时
                 Actuator.EndTiming();
                 errorExecutionInfo = Coroutine.TaskPointer.Clone();
-                this.Context.LogSession.Print(LogLevel.Fatal, this.Context.SessionId, $"Error location:{errorExecutionInfo}.");
+                this.Context.LogSession.Print(LogLevel.Error, this.Context.SessionId, $"Error location:{errorExecutionInfo}.");
 
                 if (null != errorExecutionInfo.StepEntity && errorExecutionInfo.StepEntity.Result == StepResult.NotAvailable)
                 {
