@@ -69,6 +69,7 @@ namespace Testflow.SlaveCore.Data
 
         public void Reset(ExecutionInfo executionInfo)
         {
+            this.StepEntity = executionInfo.StepEntity;
             this.SetTarget(executionInfo.Operation, executionInfo.TargetName, executionInfo.Arguments.ToArray());
         }
 
