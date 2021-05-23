@@ -66,7 +66,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
                 Context.State = RuntimeState.Error;
                 // 失败后打印日志并发送错误信息
                 Context.LogSession.Print(LogLevel.Fatal, CommonConst.PlatformLogSession, ex,
-                    "Runtime exception occured.");
+                    $"Runtime exception occur.");
                 TaskErrorAction(ex);
                 // 发送运行时异常错误
                 RuntimeErrorMessage errorMessage = new RuntimeErrorMessage(Context.SessionId, ex)
