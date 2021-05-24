@@ -10,7 +10,7 @@
         <file value="log" />
         <appendToFile value="true" />
 		<rollingStyle value="Date" />
-        <maximumFileSize value="1MB" />
+        <maximumFileSize value="80MB" />
 		<param name="StaticLogFileName" value = "false" />
 		<param name="DatePattern" value="yyyy-MM-dd&quot;.log&quot;"/>
         <param name="RollingStyle" value="Composite"/>
@@ -20,7 +20,6 @@
             <conversionPattern value="%date{yyyy-MM-dd HH:mm:ss.fff} [%level] %message%newline%exception" />
         </layout>
     </appender>
-	
     <root>
 	    <level value="INFO" />
         <appender-ref ref="RootAppender" />

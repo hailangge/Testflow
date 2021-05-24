@@ -37,8 +37,8 @@ namespace Testflow.Logger
             {
                 testflowHome = "..";
             }
-            char dirSeparator = Path.DirectorySeparatorChar;
-            string logPath = GetSlaveLogPath(instanceName, sessionName, testflowHome);
+            DateTime time = DateTime.Now;
+            string logPath = GetSlaveLogPath(instanceName, testflowHome, time);
             string configFilePath = $"{testflowHome}{Constants.SlaveConfFile}";
 
             try
@@ -57,6 +57,7 @@ namespace Testflow.Logger
                 }
                 Logger = LogManager.GetLogger(Constants.SlaveLogName, Constants.SlaveLogName);
                 LogLevel = logLevel;
+                WriteSlaveLoggerInformation(instanceName, sessionName, sessionId, time);
             }
             catch (LogException ex)
             {
@@ -66,10 +67,16 @@ namespace Testflow.Logger
             }
         }
 
-        private string GetSlaveLogPath(string instanceName, string sessionName, string testflowHome)
+        private void WriteSlaveLoggerInformation(string instanceName, string sessionName, int sessionId, DateTime time)
+        {
+            this.Print(LogLevel.Info, sessionId, $"Instance Name:({instanceName}) Session Name:({sessionName}) Session ID:{sessionId}");
+        }
+
+        private string GetSlaveLogPath(string instanceName, string testflowHome, DateTime time)
         {
             char dirSeparator = Path.DirectorySeparatorChar;
-            string logFileName = string.Format(Constants.SlaveLogNameFormat, SessionId, sessionName);
+            string logFileName = string.Format(Constants.SlaveLogNameFormat, instanceName,
+                time.ToString(Constants.SlaveLogDatetimeFormat), SessionId);
             StringBuilder logPath = new StringBuilder(200);
             logPath.Append(testflowHome).Append(dirSeparator).Append(Constants.SlaveLogDir).Append(dirSeparator)
                 .Append(instanceName).Append(dirSeparator).Append(logFileName).Append(Constants.LogFilePostfix);
@@ -78,17 +85,15 @@ namespace Testflow.Logger
             {
                 return logPath.ToString();
             }
-            int removeLength = 1 + logFileName.Length + Constants.LogFilePostfix.Length;
-            logPath.Remove(logPath.Length - removeLength, removeLength);
+            // 如果存在，则直接在文件名后插入_{index}的后缀。
+            int fileNameEndIndex = logPath.Length - Constants.LogFilePostfix.Length;
             int index = 1;
-            string newInstanceDir = instanceName;
             do
             {
-                logPath.Remove(logPath.Length - newInstanceDir.Length, newInstanceDir.Length);
-                newInstanceDir = $"{instanceName}_{index++}";
-                logPath.Append(newInstanceDir);
-            } while (Directory.Exists(logPath.ToString()));
-            return logPath.Append(dirSeparator).Append(logFileName).Append(Constants.LogFilePostfix).ToString();
+                logPath.Remove(fileNameEndIndex, logPath.Length - fileNameEndIndex);
+                logPath.Append('_').Append(index++).Append(Constants.LogFilePostfix);
+            } while (File.Exists(logPath.ToString()));
+            return logPath.ToString();
         }
     }
 }

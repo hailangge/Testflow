@@ -13,7 +13,8 @@
         public const string PlatformLogDir = @"Log\platform\";
         public const string SlaveLogDir = @"Log";
 
-        public const string SlaveLogNameFormat = "session{0}_{1}";
+        public const string SlaveLogNameFormat = "{0}_{1}_session{2}";
+        public const string SlaveLogDatetimeFormat = "yyyyMMddHHmmss";
 
         public const string LogFilePostfix = ".log";
 
