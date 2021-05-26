@@ -52,16 +52,31 @@ namespace Testflow.SlaveCore.Runner
             
             try
             {
+                // 数组转换
+                // TODO 暂不考虑List的情况
                 if (targetType.IsArray)
                 {
-                    castedObject = CastArrayData(targetType, objStr, originalValue);
+                    if (this._arrayRegex.IsMatch(objStr))
+                    {
+                        castedObject = CastArrayData(targetType, objStr, originalValue);
+                    }
+                    else if (targetType == typeof(char[]))
+                    {
+                        castedObject = objStr.ToCharArray();
+                    }
+                    else
+                    {
+                        _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                            $"Cannot cast value '{objStr}' to type <{targetType.Name}>.");
+                        throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
+                            _context.I18N.GetFStr("InvalidTypeCast", targetType.Name));
+                    }
                 }
                 // struct
                 else if (targetType.IsValueType)
                 {
                     castedObject = CastStructData(targetType, objStr, originalValue);
                 }
-                // 暂不考虑List的情况
                 else 
                 {
                     castedObject = CastNormalClass(targetType, objStr, originalValue);
@@ -255,7 +270,7 @@ namespace Testflow.SlaveCore.Runner
         {
             // 如果字符串时json的数组类型或者类类型，或者目标类型为byte[]，认为是非值类型的字符
             return _arrayRegex.IsMatch(valueString) || _classRegex.IsMatch(valueString) ||
-                   ReferenceEquals(typeData, typeof (byte[]));
+                   ReferenceEquals(typeData, typeof(char[]));
         }
     }
 }
