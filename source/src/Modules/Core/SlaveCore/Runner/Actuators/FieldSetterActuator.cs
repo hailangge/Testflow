@@ -54,16 +54,16 @@ namespace Testflow.SlaveCore.Runner.Actuators
             IParameterDataCollection parameters = Function.Parameters;
             for (int i = 0; i < _fields.Count; i++)
             {
-                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.ArgumentInitialization,
-                    Function.ParameterType[i].Name);
-
                 string paramValue = parameters[i].Value;
-                IArgument argument = Function.ParameterType[i];
                 if (null == _fields[i] || string.IsNullOrEmpty(paramValue))
                 {
                     _params.Add(null);
                     continue;
                 }
+                Context.CoroutineManager.TestGenerationTrace.SetTarget(TargetOperation.ArgumentInitialization,
+                    Function.ParameterType[i].Name);
+                IArgument argument = Function.ParameterType[i];
+
                 switch (parameters[i].ParameterType)
                 {
                     case ParameterType.NotAvailable:
