@@ -89,7 +89,6 @@ namespace Testflow.SlaveCore.Runner
             {
                 if (this._context.TypeInvoker.IsAssignableAsNull(targetType))
                 {
-                    _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                     return null;
                 }
                 _context.LogSession.Print(LogLevel.Error, _context.SessionId,
@@ -236,6 +235,18 @@ namespace Testflow.SlaveCore.Runner
         /// </summary>
         public object CastConstantValue(Type targetType, string sourceValue, object originalValue = null)
         {
+            if (CommonConst.NullValue.Equals(sourceValue))
+            {
+                // 如果值为NULL，但是目标类型不能配置为NULL，则抛出异常
+                if (!this._context.TypeInvoker.IsAssignableAsNull(targetType))
+                {
+                    _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                        $"NULL cannot be assigned to type {targetType.Name}.");
+                    throw new TestflowDataException(ModuleErrorCode.RuntimeError,
+                        this._context.I18N.GetFStr("CastNullValue", targetType.Name));
+                }
+                return null;
+            }
             if (targetType == typeof(string) || targetType == typeof(object))
             {
                 return sourceValue;
