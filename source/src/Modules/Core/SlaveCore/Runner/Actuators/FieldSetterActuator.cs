@@ -55,7 +55,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             for (int i = 0; i < _fields.Count; i++)
             {
                 string paramValue = parameters[i].Value;
-                if (null == _fields[i] || string.IsNullOrEmpty(paramValue))
+                if (null == _fields[i])
                 {
                     _params.Add(null);
                     continue;
