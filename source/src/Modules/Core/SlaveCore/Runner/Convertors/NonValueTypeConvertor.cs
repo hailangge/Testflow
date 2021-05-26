@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Testflow.CoreCommon;
-using Testflow.CoreCommon.Common;
-using Testflow.Data;
 using Testflow.SlaveCore.Common;
 using Testflow.Usr;
 
-namespace Testflow.SlaveCore.Runner
+namespace Testflow.SlaveCore.Runner.Convertors
 {
     internal class NonValueTypeConvertor
     {
@@ -28,17 +25,17 @@ namespace Testflow.SlaveCore.Runner
         public NonValueTypeConvertor(SlaveContext context)
         {
             this._context = context;
-            _settings = new JsonSerializerSettings()
+            this._settings = new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Include,
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 DateFormatString = CommonConst.GlobalTimeFormat,
                 DateParseHandling = DateParseHandling.None
             };
-            _arrayRegex = new Regex(ArrayDataRegex);
-            _classRegex = new Regex(ClassDataRegex);
-            _instanceBindingFlag = BindingFlags.Public | BindingFlags.Instance;
-            _staticBindingFlag = BindingFlags.Public | BindingFlags.Static;
+            this._arrayRegex = new Regex(ArrayDataRegex);
+            this._classRegex = new Regex(ClassDataRegex);
+            this._instanceBindingFlag = BindingFlags.Public | BindingFlags.Instance;
+            this._staticBindingFlag = BindingFlags.Public | BindingFlags.Static;
         }
 
         public object CastConstantValue(Type targetType, string objStr, object originalValue)
@@ -46,7 +43,7 @@ namespace Testflow.SlaveCore.Runner
             if (targetType.IsInterface || targetType.IsAbstract)
             {
                 throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                    _context.I18N.GetFStr("CastInterface", targetType.Name));
+                    this._context.I18N.GetFStr("CastInterface", targetType.Name));
             }
             object castedObject = null;
             
@@ -66,10 +63,10 @@ namespace Testflow.SlaveCore.Runner
                     }
                     else
                     {
-                        _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                        this._context.LogSession.Print(LogLevel.Error, this._context.SessionId,
                             $"Cannot cast value '{objStr}' to type <{targetType.Name}>.");
                         throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                            _context.I18N.GetFStr("InvalidTypeCast", targetType.Name));
+                            this._context.I18N.GetFStr("InvalidTypeCast", targetType.Name));
                     }
                 }
                 // struct
@@ -84,9 +81,9 @@ namespace Testflow.SlaveCore.Runner
             }
             catch (JsonReaderException ex)
             {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId, $"Cast value <{objStr}> failed: {ex.Message}");
+                this._context.LogSession.Print(LogLevel.Error, this._context.SessionId, $"Cast value <{objStr}> failed: {ex.Message}");
                 throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                    _context.I18N.GetFStr("CastValueFailed", targetType.Name), ex);
+                    this._context.I18N.GetFStr("CastValueFailed", targetType.Name), ex);
             }
             return castedObject;
         }
@@ -108,10 +105,10 @@ namespace Testflow.SlaveCore.Runner
                     castedObject = CastThreeDimensionalArray(objStr, elementType, originalValue);
                     break;
                 default:
-                    _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                    this._context.LogSession.Print(LogLevel.Error, this._context.SessionId,
                         $"Unable to cast array that have a rank <{rank}>.");
                     throw new TestflowRuntimeException(ModuleErrorCode.UnsupportedTypeCast,
-                        _context.I18N.GetFStr("CastValueFailed", targetType.Name));
+                        this._context.I18N.GetFStr("CastValueFailed", targetType.Name));
                     break;
             }
             return castedObject;
@@ -119,7 +116,7 @@ namespace Testflow.SlaveCore.Runner
 
         private Array CastOneDimensionalArray(string objStr, Type elementType, object originalValue)
         {
-            string[] datas = JsonConvert.DeserializeObject<string[]>(objStr, _settings);
+            string[] datas = JsonConvert.DeserializeObject<string[]>(objStr, this._settings);
             if (elementType == typeof(string))
             {
                 Array array = originalValue as Array;
@@ -134,7 +131,7 @@ namespace Testflow.SlaveCore.Runner
             
             for (int i = 0; i < datas.Length; i++)
             {
-                object elementValue = _context.Convertor.CastConstantValue(elementType, datas[i]);
+                object elementValue = this._context.Convertor.CastConstantValue(elementType, datas[i]);
                 targetInstance.SetValue(elementValue, i);
             }
             return targetInstance;
@@ -142,7 +139,7 @@ namespace Testflow.SlaveCore.Runner
 
         private Array CastTwoDimensionalArray(string objStr, Type elementType, object originalValue)
         {
-            string[,] datas = JsonConvert.DeserializeObject<string[,]>(objStr, _settings);
+            string[,] datas = JsonConvert.DeserializeObject<string[,]>(objStr, this._settings);
             if (elementType == typeof(string))
             {
                 Array array = originalValue as Array;
@@ -158,7 +155,7 @@ namespace Testflow.SlaveCore.Runner
             {
                 for (int j = 0; j < datas.GetLength(1); j++)
                 {
-                    object elementValue = _context.Convertor.CastConstantValue(elementType, datas[i, j]);
+                    object elementValue = this._context.Convertor.CastConstantValue(elementType, datas[i, j]);
                     targetInstance.SetValue(elementValue, i, j);
                 }
             }
@@ -167,7 +164,7 @@ namespace Testflow.SlaveCore.Runner
 
         private Array CastThreeDimensionalArray(string objStr, Type elementType, object originalValue)
         {
-            string[,,] datas = JsonConvert.DeserializeObject<string[,,]>(objStr, _settings);
+            string[,,] datas = JsonConvert.DeserializeObject<string[,,]>(objStr, this._settings);
             if (elementType == typeof(string))
             {
                 Array array = originalValue as Array;
@@ -185,7 +182,7 @@ namespace Testflow.SlaveCore.Runner
                 {
                     for (int k = 0; k < datas.GetLength(2); k++)
                     {
-                        object elementValue = _context.Convertor.CastConstantValue(elementType, datas[i, j, k]);
+                        object elementValue = this._context.Convertor.CastConstantValue(elementType, datas[i, j, k]);
                         targetInstance.SetValue(elementValue, i, j, k);
                     }
                 }
@@ -210,10 +207,10 @@ namespace Testflow.SlaveCore.Runner
                 ConstructorInfo constructor = targetType.GetConstructor(new Type[] { });
                 if (null == constructor)
                 {
-                    _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                    this._context.LogSession.Print(LogLevel.Error, this._context.SessionId,
                         $"Cannot cast string <{objStr}> as target type <{targetType.Name}> has no default constructor.");
                     throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                        _context.I18N.GetFStr("NoDefaultConstructor", targetType.Name));
+                        this._context.I18N.GetFStr("NoDefaultConstructor", targetType.Name));
                 }
                 targetInstance = constructor.Invoke(new object[] { });
             }
@@ -225,21 +222,21 @@ namespace Testflow.SlaveCore.Runner
         private void SetValueToStructOrClass(Type targetType, string objStr, ref object targetInstance)
         {
             Dictionary<string, string> datas = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                objStr, _settings);
+                objStr, this._settings);
             foreach (string propertyName in datas.Keys)
             {
                 // 在实例属性中查找
-                if (FindAndSetValueFromProperty(targetType, targetInstance, propertyName, datas, _instanceBindingFlag)) continue;
+                if (FindAndSetValueFromProperty(targetType, targetInstance, propertyName, datas, this._instanceBindingFlag)) continue;
                 // 在实例字段中查找
-                if (FindAndSetValueFromField(targetType, targetInstance, propertyName, datas, _instanceBindingFlag)) continue;
+                if (FindAndSetValueFromField(targetType, targetInstance, propertyName, datas, this._instanceBindingFlag)) continue;
                 // 在静态属性中查找
-                if (FindAndSetValueFromProperty(targetType, targetInstance, propertyName, datas, _staticBindingFlag)) continue;
+                if (FindAndSetValueFromProperty(targetType, targetInstance, propertyName, datas, this._staticBindingFlag)) continue;
                 // 在静态字段中查找
-                if (FindAndSetValueFromField(targetType, targetInstance, propertyName, datas, _staticBindingFlag)) continue;
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                if (FindAndSetValueFromField(targetType, targetInstance, propertyName, datas, this._staticBindingFlag)) continue;
+                this._context.LogSession.Print(LogLevel.Error, this._context.SessionId,
                     $"Unable to find property or field <{propertyName}> in type <{ModuleUtils.GetTypeFullName(targetType)}>.");
                 throw new TestflowRuntimeException(ModuleErrorCode.UnsupportedTypeCast,
-                        _context.I18N.GetFStr("CastValueFailed", targetType.Name));
+                        this._context.I18N.GetFStr("CastValueFailed", targetType.Name));
             }
         }
 
@@ -249,7 +246,7 @@ namespace Testflow.SlaveCore.Runner
             PropertyInfo propertyInfo = targetType.GetProperty(propertyName, flags);
             if (null == propertyInfo) return false;
             object originalValue = propertyInfo.GetValue(targetInstance);
-            object propertyValue = _context.Convertor.CastConstantValue(propertyInfo.PropertyType,
+            object propertyValue = this._context.Convertor.CastConstantValue(propertyInfo.PropertyType,
                 datas[propertyName], originalValue);
             propertyInfo.SetValue(targetInstance, propertyValue);
             return true;
@@ -257,10 +254,10 @@ namespace Testflow.SlaveCore.Runner
 
         private bool FindAndSetValueFromField(Type targetType, object targetInstance, string propertyName, Dictionary<string, string> datas, BindingFlags flags)
         {
-            FieldInfo fieldInfo = targetType.GetField(propertyName, _instanceBindingFlag);
+            FieldInfo fieldInfo = targetType.GetField(propertyName, this._instanceBindingFlag);
             if (null == fieldInfo) return false;
             object originalValue = fieldInfo.GetValue(targetInstance);
-            object propertyValue = _context.Convertor.CastConstantValue(fieldInfo.FieldType,
+            object propertyValue = this._context.Convertor.CastConstantValue(fieldInfo.FieldType,
                 datas[propertyName], originalValue);
             fieldInfo.SetValue(targetInstance, propertyValue);
             return true;
@@ -269,7 +266,7 @@ namespace Testflow.SlaveCore.Runner
         public bool IsNonValueTypeString(Type typeData, ref string valueString)
         {
             // 如果字符串时json的数组类型或者类类型，或者目标类型为byte[]，认为是非值类型的字符
-            return _arrayRegex.IsMatch(valueString) || _classRegex.IsMatch(valueString) ||
+            return this._arrayRegex.IsMatch(valueString) || this._classRegex.IsMatch(valueString) ||
                    ReferenceEquals(typeData, typeof(char[]));
         }
     }

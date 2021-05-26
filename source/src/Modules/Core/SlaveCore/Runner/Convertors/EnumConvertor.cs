@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-using Testflow.CoreCommon;
-using Testflow.Data;
-using Testflow.SlaveCore.Common;
-using Testflow.Usr;
 
-namespace Testflow.SlaveCore.Runner
+namespace Testflow.SlaveCore.Runner.Convertors
 {
     internal class EnumConvertor
     {
@@ -22,7 +16,7 @@ namespace Testflow.SlaveCore.Runner
         public EnumConvertor(TypeConvertor convertor)
         {
             this._convertor = convertor;
-            _convertFuncs = new Dictionary<string, ConvertFunction>(15)
+            this._convertFuncs = new Dictionary<string, ConvertFunction>(15)
             {
                 {
                     typeof(decimal).Name, (object sourceValue, out object targetValue) =>
@@ -153,12 +147,12 @@ namespace Testflow.SlaveCore.Runner
 
         public bool TryCastFromEnumToValue(Type targetType, object sourceValue, out object castValue)
         {
-            if (!_convertFuncs.ContainsKey(targetType.Name))
+            if (!this._convertFuncs.ContainsKey(targetType.Name))
             {
                 castValue = null;
                 return false;
             }
-            return _convertFuncs[targetType.Name].Invoke(sourceValue, out castValue);
+            return this._convertFuncs[targetType.Name].Invoke(sourceValue, out castValue);
         }
 
         public bool TryCastFromValueToEnum(Type targetType, object sourceValue, out object castValue)
@@ -181,7 +175,7 @@ namespace Testflow.SlaveCore.Runner
 
         public bool IsValidCastTarget(Type targetType)
         {
-            return _convertFuncs.ContainsKey(targetType.Name);
+            return this._convertFuncs.ContainsKey(targetType.Name);
         }
 
         public bool IsValidCastSource(Type targetType)
