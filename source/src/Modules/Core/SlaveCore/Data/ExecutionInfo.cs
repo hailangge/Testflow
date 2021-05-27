@@ -142,7 +142,7 @@ namespace Testflow.SlaveCore.Data
         public void SequenceOver(int sequenceIndex)
         {
             this.Sequence = sequenceIndex;
-            this.StepEntity = null;
+            // this.StepEntity = null;
             this.Operation = TargetOperation.Over;
             this.TargetName = string.Empty;
             if (Arguments.Count > 0)
