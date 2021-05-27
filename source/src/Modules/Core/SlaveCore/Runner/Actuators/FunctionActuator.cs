@@ -300,25 +300,6 @@ namespace Testflow.SlaveCore.Runner.Actuators
             }
         }
 
-        private void LogTraceVariable(IVariable variable, object value)
-        {
-            const string variableLogFormat = "[Variable Trace] Name:{0}, Stack:{1}, Value: {2}.";
-            string stackStr = GetStack().ToString();
-            string varValueStr;
-            if (null != value)
-            {
-                varValueStr = variable.VariableType == VariableType.Class
-                    ? JsonConvert.SerializeObject(value)
-                    : value.ToString();
-            }
-            else
-            {
-                varValueStr = CommonConst.NullValue;
-            }
-            string printStr = string.Format(variableLogFormat, variable.Name, stackStr, varValueStr);
-            Context.LogSession.Print(LogLevel.Debug, Context.SessionId, printStr);
-        }
-
         private void ClearNonconstantParamValue()
         {
             IParameterDataCollection parameters = Function.Parameters;
@@ -333,16 +314,6 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     // 清空非常量参数的值
                     _params[i] = null;
                 }
-            }
-        }
-
-        private void LogTraceVariable(string varString, object value)
-        {
-            string variableName = ModuleUtils.GetVariableNameFromParamValue(varString);
-            IVariable variable = ModuleUtils.GetVaraibleByRawVarName(variableName, StepData);
-            if (variable.LogRecordLevel == RecordLevel.Trace)
-            {
-                LogTraceVariable(variable, value);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using Testflow.CoreCommon;
 using Testflow.CoreCommon.Data;
 using Testflow.Data;
@@ -183,5 +184,33 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
         #endregion
 
+        #region 执行后续处理
+
+        /// <summary>
+        /// 根据变量参数原始名称获取变量并检查是否需要将值写入日志
+        /// </summary>
+        protected void LogTraceVariable(string varString, object value)
+        {
+            string variableName = ModuleUtils.GetVariableNameFromParamValue(varString);
+            IVariable variable = ModuleUtils.GetVaraibleByRawVarName(variableName, StepData);
+            if (variable.LogRecordLevel == RecordLevel.Trace || variable.LogRecordLevel == RecordLevel.FullTrace)
+            {
+                LogTraceVariable(variable, value);
+            }
+        }
+
+        /// <summary>
+        /// 将指定变量的值写入日志
+        /// </summary>
+        protected void LogTraceVariable(IVariable variable, object value)
+        {
+            const string variableLogFormat = "[Variable Trace] Name:{0}, Stack:{1}, Value: {2}.";
+            string stackStr = GetStack().ToString();
+            string varValueStr = Context.Convertor.SerializeToString(value);
+            string printStr = string.Format(variableLogFormat, variable.Name, stackStr, varValueStr);
+            Context.LogSession.Print(LogLevel.Debug, Context.SessionId, printStr);
+        }
+
+        #endregion
     }
 }

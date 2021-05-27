@@ -147,9 +147,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             string[] stringParams = new string[_params.Length];
             for (int n = 0; n < _params.Length; n++)
             {
-                stringParams[n] = function.ParameterType[n].VariableType == VariableType.Class
-                ? JsonConvert.SerializeObject(_params[n])
-                : _params[n].ToString();
+                stringParams[n] = Context.Convertor.SerializeToString(_params[n]);
             }
             return stringParams;
         }
