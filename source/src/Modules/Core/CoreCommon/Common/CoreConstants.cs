@@ -28,5 +28,7 @@
         public const string OIShowMethod = "ShowPanel";
         public const string OIShowErrorMethod = "ShowErrorInfo";
         public const string StartSequenceEvent = "StartSequence";
+
+        public const string SerializationError = "SerializationError";
     }
 }

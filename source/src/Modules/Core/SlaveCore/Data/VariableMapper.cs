@@ -340,9 +340,7 @@ namespace Testflow.SlaveCore.Data
                 return Constants.IllegalValue;
             }
             object paramValue = GetParamValue(_variables[variable], watchStr);
-            string paramStr;
-            GetVariableStringValue(paramValue, out paramStr);
-            return paramStr;
+            return this._context.Convertor.SerializeToString(paramValue);
         }
 
         private Dictionary<string, string> GetKeyVariableValues(List<string> keyVarNames)
@@ -359,7 +357,7 @@ namespace Testflow.SlaveCore.Data
                     {
                         varName = keyVarNames[index++];
                         object varValue = _variables[varName];
-                        GetVariableStringValue(varValue, out varValueStr);
+                        varValueStr = this._context.Convertor.SerializeToString(varValue);
                         watchDataValues.Add(varName, varValueStr);
                     }
                 }
@@ -395,7 +393,7 @@ namespace Testflow.SlaveCore.Data
                         varName = returnEnumerator.Current;
                         hasNext = returnEnumerator.MoveNext();
                         object varValue = _variables[varName];
-                        GetVariableStringValue(varValue, out varValueStr);
+                        varValueStr = this._context.Convertor.SerializeToString(varValue);
                         returnDataValues.Add(varName, varValueStr);
                     }
                 }
@@ -438,7 +436,7 @@ namespace Testflow.SlaveCore.Data
                             continue;
                         }
                         object varValue = _variables[varName];
-                        GetVariableStringValue(varValue, out varValueStr);
+                        varValueStr = this._context.Convertor.SerializeToString(varValue);
                         returnDataValues.Add(varName, varValueStr);
                     }
                 }
@@ -458,45 +456,6 @@ namespace Testflow.SlaveCore.Data
             _keyVarLock.Exit();
 
             return returnDataValues;
-        }
-
-        private void GetVariableStringValue(object varValue, out string value)
-        {
-            if (null == varValue)
-            {
-                value =  CommonConst.NullValue;
-                return;
-            }
-            Type varType = varValue.GetType();
-            // 简单数据类型
-            Type stringType = typeof(string);
-            if (varType == stringType)
-            {
-                value = (string)varValue;
-            }
-            else if (_context.Convertor.IsValidValueCast(varType, stringType))
-            {
-                value = (string)_context.Convertor.CastValue(stringType, varValue);
-            }
-            // 枚举类型
-            else if (varType.IsEnum)
-            {
-                value = varValue.ToString();
-            }
-            // 类类型
-            else if (varType.IsClass)
-            {
-                value = JsonConvert.SerializeObject(varValue);
-            }
-            // 非简单类型的值类型(结构体)
-            else if (varType.IsValueType)
-            {
-                value = JsonConvert.SerializeObject(varValue);
-            }
-            else
-            {
-                value = string.Empty;
-            }
         }
 
         private int _diposedFlag = 0;

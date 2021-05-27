@@ -153,14 +153,37 @@ namespace Testflow.SlaveCore.Runner
         }
 
         /// <summary>
+        /// 将指定对象序列化为字符串
+        /// </summary>
+        public string SerializeToString(object value)
+        {
+            if (null == value)
+            {
+                return CommonConst.NullValue;
+            }
+            object valueString;
+            if (!TryCastValue(typeof(string), value, out valueString))
+            {
+                return CoreConstants.SerializationError;
+            }
+            return (string) (valueString ?? CommonConst.NullValue);
+        }
+
+        /// <summary>
         /// 运行时转换对象类型
         /// </summary>
         public bool TryCastValue(ITypeData targetType, object sourceValue, out object castValue)
         {
             if (null == sourceValue)
             {
+                if (this._context.TypeInvoker.IsAssignableAsNull(targetType))
+                {
+                    castValue = null;
+                    return true;
+                }
+                _context.LogSession.Print(LogLevel.Debug, _context.SessionId,
+                    $"NULL cannot be assigned to type {targetType.Name}.");
                 castValue = null;
-                _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                 return false;
             }
             Type targetRealType = _context.TypeInvoker.GetType(targetType);
@@ -174,8 +197,14 @@ namespace Testflow.SlaveCore.Runner
         {
             if (null == sourceValue)
             {
+                if (this._context.TypeInvoker.IsAssignableAsNull(targetType))
+                {
+                    castValue = null;
+                    return true;
+                }
+                _context.LogSession.Print(LogLevel.Debug, _context.SessionId,
+                    $"NULL cannot be assigned to type {targetType.Name}.");
                 castValue = null;
-                _context.LogSession.Print(LogLevel.Warn, _context.SessionId, "Cannot cast null value.");
                 return false;
             }
             Type sourceType = sourceValue.GetType();
@@ -210,14 +239,12 @@ namespace Testflow.SlaveCore.Runner
             }
             else
             {
-                _context.LogSession.Print(LogLevel.Error, _context.SessionId,
+                _context.LogSession.Print(LogLevel.Debug, _context.SessionId,
                     $"Unsupported type cast from type <{sourceType.Name}> to type <{targetType.Name}>.");
                 throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
                     _context.I18N.GetFStr("InvalidValueTypeCast", sourceType.Name, targetType.Name));
             }
         }
-
-        
 
         #endregion
         private bool IsNeedNoConvert(Type sourceType, ITypeData targetType)
