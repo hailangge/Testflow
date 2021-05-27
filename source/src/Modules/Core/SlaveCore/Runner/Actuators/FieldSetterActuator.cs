@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Testflow.CoreCommon.Common;
 using Testflow.Data;
 using Testflow.Data.Sequence;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
 using Testflow.SlaveCore.Data;
 using Testflow.SlaveCore.Runner.Expression;
-using Testflow.SlaveCore.Runner.Model;
 
 namespace Testflow.SlaveCore.Runner.Actuators
 {
@@ -23,7 +23,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
         protected override void GenerateInvokeInfo()
         {
             BindingFlags bindingFlags = BindingFlags.Public;
-            bindingFlags |= (Function.Type == FunctionType.InstancePropertySetter)
+            bindingFlags |= (Function.Type == FunctionType.InstanceFieldSetter)
                 ? BindingFlags.Instance
                 : BindingFlags.Static;
             IArgumentCollection arguments = Function.ParameterType;
@@ -37,9 +37,9 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     _fields.Add(null);
                     continue;
                 }
-                string propertyName = arguments[i].Name;
+                string fieldName = arguments[i].Name;
                 Type classType = Context.TypeInvoker.GetType(Function.ClassType);
-                _fields.Add(classType.GetField(propertyName, bindingFlags));
+                _fields.Add(classType.GetField(fieldName, bindingFlags));
             }
         }
 
@@ -118,7 +118,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
         private StepResult SetFieldFromFieldIndex(bool forceInvoke)
         {
             object instance = null;
-            if (Function.Type == FunctionType.InstancePropertySetter)
+            if (Function.Type == FunctionType.InstanceFieldSetter)
             {
                 instance = Context.VariableMapper.GetParamValue(this._instanceVar, Function.Instance,
                     Function.ClassType);
@@ -191,6 +191,10 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
             // 停止计时
             EndTiming();
+            if (CoreUtils.IsValidVaraible(Function.Instance) && Function.Type == FunctionType.InstanceFieldSetter)
+            {
+                LogTraceVariable(Function.Instance, instance);
+            }
             return StepResult.Pass;
         }
     }
