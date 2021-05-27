@@ -204,11 +204,15 @@ namespace Testflow.SlaveCore.Runner.Actuators
         /// </summary>
         protected void LogTraceVariable(IVariable variable, object value)
         {
+            if (Context.LogSession.LogLevel > LogLevel.Info)
+            {
+                return;
+            }
             const string variableLogFormat = "[Variable Trace] Name:{0}, Stack:{1}, Value: {2}.";
             string stackStr = GetStack().ToString();
             string varValueStr = Context.Convertor.SerializeToString(value);
             string printStr = string.Format(variableLogFormat, variable.Name, stackStr, varValueStr);
-            Context.LogSession.Print(LogLevel.Debug, Context.SessionId, printStr);
+            Context.LogSession.Print(LogLevel.Info, Context.SessionId, printStr);
         }
 
         #endregion
