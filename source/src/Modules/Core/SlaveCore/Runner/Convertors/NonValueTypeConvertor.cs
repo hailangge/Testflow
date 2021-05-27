@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Testflow.CoreCommon;
+using Testflow.CoreCommon.Common;
 using Testflow.SlaveCore.Common;
 using Testflow.Usr;
 
@@ -86,6 +87,20 @@ namespace Testflow.SlaveCore.Runner.Convertors
                     this._context.I18N.GetFStr("CastValueFailed", targetType.Name), ex);
             }
             return castedObject;
+        }
+
+        public string SerializeObject(object value)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(value);
+            }
+            catch (JsonReaderException ex)
+            {
+                this._context.LogSession.Print(LogLevel.Debug, this._context.SessionId, ex,
+                    $"Serialize type <{value.GetType().Name}> failed.");
+                return CoreConstants.SerializationError;
+            }
         }
 
         private object CastArrayData(Type targetType, string objStr, object originalValue)

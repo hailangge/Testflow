@@ -162,10 +162,18 @@ namespace Testflow.SlaveCore.Runner
                 return CommonConst.NullValue;
             }
             object valueString;
-            if (!TryCastValue(typeof(string), value, out valueString))
+            if (this._context.TypeInvoker.IsSimpleType(value.GetType()))
             {
-                return CoreConstants.SerializationError;
+                if (!TryCastValue(typeof(string), value, out valueString))
+                {
+                    return CoreConstants.SerializationError;
+                }
             }
+            else
+            {
+                valueString = this._nonValueConvertor.SerializeObject(value);
+            }
+
             return (string) (valueString ?? CommonConst.NullValue);
         }
 
@@ -241,8 +249,8 @@ namespace Testflow.SlaveCore.Runner
             {
                 _context.LogSession.Print(LogLevel.Debug, _context.SessionId,
                     $"Unsupported type cast from type <{sourceType.Name}> to type <{targetType.Name}>.");
-                throw new TestflowDataException(ModuleErrorCode.UnsupportedTypeCast,
-                    _context.I18N.GetFStr("InvalidValueTypeCast", sourceType.Name, targetType.Name));
+                castValue = null;
+                return false;
             }
         }
 
