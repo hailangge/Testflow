@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,18 +14,21 @@ namespace Testflow.CoreCommon.Data
     public class FailedInfo : IFailedInfo, ISerializable
     {
         private const string Delim = "$#_#$";
-        public static string GetFailedStr(Exception exception, FailedType failedType, string errorCodeProperty)
-        {
-            StringBuilder failedStr = new StringBuilder(400);
-            string stackTrace = exception.StackTrace;
-            if (!string.IsNullOrWhiteSpace(stackTrace) && stackTrace.Contains("'"))
-            {
-                stackTrace = stackTrace.Replace("'", "*");
-            }
-            return failedStr.Append(failedType).Append(Delim).Append(exception.Message).Append(Delim)
-                .Append(exception.Source).Append(Delim).Append(stackTrace).Append(Delim)
-                .Append(exception.GetType().Name).Append(Delim).Append(exception.HResult).ToString();
-        }
+
+        
+
+        // public static string GetFailedStr(Exception exception, FailedType failedType, string errorCodeProperty)
+        // {
+        //     StringBuilder failedStr = new StringBuilder(400);
+        //     string stackTrace = exception.StackTrace;
+        //     if (!string.IsNullOrWhiteSpace(stackTrace) && stackTrace.Contains("'"))
+        //     {
+        //         stackTrace = stackTrace.Replace("'", "*");
+        //     }
+        //     return failedStr.Append(failedType).Append(Delim).Append(exception.Message).Append(Delim)
+        //         .Append(exception.Source).Append(Delim).Append(stackTrace).Append(Delim)
+        //         .Append(exception.GetType().Name).Append(Delim).Append(exception.HResult).ToString();
+        // }
 
         public static string GetFailedStr(string message, FailedType failedType)
         {
@@ -33,6 +37,7 @@ namespace Testflow.CoreCommon.Data
                 .Append(string.Empty).Append(Delim).Append(string.Empty).Append(Delim)
                 .Append(string.Empty).Append(Delim).Append(0).ToString();
         }
+
 
         public FailedType Type { get; set; }
         public string Message { get; set; }
@@ -78,12 +83,7 @@ namespace Testflow.CoreCommon.Data
             index++;
             this.Source = failedInfoElems[index];
             index++;
-            string stackTrace = failedInfoElems[index];
-            if (!string.IsNullOrWhiteSpace(stackTrace) && stackTrace.Contains("'"))
-            {
-                stackTrace = stackTrace.Replace("'", "*");
-            }
-            this.StackTrace = stackTrace;
+            this.StackTrace = failedInfoElems[index];
             index++;
             this.ExceptionType = failedInfoElems[index];
             index++;
