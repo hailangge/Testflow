@@ -208,5 +208,15 @@ namespace Testflow.CoreCommon.Common
         {
             return state != RuntimeState.Success && state != RuntimeState.Over;
         }
+
+        public static bool IsOver(RuntimeState state)
+        {
+            return state > RuntimeState.Skipped;
+        }
+
+        public static bool IsNotStart(RuntimeState state)
+        {
+            return state < RuntimeState.Running;
+        }
     }
 }

@@ -263,15 +263,6 @@ namespace Testflow.MasterCore.Common
             }
         }
 
-        public static bool IsOver(RuntimeState state)
-        {
-            return state > RuntimeState.Skipped;
-        }
-
-        public static bool IsNotStart(RuntimeState state)
-        {
-            return state < RuntimeState.Running;
-        }
 
         public static string GetRuntimeVariableString(WatchDataObject watchDataObj, ISequenceFlowContainer sequenceData)
         {

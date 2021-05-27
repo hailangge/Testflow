@@ -341,7 +341,7 @@ namespace Testflow.MasterCore.StatusManage
             {
                 SequenceStateHandle sequenceStateHandle = _sequenceHandles[message.Stacks[i].Sequence];
                 // 只更新未结束的状态
-                if (!ModuleUtils.IsOver(sequenceStateHandle.State))
+                if (!CoreUtils.IsOver(sequenceStateHandle.State))
                 {
                     sequenceStateHandle.HandleStatusMessage(message, i);
                 }

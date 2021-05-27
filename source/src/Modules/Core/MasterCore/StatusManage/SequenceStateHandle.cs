@@ -114,7 +114,7 @@ namespace Testflow.MasterCore.StatusManage
         public void AbortEventProcess(AbortEventInfo eventInfo)
         {
             // 如果序列已经结束或者当前序列为teardown序列，则不接收abort状态更新
-            if (ModuleUtils.IsOver(this.State) || this.SequenceIndex == CommonConst.TeardownIndex)
+            if (CoreUtils.IsOver(this.State) || this.SequenceIndex == CommonConst.TeardownIndex)
             {
                 return;
             }
@@ -189,7 +189,7 @@ namespace Testflow.MasterCore.StatusManage
 
                     }
                     // 序列执行结束
-                    else if (!ModuleUtils.IsOver(oldState) &&  ModuleUtils.IsOver(newState))
+                    else if (!CoreUtils.IsOver(oldState) &&  CoreUtils.IsOver(newState))
                     {
                         // 如果最后执行的结果成功，则查看中间过程，是否存在失败的step，如果存在，则标记Sequence为失败
                         if (newState == RuntimeState.Over || newState == RuntimeState.Success)
@@ -200,7 +200,7 @@ namespace Testflow.MasterCore.StatusManage
                         RefreshCommonStatus(message, newState, stepResult);
                         RefreshExecutionStatus(message, index);
                         // 如果序列未开始运行即失败，则定义StartTime和Endtime一致
-                        if (ModuleUtils.IsNotStart(oldState))
+                        if (CoreUtils.IsNotStart(oldState))
                         {
                             this.StartTime = message.Time;
                             this.ElapsedTime = TimeSpan.Zero;
@@ -240,7 +240,7 @@ namespace Testflow.MasterCore.StatusManage
                     RefreshCommonStatus(message, newState, stepResult);
                     RefreshExecutionStatus(message, index);
                     // 如果序列未开始运行即失败，则定义StartTime和Endtime一致
-                    if (ModuleUtils.IsNotStart(oldState))
+                    if (CoreUtils.IsNotStart(oldState))
                     {
                         this.StartTime = message.Time;
                         this.ElapsedTime = TimeSpan.Zero;
