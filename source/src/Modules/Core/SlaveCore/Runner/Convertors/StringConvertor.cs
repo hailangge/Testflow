@@ -313,6 +313,13 @@ namespace Testflow.SlaveCore.Runner.Convertors
                     castValue = value;
                     return true;
                 }
+                ushort numValue;
+                parseSuccss = ushort.TryParse(sourceValueStr, out numValue);
+                if (parseSuccss)
+                {
+                    castValue = (char) numValue;
+                    return true;
+                }
                 castValue = (char)0;
                 int fromBase = 0;
                 if (this._hexRegex.IsMatch(sourceValueStr))
