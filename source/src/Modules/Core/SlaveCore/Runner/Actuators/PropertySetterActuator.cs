@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Testflow.CoreCommon;
+using Testflow.CoreCommon.Common;
 using Testflow.Data;
 using Testflow.Data.Sequence;
 using Testflow.Runtime.Data;
 using Testflow.SlaveCore.Common;
 using Testflow.SlaveCore.Data;
 using Testflow.SlaveCore.Runner.Expression;
-using Testflow.SlaveCore.Runner.Model;
 using Testflow.Usr;
 
 namespace Testflow.SlaveCore.Runner.Actuators
@@ -188,6 +188,10 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
                 }
+            }
+            if (CoreUtils.IsValidVaraible(Function.Instance) && Function.Type == FunctionType.InstancePropertySetter)
+            {
+                LogTraceVariable(Function.Instance, instance);
             }
             // 停止计时
             EndTiming();
