@@ -84,7 +84,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
                 ExceptionInfo = new FailedInfo(ex, FailedType.RuntimeError),
                 Index = Context.MsgIndex
             };
-            Context.SessionTaskEntity.FillSequenceInfo(errorMessage, Context.I18N.GetStr("RuntimeError"));
+            Context.SessionTaskEntity.FillFatalErrorSequenceInfo(errorMessage, Context.I18N.GetStr("RuntimeError"));
             if (Context.GetProperty<bool>("EnablePerformanceMonitor"))
             {
                 ModuleUtils.FillPerformance(errorMessage);
@@ -100,7 +100,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
                 Index = Context.MsgIndex
             };
             SessionTaskEntity sessionTaskEntity = Context.SessionTaskEntity;
-            sessionTaskEntity.FillSequenceInfo(statusMessage);
+            sessionTaskEntity.FillHeartBeatSequenceInfo(statusMessage);
             if (Context.GetProperty<bool>("EnablePerformanceMonitor"))
             {
                 ModuleUtils.FillPerformance(statusMessage);

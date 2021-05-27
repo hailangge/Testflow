@@ -73,7 +73,7 @@ namespace Testflow.SlaveCore.SlaveFlowControl
                 ExceptionInfo = new FailedInfo(ex, FailedType.RuntimeError),
                 Index = Context.MsgIndex
             };
-            Context.SessionTaskEntity.FillSequenceInfo(errorMessage, Context.I18N.GetStr("RuntimeError"));
+            Context.SessionTaskEntity.FillFatalErrorSequenceInfo(errorMessage, Context.I18N.GetStr("RuntimeError"));
             Context.UplinkMsgProcessor.SendMessage(errorMessage, true);
             errorMessage.WatchData = null;
         }

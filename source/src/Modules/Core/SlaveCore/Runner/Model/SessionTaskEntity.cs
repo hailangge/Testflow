@@ -137,27 +137,27 @@ namespace Testflow.SlaveCore.Runner.Model
         /// <summary>
         /// 心跳包中填充状态
         /// </summary>
-        public void FillSequenceInfo(StatusMessage message)
+        public void FillHeartBeatSequenceInfo(StatusMessage message)
         {
-            _setUp.FillStatusInfo(message);
+            _setUp.FillHeartBeatStatusInfo(message);
             foreach (SequenceTaskEntity sequenceTaskEntity in _sequenceEntities)
             {
-                sequenceTaskEntity.FillStatusInfo(message);
+                sequenceTaskEntity.FillHeartBeatStatusInfo(message);
             }
-            _tearDown.FillStatusInfo(message);
+            _tearDown.FillHeartBeatStatusInfo(message);
         }
 
         /// <summary>
         /// 全局失败后填充状态
         /// </summary>
-        public void FillSequenceInfo(StatusMessage message, string errorMessage)
+        public void FillFatalErrorSequenceInfo(StatusMessage message, string errorMessage)
         {
-            _setUp.FillStatusInfo(message, errorMessage);
+            _setUp.FillFatalErrorStatusInfo(message, errorMessage);
             foreach (SequenceTaskEntity sequenceTaskEntity in _sequenceEntities)
             {
-                sequenceTaskEntity.FillStatusInfo(message, errorMessage);
+                sequenceTaskEntity.FillFatalErrorStatusInfo(message, errorMessage);
             }
-            _tearDown.FillStatusInfo(message, errorMessage);
+            _tearDown.FillFatalErrorStatusInfo(message, errorMessage);
         }
     }
 }

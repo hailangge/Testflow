@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Threading;
+using Testflow.CoreCommon.Common;
 using Testflow.Usr;
 using Testflow.CoreCommon.Data;
 using Testflow.CoreCommon.Messages;
@@ -23,6 +24,8 @@ namespace Testflow.SlaveCore.Runner.Model
 
         private StepTaskEntityBase _stepEntityRoot;
         public int RootCoroutineId { get; private set; }
+
+        private StepTaskEntityBase _lastStepEntity;
 
         public SequenceTaskEntity(ISequence sequence, SlaveContext context)
         {
@@ -58,6 +61,7 @@ namespace Testflow.SlaveCore.Runner.Model
             this.RootCoroutineId = startCoroutineId;
             this.State = RuntimeState.TestGen;
             _stepEntityRoot = ModuleUtils.CreateStepModelChain(_sequence.Steps, _context, _sequence.Index);
+            this._lastStepEntity = this._stepEntityRoot;
             if (null == _stepEntityRoot)
             {
                 return;
@@ -190,6 +194,7 @@ namespace Testflow.SlaveCore.Runner.Model
             finally
             {
                 StepTaskEntityBase currentStep = rootCoroutine.TaskPointer.StepEntity;
+                this._lastStepEntity = currentStep;
                 // 发送结束事件，包括所有的ReturnData信息
                 SequenceStatusInfo overStatusInfo = new SequenceStatusInfo(Index, currentStep.GetStack(),
                     finalReportType, this.State, StepResult.Over, failedInfo)
@@ -304,20 +309,32 @@ namespace Testflow.SlaveCore.Runner.Model
         }
 
 
-        public void FillStatusInfo(StatusMessage message)
+        public void FillHeartBeatStatusInfo(StatusMessage message)
         {
             // 如果是外部调用且该序列已经执行结束或者未开始或者message中已经有了当前序列的信息，则说明该序列在前面的消息中已经标记结束，直接返回。
-            if (message.InterestedSequence.Contains(this.Index) || this.State > RuntimeState.AbortRequested || this.State == RuntimeState.StartIdle)
+            if (message.InterestedSequence.Contains(this.Index) || CoreUtils.IsOver(this.State) ||
+                this.State == RuntimeState.StartIdle)
             {
                 return;
             }
             message.SequenceStates.Add(this.State);
             StepTaskEntityBase currentStep = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId)
                 .TaskPointer.StepEntity;
-            currentStep.FillStatusInfo(message);
+            if (null != currentStep && currentStep.SequenceIndex == Index)
+            {
+                currentStep?.FillStatusInfo(message);
+            }
+            else if (CoreUtils.IsOver(State))
+            {
+                this._lastStepEntity?.FillStatusInfo(message);
+            }
+            else
+            {
+                this._stepEntityRoot?.FillStatusInfo(message);
+            }
         }
 
-        public void FillStatusInfo(StatusMessage message, string errorInfo)
+        public void FillFatalErrorStatusInfo(StatusMessage message, string errorInfo)
         {
             // 如果是外部调用且该序列已经执行结束或者message中已经有了当前序列的信息，则说明该序列在前面的消息中已经标记结束，直接返回。
             if (message.InterestedSequence.Contains(this.Index) || this.State > RuntimeState.AbortRequested)
@@ -326,7 +343,11 @@ namespace Testflow.SlaveCore.Runner.Model
             }
             StepTaskEntityBase currentStep = this._context.CoroutineManager.GetCoroutineHandle(RootCoroutineId)
                 .TaskPointer.StepEntity;
-            message.Stacks.Add(currentStep.GetStack());
+            if (null == currentStep || currentStep.SequenceIndex != Index)
+            {
+                currentStep = CoreUtils.IsOver(State) ? this._lastStepEntity : this._stepEntityRoot;
+            }
+            message.Stacks.Add(currentStep?.GetStack() ?? CallStack.GetEmptyStack(this._context.SessionId, Index));
             message.SequenceStates.Add(this.State);
             message.Results.Add(StepResult.NotAvailable);
         }
