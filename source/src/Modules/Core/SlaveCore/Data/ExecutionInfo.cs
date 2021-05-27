@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using Testflow.CoreCommon.Data;
 using Testflow.Runtime;
 using Testflow.SlaveCore.Common;
@@ -18,30 +19,54 @@ namespace Testflow.SlaveCore.Data
         /// </summary>
         public int Session { get; }
 
+        private int _sequence;
+
         /// <summary>
         /// 当前序列号
         /// </summary>
-        public int Sequence { get; private set; }
+        public int Sequence
+        {
+            get { return Thread.VolatileRead(ref this._sequence);}
+            private set { this._sequence = value; }
+        }
 
         /// <summary>
         /// 协程ID
         /// </summary>
         public int CoroutineId { get; }
 
+        private int _operation;
+
         /// <summary>
         /// 当前执行目标
         /// </summary>
-        public TargetOperation Operation { get; private set; }
+        public TargetOperation Operation
+        {
+            get { return (TargetOperation) Thread.VolatileRead(ref this._operation);}
+            private set { this._operation = (int) value; }
+        }
+
+        private object _stepEntity;
 
         /// <summary>
         /// 当前的执行步骤实体对象
         /// </summary>
-        public StepTaskEntityBase StepEntity { get; private set; }
+        public StepTaskEntityBase StepEntity
+        {
+            get { return (StepTaskEntityBase) Thread.VolatileRead(ref this._stepEntity); }
+            private set { this._stepEntity = value; }
+        }
+
+        private object _targetName;
 
         /// <summary>
         /// 执行目标名称
         /// </summary>
-        public string TargetName { get; private set; }
+        public string TargetName
+        {
+            get { return (string) Thread.VolatileRead(ref this._targetName); }
+            private set { this._targetName = value; }
+        }
 
         /// <summary>
         /// 执行参数
