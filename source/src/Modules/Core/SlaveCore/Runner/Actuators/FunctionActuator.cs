@@ -224,7 +224,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     if (CoreUtils.IsValidVaraible(_instanceVar))
                     {
                         Context.VariableMapper.SetParamValue(_instanceVar, Function.Instance, instance);
-                        LogTraceVariable(Function.Instance, _instanceVar);
+                        LogTraceVariable(Function.Instance, instance);
                     }
                     break;
                 case FunctionType.StructConstructor:
@@ -236,7 +236,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     if (CoreUtils.IsValidVaraible(_instanceVar))
                     {
                         Context.VariableMapper.SetParamValue(_instanceVar, Function.Instance, instance);
-                        LogTraceVariable(Function.Instance, _instanceVar);
+                        LogTraceVariable(Function.Instance, instance);
                     }
                     break;
                 case FunctionType.InstanceFunction:
