@@ -223,6 +223,16 @@ namespace Testflow.SequenceManager.SequenceElements
                 Sequences = sequenceCollection,
                 TearDown = this.TearDown.Clone() as ISequence
             };
+            foreach (IVariable variable in variables)
+            {
+                variable.Parent = sequenceGroup;
+            }
+
+            foreach (ISequence sequence in Sequences)
+            {
+                sequence.Parent = sequenceGroup;
+            }
+
             sequenceGroup.SetUp.Index = CommonConst.SetupIndex;
             sequenceGroup.TearDown.Index = CommonConst.TeardownIndex;
             sequenceGroup.RefreshSignature();

@@ -72,6 +72,15 @@ namespace Testflow.SequenceManager.SequenceElements
                 Steps = stepCollection,
                 Behavior = this.Behavior
             };
+            foreach (ISequenceStep sequenceStep in stepCollection)
+            {
+                sequenceStep.Parent = sequence;
+            }
+
+            foreach (IVariable variable in Variables)
+            {
+                variable.Parent = sequence;
+            }
             return sequence;
         }
 

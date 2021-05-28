@@ -193,6 +193,13 @@ namespace Testflow.SequenceManager.SequenceElements
                 RetryCounter = this.RetryCounter?.Clone(),
                 Tag = this.Tag
             };
+            if (subStepCollection != null)
+            {
+                foreach (ISequenceStep subStep in subStepCollection)
+                {
+                    subStep.Parent = sequenceStep;
+                }
+            }
             return sequenceStep;
         }
 
