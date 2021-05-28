@@ -190,7 +190,7 @@ namespace Testflow.ComInterfaceManager
             // 枚举类型需要添加枚举值到类型信息中
             if (classType.IsEnum)
             {
-                typeDescription.Enumerations = Enum.GetNames(classType);
+                typeDescription.Enumerations = GetEnumItemsByType(classType);
             }
 
             descriptionData.TypeDescriptions.Add(typeDescription);
@@ -625,7 +625,7 @@ namespace Testflow.ComInterfaceManager
             }
         }
 
-        public ITypeDescription GetPropertyType(string assemblyName, string typeName, string propertyStr)
+        public ITypeDescription GetPropertyType(string assemblyName, string namespaceStr, string typeName, string propertyStr)
         {
             const char delim = '.';
             string[] propertyElems = propertyStr.Split(delim);
@@ -638,7 +638,7 @@ namespace Testflow.ComInterfaceManager
             }
             try
             {
-                Type dataType = _assemblies[assemblyName].GetType(typeName);
+                Type dataType = GetTypeByName(_assemblies[assemblyName], namespaceStr, typeName);
                 if (null == dataType)
                 {
                     ErrorCode = ModuleErrorCode.TypeCannotLoad;
@@ -800,7 +800,8 @@ namespace Testflow.ComInterfaceManager
         }
 
 
-        public bool? IsDerivedFrom(string assemlyName, string typeName, string baseAssemblyName, string baseTypeName)
+        public bool? IsDerivedFrom(string assemlyName, string namespaceStr, string typeName, string baseAssemblyName, 
+            string baseNamespaceStr, string baseTypeName)
         {
             if (!_assemblies.ContainsKey(assemlyName) || !_assemblies.ContainsKey(baseAssemblyName))
             {
@@ -809,8 +810,8 @@ namespace Testflow.ComInterfaceManager
             }
             try
             {
-                Type type = _assemblies[assemlyName].GetType(typeName);
-                Type baseType = _assemblies[baseAssemblyName].GetType(baseTypeName);
+                Type type = GetTypeByName(_assemblies[assemlyName], namespaceStr, typeName);
+                Type baseType = GetTypeByName(_assemblies[baseAssemblyName], baseNamespaceStr, baseTypeName);
                 return type.IsSubclassOf(baseType) || type.IsAssignableFrom(baseType);
             }
             catch (Exception ex)
@@ -821,7 +822,7 @@ namespace Testflow.ComInterfaceManager
             }
         }
 
-        public string[] GetEnumItems(string assemblyName, string typeFullName)
+        public string[] GetEnumItems(string assemblyName, string typeNamespace, string typeName)
         {
             Exception = null;
             ErrorCode = 0;
@@ -832,13 +833,13 @@ namespace Testflow.ComInterfaceManager
             }
             try
             {
-                Type classType = _assemblies[assemblyName].GetType(typeFullName);
+                Type classType = GetTypeByName(_assemblies[assemblyName], typeNamespace, typeName);
                 if (null == classType)
                 {
                     ErrorCode = ModuleErrorCode.TypeCannotLoad;
                     return null;
                 }
-                return classType.IsEnum ? Enum.GetNames(classType) : new string[0];
+                return classType.IsEnum ? GetEnumItemsByType(classType) : new string[0];
             }
             catch (Exception ex)
             {
@@ -846,6 +847,13 @@ namespace Testflow.ComInterfaceManager
                 this.Exception = ex;
                 return null;
             }
+        }
+
+        private string[] GetEnumItemsByType(Type enumType)
+        {
+            FieldInfo[] fieldValues =
+                enumType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            return fieldValues.Length > 0 ? fieldValues.Select(item => item.Name).ToArray() : new string[0];
         }
 
         public Dictionary<string, string> GetPropertiesToTypeMapping(string assemblyName, string namespaceStr, string typeName)
@@ -865,8 +873,7 @@ namespace Testflow.ComInterfaceManager
                     ErrorCode = ModuleErrorCode.AssemblyNotLoad;
                     return null;
                 }
-                string typeFullName = ModuleUtils.GetFullName(namespaceStr, typeName);
-                Type classType = assembly.GetType(typeFullName);
+                Type classType = GetTypeByName(assembly, namespaceStr, typeName);
                 if (null == classType)
                 {
                     ErrorCode = ModuleErrorCode.TypeCannotLoad;
@@ -904,8 +911,7 @@ namespace Testflow.ComInterfaceManager
                     ErrorCode = ModuleErrorCode.AssemblyNotLoad;
                     return null;
                 }
-                string typeFullName = ModuleUtils.GetFullName(namespaceStr, typeName);
-                Type classType = assembly.GetType(typeFullName);
+                Type classType = GetTypeByName(assembly, namespaceStr, typeName);
                 if (null == classType)
                 {
                     ErrorCode = ModuleErrorCode.TypeCannotLoad;

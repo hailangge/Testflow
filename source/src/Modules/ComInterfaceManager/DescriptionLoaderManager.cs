@@ -119,9 +119,8 @@ namespace Testflow.ComInterfaceManager
 
         public ITypeData GetPropertyType(ITypeData typeData, string property, DescriptionDataTable descriptionCollection)
         {
-            ITypeDescription propertyTypeDescription = _loader.GetPropertyType( typeData.AssemblyName, 
-                ModuleUtils.GetFullName(typeData),
-                property);
+            ITypeDescription propertyTypeDescription = _loader.GetPropertyType( typeData.AssemblyName,
+                typeData.Namespace, typeData.Name, property);
             if (null == propertyTypeDescription)
             {
                 CheckPropertyDescription(typeData, property);
@@ -142,15 +141,13 @@ namespace Testflow.ComInterfaceManager
 
         public string[] GetEnumItemsByType(ITypeData typeData)
         {
-            string typeFullName = ModuleUtils.GetFullName(typeData);
-            string[] enumItems = _loader.GetEnumItems(typeData.AssemblyName, typeFullName);
+            string[] enumItems = _loader.GetEnumItems(typeData.AssemblyName, typeData.Namespace, typeData.Name);
             CheckEnumItems(enumItems, typeData);
             return enumItems;
         }
 
         public ClassInterfaceDescription GetClassDescription(ITypeData typeData, DescriptionDataTable descriptionDatas, ref string path, out string version)
         {
-            string typeFullName = ModuleUtils.GetFullName(typeData);
             string assemblyName = typeData.AssemblyName;
             return GetClassDescription(descriptionDatas, assemblyName, typeData.Namespace, typeData.Name, ref path, out version);
         }
@@ -175,11 +172,11 @@ namespace Testflow.ComInterfaceManager
 
         public bool IsDerivedFrom(ITypeData typeData, ITypeData baseType)
         {
-            string typeName = ModuleUtils.GetFullName(typeData);
-            string baseTypeName = ModuleUtils.GetFullName(baseType);
-            bool? result = _loader.IsDerivedFrom(typeData.AssemblyName, typeName, baseType.AssemblyName, baseTypeName);
+            bool? result = _loader.IsDerivedFrom(typeData.AssemblyName, typeData.Namespace, typeData.Name,
+                baseType.AssemblyName, baseType.Namespace, baseType.Name);
+
             CheckDerivedResult(result, typeData, baseType);
-            return result.Value;
+            return result != null && result.Value;
         }
 
         #region AppDomain返回值校验
