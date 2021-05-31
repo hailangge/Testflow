@@ -80,7 +80,7 @@ namespace Testflow.SlaveCore.Common
                     if (message.Id == SessionId)
                     {
                         IMessage receive = _downLinkMessenger.Receive();
-                        MessageBase downlinkMessage = (MessageBase)message;
+                        MessageBase downlinkMessage = (MessageBase) message;
                         _messageQueue.Enqueue(downlinkMessage);
                         // 打印状态日志
                         _slaveContext.LogSession.Print(LogLevel.Debug, _slaveContext.SessionId,
@@ -94,7 +94,13 @@ namespace Testflow.SlaveCore.Common
             }
             catch (ThreadAbortException)
             {
-                _slaveContext.LogSession.Print(LogLevel.Warn, CommonConst.PlatformLogSession, "Transceiver peak thread aborted");
+                _slaveContext.LogSession.Print(LogLevel.Warn, CommonConst.PlatformLogSession,
+                    "Transceiver peak thread aborted");
+            }
+            catch (Exception ex)
+            {
+                _slaveContext.LogSession.Print(LogLevel.Fatal, CommonConst.PlatformLogSession,
+                    ex, "Exception occur in transceiver thread");
             }
         }
 
