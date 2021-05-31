@@ -55,12 +55,22 @@ namespace Testflow.MasterCore.TestMaintain
         {
             if (sequenceData is ISequenceGroup)
             {
-                _runtimeContainers[0].Start(GetSlaveHostConfigData(_runtimeContainers[0].Session, sequenceData.Name));
+                RuntimeContainer runtimeContainer;
+                lock (_operationLock)
+                {
+                    runtimeContainer = this._runtimeContainers[0];
+                }
+                runtimeContainer.Start(GetSlaveHostConfigData(runtimeContainer.Session, sequenceData.Name));
             }
             else
             {
                 ITestProject testProject = sequenceData as ITestProject;
-                foreach (RuntimeContainer container in _runtimeContainers.Values)
+                IList<RuntimeContainer> containers;
+                lock (_operationLock)
+                {
+                    containers = new List<RuntimeContainer>(this._runtimeContainers.Values);
+                }
+                foreach (RuntimeContainer container in containers)
                 {
                     string sessionName = null;
                     if (CommonConst.TestGroupSession == container.Session)
@@ -101,7 +111,10 @@ namespace Testflow.MasterCore.TestMaintain
         {
             RuntimeContainer runtimeContainer = RuntimeContainer.CreateContainer(Constants.TestProjectSessionId,
                 platform, _globalInfo, param);
-            _runtimeContainers.Add(runtimeContainer.Session, runtimeContainer);
+            lock (_operationLock)
+            {
+                _runtimeContainers.Add(runtimeContainer.Session, runtimeContainer);
+            }
             return runtimeContainer;
         }
 
@@ -113,7 +126,10 @@ namespace Testflow.MasterCore.TestMaintain
                 ModuleUtils.LogAndRaiseDataException(LogLevel.Error, "SequenceGroup with input arguments cannot run with out test project.", ModuleErrorCode.SequenceDataError, null, "UnexistArgumentSource");
             }
             RuntimeContainer runtimeContainer = RuntimeContainer.CreateContainer(0, platform, _globalInfo, param);
-            _runtimeContainers.Add(runtimeContainer.Session, runtimeContainer);
+            lock (_operationLock)
+            {
+                _runtimeContainers.Add(runtimeContainer.Session, runtimeContainer);
+            }
             return runtimeContainer;
         }
 
@@ -177,7 +193,13 @@ namespace Testflow.MasterCore.TestMaintain
                 TestGenEventInfo genEventInfo = new TestGenEventInfo(rmtGenMessage.Id, TestGenState.GenerationOver,
                     rmtGenMessage.Time);
                 _globalInfo.EventQueue.Enqueue(genEventInfo);
-                _runtimeContainers[rmtGenMessage.Id].HostReady = true;
+                lock (_operationLock)
+                {
+                    if (this._runtimeContainers.ContainsKey(rmtGenMessage.Id))
+                    {
+                        _runtimeContainers[rmtGenMessage.Id].HostReady = true;
+                    }
+                }
             }
             else if (rmtGenMessage.Params["MsgType"].Equals("Failed"))
             {
@@ -194,10 +216,14 @@ namespace Testflow.MasterCore.TestMaintain
                 _globalInfo.EventQueue.Enqueue(genEventInfo);
                 FreeHost(rmtGenMessage.Id);
             }
-            // 如果所有的host都已经ready，则释放主线程等待生成结束的锁
-            if (_runtimeContainers.Values.All(item => item.HostReady))
+
+            lock (_operationLock)
             {
-                _blockHandle.Free(Constants.RmtGenState);
+                // 如果所有的host都已经ready，则释放主线程等待生成结束的锁
+                if (_runtimeContainers.Values.All(item => item.HostReady))
+                {
+                    _blockHandle.Free(Constants.RmtGenState);
+                }
             }
             return state;
         }
