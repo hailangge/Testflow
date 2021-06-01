@@ -120,11 +120,14 @@ namespace Testflow.Utility.MessageUtil.Messengers
             Thread.VolatileWrite(ref _diposedFlag, 1);
             Thread.MemoryBarrier();
             base.Dispose();
-            if (0 != MessageCount)
+            if (MessageQueue.Exists(this._messageQueue.Path))
             {
-                //TODO 未添加日志
+                // TODO 如果未结束，则执行处理
+                // if (MessageCount > 0)
+                // {
+                // }
+                MessageQueue.Delete(this._messageQueue.Path);
             }
-            MessageQueue.Delete(this._messageQueue.Path);
         }
 
         public override void Clear()
