@@ -103,6 +103,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
         private readonly List<PropertyInfo> _properties;
 
+        // 保存常量参数值的列表。如果属性的值为常量且属性类型为简单类型，则列表中对应索引保存指定常量转换后的值，其余场景中该字段的值为NULL
         private readonly List<object> _params;
 
         private string _instanceVar;
@@ -134,6 +135,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             // 开始计时
             StartTiming();
             int maxPropertyIndex = this._properties.Count - 1;
+            object propertyValue;
             while (this._propertyIndex < maxPropertyIndex && (forceInvoke || !Context.Cancellation.IsCancellationRequested))
             {
                 this._propertyIndex++;
@@ -148,23 +150,22 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     // 获取变量值的名称，该名称为变量的运行时名称，其值在InitializeParamValue方法里配置
                     string variableName = ModuleUtils.GetVariableNameFromParamValue(parameters[this._propertyIndex].Value);
                     // 根据ParamString和变量对应的值配置参数。
-                    this._params[this._propertyIndex] = Context.VariableMapper.GetParamValue(variableName, parameters[this._propertyIndex].Value,
+                    propertyValue = Context.VariableMapper.GetParamValue(variableName, parameters[this._propertyIndex].Value,
                         arguments[this._propertyIndex].Type);
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
-                    this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
+                    this._properties[this._propertyIndex].SetValue(instance, propertyValue);
                 }
                 else if (parameters[this._propertyIndex].ParameterType == ParameterType.Expression)
                 {
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.ArgumentCalculation, arguments[this._propertyIndex].Name);
                     int expIndex = int.Parse(parameters[this._propertyIndex].Value);
-                    ExpressionProcessor expProcessor = Coroutine.ExpressionProcessor;
-                    this._params[this._propertyIndex] = expProcessor.Calculate(expIndex, arguments[this._propertyIndex].Type);
+                    propertyValue = Coroutine.ExpressionProcessor.Calculate(expIndex, arguments[this._propertyIndex].Type);
 
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
-                    this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
+                    this._properties[this._propertyIndex].SetValue(instance, propertyValue);
                 }
                 // 如果参数类型为value且参数值为null且参数配置的字符不为空且参数类型是类或结构体，则需要实时计算该属性或字段的值
                 else if (parameters[this._propertyIndex].ParameterType == ParameterType.Value && null == this._params[this._propertyIndex] &&
@@ -174,12 +175,12 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._propertyIndex].Name);
                     object originalValue = this._properties[this._propertyIndex].GetValue(instance);
-                    this._params[this._propertyIndex] = Context.TypeInvoker.CastConstantValue(this._properties[this._propertyIndex].PropertyType,
+                    propertyValue = Context.TypeInvoker.CastConstantValue(this._properties[this._propertyIndex].PropertyType,
                         parameters[this._propertyIndex].Value, originalValue);
                     // 如果原始值为空，则需要配置Value，否则其参数都已经写入，无需外部更新
                     if (null == originalValue)
                     {
-                        this._properties[this._propertyIndex].SetValue(instance, this._params[this._propertyIndex]);
+                        this._properties[this._propertyIndex].SetValue(instance, propertyValue);
                     }
                 }
                 else

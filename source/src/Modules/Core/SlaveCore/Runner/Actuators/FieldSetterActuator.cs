@@ -98,6 +98,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
 
         private readonly List<FieldInfo> _fields;
 
+        // 保存常量参数值的列表。如果属性的值为常量且属性类型为简单类型，则列表中对应索引保存指定常量转换后的值，其余场景中该字段的值为NULL
         private readonly List<object> _params;
 
         private string _instanceVar;
@@ -130,6 +131,7 @@ namespace Testflow.SlaveCore.Runner.Actuators
             StartTiming();
 
             int maxFieldIndex = this._fields.Count - 1;
+            object fieldValue;
             while (this._fieldIndex < maxFieldIndex && (forceInvoke || !Context.Cancellation.IsCancellationRequested))
             {
                 this._fieldIndex++;
@@ -145,12 +147,12 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     // 获取变量值的名称，该名称为变量的运行时名称，其值在InitializeParamValue方法里配置
                     string variableName = ModuleUtils.GetVariableNameFromParamValue(parameters[this._fieldIndex].Value);
                     // 根据ParamString和变量对应的值配置参数。
-                    this._params[this._fieldIndex] = Context.VariableMapper.GetParamValue(variableName,
+                    fieldValue = Context.VariableMapper.GetParamValue(variableName,
                         parameters[this._fieldIndex].Value,
                         arguments[this._fieldIndex].Type);
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._fieldIndex].Name);
-                    this._fields[this._fieldIndex].SetValue(instance, this._params[this._fieldIndex]);
+                    this._fields[this._fieldIndex].SetValue(instance, fieldValue);
                 }
                 else if (parameters[this._fieldIndex].ParameterType == ParameterType.Expression)
                 {
@@ -158,10 +160,10 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     Coroutine.ExecuteTarget(TargetOperation.ArgumentCalculation, arguments[this._fieldIndex].Name);
                     int expIndex = int.Parse(parameters[this._fieldIndex].Value);
                     ExpressionProcessor expProcessor = Coroutine.ExpressionProcessor;
-                    this._params[this._fieldIndex] = expProcessor.Calculate(expIndex, arguments[this._fieldIndex].Type);
+                    fieldValue = expProcessor.Calculate(expIndex, arguments[this._fieldIndex].Type);
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._fieldIndex].Name);
-                    this._fields[this._fieldIndex].SetValue(instance, this._params[this._fieldIndex]);
+                    this._fields[this._fieldIndex].SetValue(instance, fieldValue);
                 }
                 // 如果参数类型为value且参数值为null且参数配置的字符不为空且参数类型是类或结构体，则需要实时计算该属性或字段的值
                 else if (parameters[this._fieldIndex].ParameterType == ParameterType.Value &&
@@ -172,13 +174,13 @@ namespace Testflow.SlaveCore.Runner.Actuators
                     // 更新协程中当前执行目标的信息
                     Coroutine.ExecuteTarget(TargetOperation.Execution, arguments[this._fieldIndex].Name);
                     object originalValue = this._fields[this._fieldIndex].GetValue(instance);
-                    this._params[this._fieldIndex] = Context.TypeInvoker.CastConstantValue(this._fields[this._fieldIndex].FieldType,
+                    fieldValue = Context.TypeInvoker.CastConstantValue(this._fields[this._fieldIndex].FieldType,
                         parameters[this._fieldIndex].Value,
                         originalValue);
                     // 如果原始值为空，则需要配置Value，否则其参数都已经写入，无需外部更新
                     if (null == originalValue)
                     {
-                        this._fields[this._fieldIndex].SetValue(instance, this._params[this._fieldIndex]);
+                        this._fields[this._fieldIndex].SetValue(instance, fieldValue);
                     }
                 }
                 else
